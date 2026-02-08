@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Confidence', function (Blueprint $table) {
-            $table->id('confidence_id');
+        Schema::create('confidences', function (Blueprint $table) {
+            $table->id();
             $table->string('confidence_level');
             $table->timestamps();
         });
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Confidence');
+        Schema::dropIfExists('confidences');
     }
 };

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Answer', function (Blueprint $table) {
-            $table->id('answer_id');
-            $table->foreignId('user_id')->constrained('User', 'user_id');
-            $table->foreignId('question_id')->constrained('Question', 'question_id');
-            $table->foreignId('choice_id')->constrained('Choice', 'choice_id');
-            $table->foreignId('confidence_id')->constrained('Confidence', 'confidence_id');
-            $table->foreignId('score_id')->constrained('Score', 'score_id');
+        Schema::create('answers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users', 'id');
+            $table->foreignId('question_id')->constrained('questions', 'id');
+            $table->foreignId('choice_id')->constrained('choices', 'id');
+            $table->foreignId('confidence_id')->constrained('confidences', 'id');
+            $table->foreignId('score_id')->constrained('scores', 'id');
             $table->boolean('is_correct');
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Answer');
+        Schema::dropIfExists('answers');
     }
 };

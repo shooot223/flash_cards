@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Score', function (Blueprint $table) {
-            $table->id('score_id');
-            $table->foreignId('user_id')->constrained('User', 'user_id');
-            $table->foreignId('title_id')->constrained('QuestionTitle', 'title_id');
+        Schema::create('scores', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users', 'id');
+            $table->foreignId('title_id')->constrained('question_titles', 'id');
             $table->integer('score_value');
             $table->integer('answered_count');
             $table->integer('correct_count');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Score');
+        Schema::dropIfExists('scores');
     }
 };
