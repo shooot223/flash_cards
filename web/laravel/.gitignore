@@ -22,3 +22,10 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# nested structure ignore
+web/vendor/
+web/laravel/node_modules/
+web/laravel/public/build/
+web/laravel/storage/
+web/laravel/bootstrap/cache/
+web/laravel/.env
