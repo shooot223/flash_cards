@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Question_Category', function (Blueprint $table) {
-            $table->id('question_category_id');
+        Schema::create('question_categories', function (Blueprint $table) {
+            $table->id();
             $table->string('category_name');
             $table->timestamps();
         });
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Question_Category');
+        Schema::dropIfExists('question_categories');
     }
 };

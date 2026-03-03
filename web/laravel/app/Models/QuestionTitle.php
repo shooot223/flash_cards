@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class QuestionTitle extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'title',
+        'user_id',
+    ];
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function questionCategories(){
+        return $this->belongsToMany(QuestionCategory::class, 'question_title_categories', 'title_id', 'category_id');
+    }
+
+    public function questions(){
+        return $this->hasMany(Question::class);
+    }
+
+    public function scores(){
+        return $this->hasMany(Score::class, 'title_id');
+    }
+}

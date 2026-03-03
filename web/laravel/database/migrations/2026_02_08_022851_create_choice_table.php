@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('Choice', function (Blueprint $table) {
-            $table->id('choice_id');
+        Schema::create('choices', function (Blueprint $table) {
+            $table->id();
             $table->string('choice_text');
-            $table->foreignId('question_id')->constrained('Question', 'question_id');
+            $table->foreignId('question_id')->constrained('questions', 'id');
             $table->boolean('is_correct')->default(false);
             $table->timestamps();
         });
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Choice');
+        Schema::dropIfExists('choices');
     }
 };
