@@ -10,14 +10,7 @@
 <body>
 <!-- ヘッダー -->
 <header class="header">
-    <div class="header__left">Cramist</div>
-
-    <div class="header__center">問題一覧</div>
-
-    <div class="header__right">
-        <a class="header__link" href="#">ログイン / 新規登録</a>
-        <div class="header__avatar">My<br>Page</div>
-    </div>
+    @include('header')
 </header>
 
 <main class="container">
