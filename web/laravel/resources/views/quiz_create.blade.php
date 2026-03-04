@@ -51,7 +51,6 @@
     <div class="formGroup">
         <div style="display:flex; align-items:center; gap:8px;">
             <span class="formLabel">問題</span>
-            <button type="button" id="addQuestion" class="submitButton" style="padding:6px 10px;">＋</button>
         </div>
 
         <div id="questionsContainer">
@@ -75,6 +74,7 @@
                 </div>
             @endfor
         </div>
+        <button type="button" id="addQuestion" class="submitButton" style="padding:6px 10px;">＋</button>
     </div>
 
     <button type="button" class="submitButton" onclick="window.history.back();">戻る</button>
