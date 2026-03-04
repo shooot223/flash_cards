@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MypageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
 //Route::get('/', function () {
@@ -18,6 +19,12 @@ Route::get('/', function(){
 
 Route::middleware('auth')->group(function () {
     Route::get('/mypage', [MypageController::class, 'index'])->name('mypage');
+    Route::controller(QuizController::class)
+        ->prefix('quiz')->name('quiz.')->group(function () {
+            Route::get('/create', 'create')->name('create');
+            Route::post('/confirm', 'confirm')->name('confirm');
+            Route::post('/', 'store')->name('store');
+        });
 });
 
 require __DIR__.'/auth.php';
