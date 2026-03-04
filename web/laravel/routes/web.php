@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Route;
 //    return view('welcome');
 //});
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+//Route::get('/dashboard', function () {
+//    return view('top');
+//})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/', function(){
     return view('top');
-});
+})->name('top');
 
 Route::middleware('auth')->group(function () {
     Route::get('/mypage', [MypageController::class, 'index'])->name('mypage');
