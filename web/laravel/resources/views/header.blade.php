@@ -21,7 +21,7 @@
         <a class="header__link" href="{{route('login')}}">ログイン</a>/
         <a class="header__link" href="{{route('register')}}"> 新規登録</a>
     @endauth
-{{--    <a class="header__link" href="{{route('mypage')}}">--}}
-{{--        <div class="header__avatar">マイページ</div>--}}
-{{--    </a>--}}
+    <a class="header__link" href="{{route('mypage')}}">
+        <div class="header__avatar">マイページ</div>
+    </a>
 </div>
