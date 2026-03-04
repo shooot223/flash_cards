@@ -12,7 +12,8 @@
     @auth
         <a class="header__link" href="{{asset('logout')}}">ログアウト</a>
     @else
-        <a class="header__link" href="{{asset('login')}}">ログイン / 新規登録</a>
+        <a class="header__link" href="{{asset('login')}}">ログイン</a>/
+        <a class="header__link" href="{{asset('register')}}"> 新規登録</a>
     @endauth
     <a class="header__link" href="{{asset('mypage')}}">
         <div class="header__avatar">My<br>Page</div>
