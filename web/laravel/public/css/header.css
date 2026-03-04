@@ -1,0 +1,79 @@
+/* ===== Header ===== */
+.header{
+    display:grid;
+    grid-template-columns: 260px 1fr 380px;
+    background:var(--header-blue);
+    border-bottom:3px solid var(--border);
+    height:110px;
+    align-items:stretch;
+}
+
+.header__left,
+.header__center,
+.header__right{
+    border-right:3px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--text);
+    font-weight:700;
+    letter-spacing:.04em;
+}
+
+.header__left{
+    justify-content:flex-start;
+    padding-left:28px;
+    font-size:22px;
+}
+.logo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;      /* ヘッダー高さに追従 */
+    max-width: 100%;
+}
+
+.logo__image{
+    display: block;
+    max-height: 80px;  /* 110pxヘッダーならこれくらいが安全 */
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
+.header__center{
+    font-size:22px;
+    background:rgba(0,0,0,.08);
+    margin:0 18px;
+    border-left:3px solid var(--border);
+    border-right:3px solid var(--border);
+}
+
+.header__right{
+    border-right:none;
+    justify-content:space-between;
+    padding:0 22px;
+    gap:18px;
+    font-size:18px;
+}
+
+.header__link{
+    color:var(--text);
+    text-decoration:none;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+.header__avatar{
+    width:52px; height:52px;
+    border-radius:999px;
+    border:3px solid var(--border);
+    background:rgba(255,255,255,.18);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    white-space:nowrap;
+    padding:6px;
+    text-align:center;
+    line-height:1.1;
+}

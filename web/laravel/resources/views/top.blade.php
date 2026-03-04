@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Cramist | 問題一覧</title>
     <link rel="stylesheet" href="{{ asset('/css/top.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('/css/header.css') }}" />
 </head>
 
 <body>
