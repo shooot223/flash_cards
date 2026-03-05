@@ -21,7 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/mypage', [MypageController::class, 'index'])->name('mypage');
     Route::controller(QuizController::class)
         ->prefix('quiz')->name('quiz.')->group(function () {
-            Route::get('/create', 'create')->name('create');
+            Route::match(['get', 'post'], '/create', 'create')->name('create');
             Route::post('/confirm', 'confirm')->name('confirm');
             Route::post('/', 'store')->name('store');
         });
