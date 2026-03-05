@@ -12,19 +12,44 @@ class QuizController extends Controller
     }
     public function confirm(Request $request)
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+//        dd($request->all());
+        $validated = $request->validate(
+            [
+                'title' => ['required', 'string', 'max:255'],
+                'description' => ['required', 'string'],
 
-            'tags' => ['array'],
-            'tags.*' => ['nullable', 'string', 'max:50'],
+                'tags' => ['array'],
+                'tags.*' => ['nullable', 'string', 'max:50'],
 
-            'questions' => ['required', 'array', 'min:1'],
-            'questions.*.question' => ['required', 'string'],
-            'questions.*.answer' => ['required', 'string'],
-            'questions.*.choices' => ['array'],
-            'questions.*.choices.*' => ['nullable', 'string'],
-        ]);
+                // 配列自体は必須
+                'questions' => ['required', 'array', 'min:1'],
+
+                // 1問目だけ必須
+                'questions.0.question' => ['required', 'string'],
+                'questions.0.answer' => ['required', 'string'],
+                'questions.0.choices' => ['required', 'array'],
+                'questions.0.choices.*' => ['required', 'string'],
+
+                // 2問目以降は任意
+                'questions.*.question' => ['nullable', 'string'],
+                'questions.*.answer' => ['nullable','required_with:questions.*.question', 'string'],
+                'questions.*.choices' => ['nullable', 'required_with:questions.*.question', 'array'],
+                'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question', 'string'],
+            ],
+            [
+                'title.required' => 'タイトルは必須です。',
+                'title.string' => 'タイトルは文字列で入力してください。',
+                'title.max' => 'タイトルは255文字以内で入力してください。',
+                'description.required' => '説明は必須です。',
+                'description.string' => '説明は文字列で入力してください。',
+                'questions.0.question.required' => '1問目の問題は必須です。',
+                'questions.0.answer.required' => '1問目の答えは必須です。',
+                'questions.0.choices.*.required' => '1問目の選択肢は必須です。',
+                'questions.*.answer.required_with' => '問題が入力されていた場合答えは必須です。',
+                'questions.*.choices.*.required_with' => '問題が入力されていた場合選択肢は必須です。',
+                'questions.*.choices.*.string' => '選択肢は文字列で入力してください。',
+            ]
+        );
 
         // 空タグ削除
         $validated['tags'] = array_values(

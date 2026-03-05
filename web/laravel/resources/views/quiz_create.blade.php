@@ -37,7 +37,7 @@
 <form method="POST" action="{{ route('quiz.confirm') }}" class="quizForm">
     @csrf
 
-    {{-- エラー表示（必要ならCSSで整える） --}}
+{{--     エラー表示（必要ならCSSで整える）--}}
     @if ($errors->any())
         <div class="formGroup" style="border-color:#fca5a5; background:#fff5f5;">
             <strong style="color:#b91c1c;">入力内容にエラーがあります</strong>
@@ -51,12 +51,7 @@
 
     <div class="formGroup">
         <label class="formLabel" for="title">クイズタイトル</label>
-        <input type="text"
-               id="title"
-               name="title"
-               class="formInput"
-               value="{{ old('title') }}"
-               required>
+        <input type="text" id="title" name="title" class="formInput" value="{{ old('title') }}" >
         @error('title')
         <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
         @enderror
@@ -64,10 +59,7 @@
 
     <div class="formGroup">
         <label class="formLabel" for="description">説明文</label>
-        <textarea id="description"
-                  name="description"
-                  class="formTextarea"
-                  required>{{ old('description') }}</textarea>
+        <textarea id="description" name="description" class="formTextarea">{{ old('description') }}</textarea>
         @error('description')
         <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
         @enderror
@@ -83,12 +75,7 @@
         <div id="tagsContainer">
             @for ($i = 0; $i < $tagCount; $i++)
                 <div class="tagRow" style="display:flex; gap:8px; margin-top:6px;">
-                    <input type="text"
-                           id="tag_{{ $i }}"
-                           name="tags[]"
-                           class="formInput"
-                           placeholder="タグ{{ $i + 1 }}"
-                           value="{{ $tags[$i] }}">
+                    <input type="text" id="tag_{{ $i }}" name="tags[]" class="formInput" placeholder="タグ{{ $i + 1 }}" value="{{ $tags[$i] }}">
                     <button type="button" class="removeTag submitButton" style="padding:6px 10px;">－</button>
                 </div>
             @endfor
@@ -118,49 +105,28 @@
                     </div>
 
                     <label class="formLabel" for="q_{{ $i }}">問題文</label>
-                    <textarea id="q_{{ $i }}"
-                              name="questions[{{ $i }}][question]"
-                              class="formInput"
-                              required>{{ $questions[$i]['question'] }}</textarea>
+                    <textarea id="q_{{ $i }}" name="questions[{{ $i }}][question]" class="formInput">{{ $questions[$i]['question'] ?? ''}}</textarea>
                     @error("questions.$i.question")
                     <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
                     @enderror
 
                     <label class="formLabel" for="a_{{ $i }}">答え</label>
-                    <input type="text"
-                           id="a_{{ $i }}"
-                           name="questions[{{ $i }}][answer]"
-                           class="formInput"
-                           value="{{ $questions[$i]['answer'] }}"
-                           required>
+                    <input type="text" id="a_{{ $i }}" name="questions[{{ $i }}][answer]" class="formInput" value="{{ $questions[$i]['answer'] ?? ''}}">
                     @error("questions.$i.answer")
                     <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
                     @enderror
 
                     <label class="formLabel">その他選択肢</label>
                     @for ($c = 0; $c < 3; $c++)
-                        <input type="text"
-                               name="questions[{{ $i }}][choices][]"
-                               class="formInput"
-                               placeholder="選択肢{{ $c + 1 }}"
-                               value="{{ $questions[$i]['choices'][$c] }}">
+                        <input type="text" name="questions[{{ $i }}][choices][]" class="formInput" placeholder="選択肢{{ $c + 1 }}" value="{{ $questions[$i]['choices'][$c] ?? ''}}">
                     @endfor
-                    {{-- choices.* の個別エラーを出したい場合はここに出せます --}}
+                    @error("questions.$i.choices.*")
+                    <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
+                    @enderror
                 </div>
             @endfor
         </div>
-
-        @error('questions')
-        <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
-        @enderror
-        @error('questions.*.question')
-        <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
-        @enderror
-        @error('questions.*.answer')
-        <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
-        @enderror
     </div>
-
     <button type="button" class="submitButton" style="margin-right:8px;" onclick="window.history.back();">戻る</button>
     <button type="submit" class="submitButton">確認へ</button>
 </form>
@@ -213,10 +179,10 @@
             </div>
 
             <label class="formLabel" for="q_${idx}">問題文</label>
-            <textarea id="q_${idx}" name="questions[${idx}][question]" class="formInput" required></textarea>
+            <textarea id="q_${idx}" name="questions[${idx}][question]" class="formInput" ></textarea>
 
             <label class="formLabel" for="a_${idx}">答え</label>
-            <input type="text" id="a_${idx}" name="questions[${idx}][answer]" class="formInput" required>
+            <input type="text" id="a_${idx}" name="questions[${idx}][answer]" class="formInput" >
 
             <label class="formLabel">その他選択肢</label>
             <input type="text" name="questions[${idx}][choices][]" class="formInput" placeholder="選択肢1">
