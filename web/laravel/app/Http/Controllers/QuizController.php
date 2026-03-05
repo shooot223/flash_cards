@@ -69,6 +69,6 @@ class QuizController extends Controller
         // TODO: 保存処理（例）
         // Quiz::create(...)
 
-        return redirect()->route('quiz.create')->with('status', '作成しました');
+        return redirect()->route('quiz.complete')->with('status', '作成しました');
     }
 }

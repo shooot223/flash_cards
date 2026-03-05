@@ -23,7 +23,8 @@ Route::middleware('auth')->group(function () {
         ->prefix('quiz')->name('quiz.')->group(function () {
             Route::match(['get', 'post'], '/create', 'create')->name('create');
             Route::post('/confirm', 'confirm')->name('confirm');
-            Route::post('/', 'store')->name('store');
+            Route::post('/store', 'store')->name('store');
+            Route::get('/complete', 'complete')->name('complete');
         });
 });
 
