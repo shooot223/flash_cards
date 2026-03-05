@@ -38,16 +38,16 @@
     @csrf
 
 {{--     エラー表示（必要ならCSSで整える）--}}
-    @if ($errors->any())
-        <div class="formGroup" style="border-color:#fca5a5; background:#fff5f5;">
-            <strong style="color:#b91c1c;">入力内容にエラーがあります</strong>
-            <ul style="margin:8px 0 0; padding-left:18px; color:#b91c1c;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+{{--    @if ($errors->any())--}}
+{{--        <div class="formGroup" style="border-color:#fca5a5; background:#fff5f5;">--}}
+{{--            <strong style="color:#b91c1c;">入力内容にエラーがあります</strong>--}}
+{{--            <ul style="margin:8px 0 0; padding-left:18px; color:#b91c1c;">--}}
+{{--                @foreach ($errors->all() as $error)--}}
+{{--                    <li>{{ $error }}</li>--}}
+{{--                @endforeach--}}
+{{--            </ul>--}}
+{{--        </div>--}}
+{{--    @endif--}}
 
     <div class="formGroup">
         <label class="formLabel" for="title">クイズタイトル</label>
