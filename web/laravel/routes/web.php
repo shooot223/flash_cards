@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\Route;
 //    return view('top');
 //})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/', [TopController::class, 'index'])->name('top');
+Route::get('/', [TopController::class, 'top'])->name('top');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/mypage', [MypageController::class, 'index'])->name('mypage');
+    Route::get('/mypage', [MypageController::class, 'display'])->name('mypage');
     Route::controller(QuizController::class)
         ->prefix('quiz')->name('quiz.')->group(function () {
             Route::match(['get', 'post'], '/create', 'create')->name('create');
