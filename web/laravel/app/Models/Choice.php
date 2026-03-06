@@ -11,7 +11,7 @@ class Choice extends Model
 
     protected $fillable = [
         'question_id',
-        'choice',
+        'choice_text',
         'is_correct',
     ];
 

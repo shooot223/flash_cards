@@ -1,0 +1,251 @@
+/* public/css/quiz_create.css */
+
+/* ===== Base ===== */
+:root{
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --border-strong: #d1d5db;
+    --shadow: 0 10px 25px rgba(0,0,0,.06);
+    --radius: 14px;
+    --radius-sm: 10px;
+
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+}
+
+/* Reset-ish */
+*{ box-sizing: border-box; }
+html, body{
+    margin: 0;
+    padding: 0;
+    color: var(--text);
+    background: var(--bg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    line-height: 1.6;
+}
+
+/* Page layout */
+.header{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+/* Form container */
+.quizForm{
+    width: min(980px, calc(100% - 32px));
+    margin: 22px auto 60px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 22px;
+}
+
+/* Sections */
+.formGroup{
+    margin-bottom: 18px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+}
+
+.formGroup > div:first-child{
+    margin-bottom: 12px;
+}
+
+/* Labels */
+.formLabel{
+    display: inline-block;
+    font-weight: 700;
+    color: var(--text);
+    margin: 10px 0 6px;
+    font-size: 14px;
+}
+
+/* Inputs */
+.formInput,
+.formTextarea,
+textarea.formInput{
+    width: 100%;
+    display: block;
+    padding: 11px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.formTextarea,
+textarea.formInput{
+    min-height: 110px;
+    resize: vertical;
+}
+
+.formInput:focus,
+.formTextarea:focus,
+textarea.formInput:focus{
+    border-color: rgba(37, 99, 235, .65);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+}
+
+/* Helper spacing inside group */
+.formGroup .formInput + .formLabel,
+.formGroup .formTextarea + .formLabel{
+    margin-top: 14px;
+}
+
+/* Tag rows */
+#tagsContainer{
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.tagRow{
+    display: grid !important;
+    grid-template-columns: 1fr 52px;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Questions */
+#questionsContainer{
+    display: grid;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.questionBlock{
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 16px !important;
+    background: #fff;
+}
+
+.questionBlock > div:first-child{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border);
+    margin-bottom: 12px;
+}
+
+.questionBlock strong{
+    font-size: 15px;
+}
+
+/* Buttons */
+.submitButton{
+    appearance: none;
+    border: 1px solid transparent;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: transform .06s ease, background-color .15s ease, box-shadow .15s ease;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, .18);
+}
+
+.submitButton:hover{
+    background: var(--primary-hover);
+}
+
+.submitButton:active{
+    transform: translateY(1px);
+}
+
+/* Plus buttons: compact */
+#addTag,
+#addQuestion{
+    padding: 6px 12px !important;
+    border-radius: 999px;
+    font-weight: 800;
+}
+
+/* Minus buttons (tag/question remove) */
+.removeTag,
+.removeQuestion{
+    background: var(--danger) !important;
+    box-shadow: 0 6px 14px rgba(239, 68, 68, .18) !important;
+}
+
+.removeTag:hover,
+.removeQuestion:hover{
+    background: var(--danger-hover) !important;
+}
+
+/* Bottom action buttons */
+.quizForm > button{
+    margin-top: 8px;
+}
+
+/* Place bottom buttons nicely */
+.quizForm{
+    position: relative;
+}
+
+.quizForm > button[type="button"],
+.quizForm > button[type="submit"]{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.quizForm > button[type="button"]{
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    box-shadow: none;
+}
+
+.quizForm > button[type="button"]:hover{
+    background: #f9fafb;
+}
+
+/* Responsive */
+@media (max-width: 640px){
+    .quizForm{
+        padding: 14px;
+    }
+
+    .formGroup{
+        padding: 12px;
+    }
+
+    .tagRow{
+        grid-template-columns: 1fr 46px;
+    }
+
+    .submitButton{
+        width: 100%;
+    }
+
+    #addTag,
+    #addQuestion{
+        width: auto;
+    }
+
+    /* bottom buttons stack */
+    .quizForm > button[type="button"],
+    .quizForm > button[type="submit"]{
+        width: 100%;
+        margin-top: 10px;
+    }
+}
