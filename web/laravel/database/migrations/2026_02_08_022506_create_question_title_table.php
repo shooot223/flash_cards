@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('question_titles', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('discription')->nullable();
+            $table->string('description')->nullable();
             $table->foreignId('user_id')->constrained('users', 'id');
             $table->timestamps();
         });
