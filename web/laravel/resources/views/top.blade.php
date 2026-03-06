@@ -7,48 +7,96 @@
     <link rel="stylesheet" href="{{ asset('/css/top.css') }}"/>
     <link rel="stylesheet" href="{{ asset('/css/header.css') }}" />
 </head>
-
 <body>
-<!-- ヘッダー -->
 <header class="header">
     @include('header')
 </header>
 
 <main class="container">
-    <!-- 検索ボックス（簡易表示） -->
-    <section class="searchBox">
-        キーワードで検索（例：HTTP / 会計 / 英単語）
+    <section class="hero">
+        <h1 class="hero__title">問題一覧</h1>
+        <p class="hero__text">気になるテーマのクイズを探して、繰り返し学習しましょう。</p>
     </section>
 
-    <!-- タグ（簡易表示） -->
-    <section class="tagBar">
-        タグ：資格 / IT / ビジネス / 英語 / 研修
+    <section class="searchArea">
+        <form id="searchForm" class="searchForm">
+            <input
+                type="text"
+                name="keyword"
+                id="keywordInput"
+                class="searchInput"
+                placeholder="キーワードで検索（例：HTTP / 会計 / 英単語）"
+                value="{{ request('keyword') }}"
+            >
+            <button type="submit" class="searchButton">検索</button>
+        </form>
     </section>
 
-    <!-- 問題一覧 -->
-    <section class="listWrap">
-        <div class="sectionTitle">問題一覧</div>
+    <section class="tagArea">
+        <div class="sectionTitle">タグ</div>
+        <div class="tagBar" id="tagBar">
+            <button type="button"
+                    class="tagItem {{ request('category') ? '' : 'is-active' }}"
+                    data-category="">
+                すべて
+            </button>
 
-        <article class="card">
-            <div class="thumb">サムネ</div>
-            <div class="meta">
-                <div class="meta__row">例：基本情報｜ネットワーク</div>
-                <div class="meta__row">TCP/UDP、ポート、DNSなどの要点をクイズで復習</div>
-            </div>
-            <div class="card__right"></div>
-        </article>
-
-        <article class="card">
-            <div class="thumb">サムネ</div>
-            <div class="meta">
-                <div class="meta__row">例：会計｜仕訳の基礎</div>
-                <div class="meta__row">借方/貸方、勘定科目を反復して定着させる</div>
-            </div>
-            <div class="card__right"></div>
-        </article>
+            @foreach ($categories as $category)
+                <button type="button"
+                        class="tagItem {{ request('category') == $category->id ? 'is-active' : '' }}"
+                        data-category="{{ $category->id }}">
+                    {{ $category->category_name }}
+                </button>
+            @endforeach
+        </div>
     </section>
 
-    <div class="pager">1  /  10</div>
+    <section class="listWrap" id="quizListArea">
+        @include('quiz_list', ['quizzes' => $quizzes])
+    </section>
 </main>
+
+<script>
+    const searchForm = document.getElementById('searchForm');
+    const keywordInput = document.getElementById('keywordInput');
+    const tagButtons = document.querySelectorAll('.tagItem');
+    const quizListArea = document.getElementById('quizListArea');
+
+    let selectedCategory = '';
+
+    async function fetchQuizzes() {
+        const keyword = keywordInput.value;
+
+        const params = new URLSearchParams({
+            keyword: keyword,
+            category: selectedCategory
+        });
+
+        const response = await fetch(`{{ route('top') }}?${params.toString()}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const html = await response.text();
+        quizListArea.innerHTML = html;
+    }
+
+    searchForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetchQuizzes();
+    });
+
+    tagButtons.forEach(button => {
+        button.addEventListener('click', async function () {
+            selectedCategory = this.dataset.category;
+
+            tagButtons.forEach(btn => btn.classList.remove('is-active'));
+            this.classList.add('is-active');
+
+            await fetchQuizzes();
+        });
+    });
+</script>
 </body>
 </html>
