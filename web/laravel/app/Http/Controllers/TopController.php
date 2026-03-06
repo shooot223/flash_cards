@@ -8,13 +8,17 @@ use Illuminate\Http\Request;
 
 class TopController extends Controller
 {
-    public function top(Request $request)
+    public function index(Request $request)
     {
-        $query = QuestionTitle::query()->with('categories');
+        $query = QuestionTitle::with(['categories']);
 
         if ($request->filled('keyword')) {
-            $query->where('title', 'like', '%' . $request->keyword . '%')
-                ->orWhere('description', 'like', '%' . $request->keyword . '%');
+            $keyword = $request->keyword;
+
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', '%' . $keyword . '%')
+                    ->orWhere('description', 'like', '%' . $keyword . '%');
+            });
         }
 
         if ($request->filled('category')) {
@@ -25,8 +29,12 @@ class TopController extends Controller
             });
         }
 
-        $quizzes = $query->latest()->paginate(10)->withQueryString();
+        $quizzes = $query->latest()->get();
         $categories = QuestionCategory::orderBy('category_name')->get();
+
+        if ($request->ajax()) {
+            return view('quiz_list', compact('quizzes'))->render();
+        }
 
         return view('top', compact('quizzes', 'categories'));
     }

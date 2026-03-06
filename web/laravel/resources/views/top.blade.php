@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ asset('/css/top.css') }}"/>
     <link rel="stylesheet" href="{{ asset('/css/header.css') }}" />
 </head>
-
 <body>
 <header class="header">
     @include('header')
@@ -20,10 +19,11 @@
     </section>
 
     <section class="searchArea">
-        <form method="GET" action="{{ route('top') }}" class="searchForm">
+        <form id="searchForm" class="searchForm">
             <input
                 type="text"
                 name="keyword"
+                id="keywordInput"
                 class="searchInput"
                 placeholder="キーワードで検索（例：HTTP / 会計 / 英単語）"
                 value="{{ request('keyword') }}"
@@ -34,54 +34,69 @@
 
     <section class="tagArea">
         <div class="sectionTitle">タグ</div>
-        <div class="tagBar">
-            @forelse ($categories ?? [] as $category)
-                <a
-                    href="{{ route('top', ['category' => $category->id]) }}"
-                    class="tagItem {{ request('category') == $category->id ? 'is-active' : '' }}"
-                >
+        <div class="tagBar" id="tagBar">
+            <button type="button"
+                    class="tagItem {{ request('category') ? '' : 'is-active' }}"
+                    data-category="">
+                すべて
+            </button>
+
+            @foreach ($categories as $category)
+                <button type="button"
+                        class="tagItem {{ request('category') == $category->id ? 'is-active' : '' }}"
+                        data-category="{{ $category->id }}">
                     {{ $category->category_name }}
-                </a>
-            @empty
-                <span class="emptyText">タグはまだありません</span>
-            @endforelse
+                </button>
+            @endforeach
         </div>
     </section>
 
-    <section class="listWrap">
-        <div class="sectionTitle">公開中のクイズ</div>
-
-        @forelse ($quizzes ?? [] as $quiz)
-            <article class="card">
-                <div class="thumb">Quiz</div>
-
-                <div class="meta">
-                    <div class="meta__row meta__row--title">{{ $quiz->title }}</div>
-                    <div class="meta__row">{{ $quiz->description ?? '説明はありません。' }}</div>
-
-                    @if (!empty($quiz->categories) && count($quiz->categories) > 0)
-                        <div class="meta__tags">
-                            @foreach ($quiz->categories as $category)
-                                <span class="miniTag">{{ $category->category_name }}</span>
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-
-{{--                <div class="card__right">--}}
-{{--                    <a href="{{ route('quiz.show', $quiz->id) }}" class="cardButton">詳細</a>--}}
-{{--                </div>--}}
-            </article>
-        @empty
-            <div class="emptyBox">該当するクイズがありません。</div>
-        @endforelse
+    <section class="listWrap" id="quizListArea">
+        @include('quiz_list', ['quizzes' => $quizzes])
     </section>
-
-    @if (isset($quizzes) && method_exists($quizzes, 'links'))
-        <div class="pager">
-            {{ $quizzes->links() }}
-        </div>
-    @endif
 </main>
+
+<script>
+    const searchForm = document.getElementById('searchForm');
+    const keywordInput = document.getElementById('keywordInput');
+    const tagButtons = document.querySelectorAll('.tagItem');
+    const quizListArea = document.getElementById('quizListArea');
+
+    let selectedCategory = '';
+
+    async function fetchQuizzes() {
+        const keyword = keywordInput.value;
+
+        const params = new URLSearchParams({
+            keyword: keyword,
+            category: selectedCategory
+        });
+
+        const response = await fetch(`{{ route('top') }}?${params.toString()}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const html = await response.text();
+        quizListArea.innerHTML = html;
+    }
+
+    searchForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        await fetchQuizzes();
+    });
+
+    tagButtons.forEach(button => {
+        button.addEventListener('click', async function () {
+            selectedCategory = this.dataset.category;
+
+            tagButtons.forEach(btn => btn.classList.remove('is-active'));
+            this.classList.add('is-active');
+
+            await fetchQuizzes();
+        });
+    });
+</script>
 </body>
 </html>

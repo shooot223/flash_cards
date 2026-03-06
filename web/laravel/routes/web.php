@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 //    return view('top');
 //})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/', [TopController::class, 'top'])->name('top');
+Route::get('/', [TopController::class, 'index'])->name('top');
 
 Route::middleware('auth')->group(function () {
     Route::get('/mypage', [MypageController::class, 'display'])->name('mypage');
