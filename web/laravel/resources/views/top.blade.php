@@ -9,46 +9,79 @@
 </head>
 
 <body>
-<!-- ヘッダー -->
 <header class="header">
     @include('header')
 </header>
 
 <main class="container">
-    <!-- 検索ボックス（簡易表示） -->
-    <section class="searchBox">
-        キーワードで検索（例：HTTP / 会計 / 英単語）
+    <section class="hero">
+        <h1 class="hero__title">問題一覧</h1>
+        <p class="hero__text">気になるテーマのクイズを探して、繰り返し学習しましょう。</p>
     </section>
 
-    <!-- タグ（簡易表示） -->
-    <section class="tagBar">
-        タグ：資格 / IT / ビジネス / 英語 / 研修
+    <section class="searchArea">
+        <form method="GET" action="{{ route('top') }}" class="searchForm">
+            <input
+                type="text"
+                name="keyword"
+                class="searchInput"
+                placeholder="キーワードで検索（例：HTTP / 会計 / 英単語）"
+                value="{{ request('keyword') }}"
+            >
+            <button type="submit" class="searchButton">検索</button>
+        </form>
     </section>
 
-    <!-- 問題一覧 -->
+    <section class="tagArea">
+        <div class="sectionTitle">タグ</div>
+        <div class="tagBar">
+            @forelse ($categories ?? [] as $category)
+                <a
+                    href="{{ route('top', ['category' => $category->id]) }}"
+                    class="tagItem {{ request('category') == $category->id ? 'is-active' : '' }}"
+                >
+                    {{ $category->category_name }}
+                </a>
+            @empty
+                <span class="emptyText">タグはまだありません</span>
+            @endforelse
+        </div>
+    </section>
+
     <section class="listWrap">
-        <div class="sectionTitle">問題一覧</div>
+        <div class="sectionTitle">公開中のクイズ</div>
 
-        <article class="card">
-            <div class="thumb">サムネ</div>
-            <div class="meta">
-                <div class="meta__row">例：基本情報｜ネットワーク</div>
-                <div class="meta__row">TCP/UDP、ポート、DNSなどの要点をクイズで復習</div>
-            </div>
-            <div class="card__right"></div>
-        </article>
+        @forelse ($quizzes ?? [] as $quiz)
+            <article class="card">
+                <div class="thumb">Quiz</div>
 
-        <article class="card">
-            <div class="thumb">サムネ</div>
-            <div class="meta">
-                <div class="meta__row">例：会計｜仕訳の基礎</div>
-                <div class="meta__row">借方/貸方、勘定科目を反復して定着させる</div>
-            </div>
-            <div class="card__right"></div>
-        </article>
+                <div class="meta">
+                    <div class="meta__row meta__row--title">{{ $quiz->title }}</div>
+                    <div class="meta__row">{{ $quiz->description ?? '説明はありません。' }}</div>
+
+                    @if (!empty($quiz->categories) && count($quiz->categories) > 0)
+                        <div class="meta__tags">
+                            @foreach ($quiz->categories as $category)
+                                <span class="miniTag">{{ $category->category_name }}</span>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+{{--                <div class="card__right">--}}
+{{--                    <a href="{{ route('quiz.show', $quiz->id) }}" class="cardButton">詳細</a>--}}
+{{--                </div>--}}
+            </article>
+        @empty
+            <div class="emptyBox">該当するクイズがありません。</div>
+        @endforelse
     </section>
 
-    <div class="pager">1  /  10</div>
+    @if (isset($quizzes) && method_exists($quizzes, 'links'))
+        <div class="pager">
+            {{ $quizzes->links() }}
+        </div>
+    @endif
 </main>
 </body>
 </html>
