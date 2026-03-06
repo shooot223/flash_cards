@@ -14,4 +14,13 @@ class QuestionTitleCategory extends Model
         'title_id',
     ];
 
+    public function titles()
+    {
+        return $this->belongsToMany(
+            QuestionTitle::class,
+            'question_title_categories',
+            'category_id',
+            'title_id'
+        );
+    }
 }

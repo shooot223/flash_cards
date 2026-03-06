@@ -39,7 +39,9 @@
                         <div class="meta__row">{{ $quiz->discription }}</div>
                     </div>
                     <div class="card__right">
-{{--                        <a href="{{ route('quiz.show', $quiz->id) }}" class="cardButton">詳細</a>--}}
+                        <a href="{{ route('quiz.edit', $quiz->id) }}" class="cardButton editButton">
+                            編集
+                        </a>
                     </div>
                 </article>
             @endforeach

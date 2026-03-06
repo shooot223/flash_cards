@@ -91,3 +91,11 @@
 .createQuizButton:active{
     transform: translateY(1px);
 }
+
+.editButton{
+    background: #10b981;
+}
+
+.editButton:hover{
+    background: #059669;
+}

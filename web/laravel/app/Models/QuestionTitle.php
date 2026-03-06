@@ -19,12 +19,19 @@ class QuestionTitle extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function questionCategories(){
-        return $this->belongsToMany(QuestionCategory::class, 'question_title_categories', 'title_id', 'category_id');
+    public function categories()
+    {
+        return $this->belongsToMany(
+            QuestionCategory::class,
+            'question_title_categories',
+            'title_id',
+            'category_id'
+        );
     }
 
-    public function questions(){
-        return $this->hasMany(Question::class);
+    public function questions()
+    {
+        return $this->hasMany(Question::class, 'title_id');
     }
 
     public function scores(){
