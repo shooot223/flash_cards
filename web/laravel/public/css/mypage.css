@@ -1,0 +1,101 @@
+.mypageContainer{
+    width: min(980px, calc(100% - 32px));
+    margin: 22px auto 60px;
+}
+
+.mypageSection{
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.06);
+    padding: 22px;
+}
+
+.tabArea{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
+}
+
+.tabButton{
+    appearance: none;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #111827;
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.tabButton:hover{
+    background: #f9fafb;
+}
+
+.tabButton.is-active{
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+}
+
+.tabContent{
+    display: none;
+}
+
+.tabContent.is-active{
+    display: block;
+}
+
+.cardButton{
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.cardButton:hover{
+    background: #1d4ed8;
+}
+.createQuiz{
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.createQuizButton{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    border: 1px solid transparent;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, .18);
+    transition: background-color .15s ease, transform .06s ease;
+}
+
+.createQuizButton:hover{
+    background: #1d4ed8;
+}
+
+.createQuizButton:active{
+    transform: translateY(1px);
+}
+
+.editButton{
+    background: #10b981;
+}
+
+.editButton:hover{
+    background: #059669;
+}

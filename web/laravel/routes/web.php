@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/confirm', 'confirm')->name('confirm');
             Route::post('/store', 'store')->name('store');
             Route::get('/complete', 'complete')->name('complete');
+            Route::get('/quiz/{id}/edit', 'edit')->name('edit');
+            Route::put('/quiz/{id}', 'update')->name('update');
         });
 });
 

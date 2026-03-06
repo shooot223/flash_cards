@@ -3,55 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>クイズ作成</title>
+    <title>{{ isset($quiz) ? 'クイズ編集' : 'クイズ作成' }}</title>
     <link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
 </head>
 <body>
-
 <header class="header">
     @include('header')
 </header>
 
 @php
-    // old() を取り出し（最低5件は表示する）
-    $oldTags = old('tags', []);
-    $tagCount = max(5, count($oldTags));
-    $tags = array_pad($oldTags, $tagCount, '');
+    $isEdit = isset($quiz);
 
-    $oldQuestions = old('questions', []);
-    $questionCount = max(5, count($oldQuestions));
+    $baseTags = old('tags');
+    if (is_null($baseTags) && $isEdit) {
+        $baseTags = $quiz->categories->pluck('category_name')->toArray();
+    }
+    $baseTags = $baseTags ?? [];
+    $tagCount = max(5, count($baseTags));
+    $tags = array_pad($baseTags, $tagCount, '');
 
-    // questions の形を補正（question/answer/choicesを常に持つ）
+    $baseQuestions = old('questions');
+    if (is_null($baseQuestions) && $isEdit) {
+        $baseQuestions = $quiz->questions->map(function ($question) {
+            $correctChoice = $question->choices->firstWhere('is_correct', true);
+
+            return [
+                'question' => $question->question_text,
+                'answer' => $correctChoice->choice_text ?? '',
+                'choices' => $question->choices->pluck('choice_text')->values()->toArray(),
+            ];
+        })->toArray();
+    }
+    $baseQuestions = $baseQuestions ?? [];
+
+    $questionCount = max(5, count($baseQuestions));
     $questions = [];
+
     for ($i = 0; $i < $questionCount; $i++) {
-        $q = $oldQuestions[$i] ?? [];
+        $q = $baseQuestions[$i] ?? [];
         $questions[] = [
             'question' => $q['question'] ?? '',
-            'answer'   => $q['answer'] ?? '',
-            'choices'  => array_pad(($q['choices'] ?? []), 3, ''),
+            'answer' => $q['answer'] ?? '',
+            'choices' => array_pad(($q['choices'] ?? []), 3, ''),
         ];
     }
 @endphp
 
-<form method="POST" action="{{ route('quiz.confirm') }}" class="quizForm">
+<form method="POST"
+      action="{{ $isEdit ? route('quiz.update', $quiz->id) : route('quiz.confirm') }}"
+      class="quizForm">
     @csrf
-
-{{--     エラー表示（必要ならCSSで整える）--}}
-{{--    @if ($errors->any())--}}
-{{--        <div class="formGroup" style="border-color:#fca5a5; background:#fff5f5;">--}}
-{{--            <strong style="color:#b91c1c;">入力内容にエラーがあります</strong>--}}
-{{--            <ul style="margin:8px 0 0; padding-left:18px; color:#b91c1c;">--}}
-{{--                @foreach ($errors->all() as $error)--}}
-{{--                    <li>{{ $error }}</li>--}}
-{{--                @endforeach--}}
-{{--            </ul>--}}
-{{--        </div>--}}
-{{--    @endif--}}
+    @if($isEdit)
+        @method('PUT')
+    @endif
 
     <div class="formGroup">
         <label class="formLabel" for="title">クイズタイトル</label>
-        <input type="text" id="title" name="title" class="formInput" value="{{ old('title') }}" >
+        <input type="text" id="title" name="title" class="formInput" value="{{ old('title', $quiz->title ?? '') }}">
         @error('title')
         <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
         @enderror
@@ -59,13 +68,12 @@
 
     <div class="formGroup">
         <label class="formLabel" for="description">説明文</label>
-        <textarea id="description" name="description" class="formTextarea">{{ old('description') }}</textarea>
+        <textarea id="description" name="description" class="formTextarea">{{ old('description', $quiz->description ?? '') }}</textarea>
         @error('description')
         <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
         @enderror
     </div>
 
-    {{-- タグ --}}
     <div class="formGroup">
         <div style="display:flex; align-items:center; gap:8px;">
             <span class="formLabel">タグ</span>
@@ -84,12 +92,8 @@
         @error('tags')
         <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
         @enderror
-        @error('tags.*')
-        <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
-        @enderror
     </div>
 
-    {{-- 問題 --}}
     <div class="formGroup">
         <div style="display:flex; align-items:center; gap:8px;">
             <span class="formLabel">問題</span>
@@ -105,34 +109,40 @@
                     </div>
 
                     <label class="formLabel" for="q_{{ $i }}">問題文</label>
-                    <textarea id="q_{{ $i }}" name="questions[{{ $i }}][question]" class="formInput">{{ $questions[$i]['question'] ?? ''}}</textarea>
+                    <textarea id="q_{{ $i }}" name="questions[{{ $i }}][question]" class="formInput">{{ $questions[$i]['question'] }}</textarea>
                     @error("questions.$i.question")
                     <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
                     @enderror
 
                     <label class="formLabel" for="a_{{ $i }}">答え</label>
-                    <input type="text" id="a_{{ $i }}" name="questions[{{ $i }}][answer]" class="formInput" value="{{ $questions[$i]['answer'] ?? ''}}">
+                    <input type="text" id="a_{{ $i }}" name="questions[{{ $i }}][answer]" class="formInput" value="{{ $questions[$i]['answer'] }}">
                     @error("questions.$i.answer")
                     <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
                     @enderror
 
                     <label class="formLabel">その他選択肢</label>
                     @for ($c = 0; $c < 3; $c++)
-                        <input type="text" name="questions[{{ $i }}][choices][]" class="formInput" placeholder="選択肢{{ $c + 1 }}" value="{{ $questions[$i]['choices'][$c] ?? ''}}">
+                        <input type="text"
+                               name="questions[{{ $i }}][choices][]"
+                               class="formInput"
+                               placeholder="選択肢{{ $c + 1 }}"
+                               value="{{ $questions[$i]['choices'][$c] }}">
+                        @error("questions.$i.choices.$c")
+                        <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
+                        @enderror
                     @endfor
-                    @error("questions.$i.choices.*")
-                    <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
-                    @enderror
                 </div>
             @endfor
         </div>
     </div>
+
     <button type="button" class="submitButton" style="margin-right:8px;" onclick="window.history.back();">戻る</button>
-    <button type="submit" class="submitButton">確認へ</button>
+    <button type="submit" class="submitButton">
+        {{ $isEdit ? '更新する' : '確認へ' }}
+    </button>
 </form>
 
 <script>
-    // タグ追加
     const tagsContainer = document.getElementById('tagsContainer');
     const addTagBtn = document.getElementById('addTag');
 
@@ -157,7 +167,6 @@
         tagsContainer.appendChild(row);
     });
 
-    // 問題追加
     const questionsContainer = document.getElementById('questionsContainer');
     const addQuestionBtn = document.getElementById('addQuestion');
 
@@ -179,10 +188,10 @@
             </div>
 
             <label class="formLabel" for="q_${idx}">問題文</label>
-            <textarea id="q_${idx}" name="questions[${idx}][question]" class="formInput" ></textarea>
+            <textarea id="q_${idx}" name="questions[${idx}][question]" class="formInput"></textarea>
 
             <label class="formLabel" for="a_${idx}">答え</label>
-            <input type="text" id="a_${idx}" name="questions[${idx}][answer]" class="formInput" >
+            <input type="text" id="a_${idx}" name="questions[${idx}][answer]" class="formInput">
 
             <label class="formLabel">その他選択肢</label>
             <input type="text" name="questions[${idx}][choices][]" class="formInput" placeholder="選択肢1">
@@ -193,7 +202,6 @@
         questionsContainer.appendChild(wrapper);
     });
 
-    // 削除（イベント委譲）
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('removeTag')) {
             e.target.closest('.tagRow')?.remove();
@@ -203,6 +211,5 @@
         }
     });
 </script>
-
 </body>
 </html>
