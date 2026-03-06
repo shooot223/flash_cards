@@ -1,79 +1,136 @@
-/* ===== Header ===== */
 .header{
-    display:grid;
-    grid-template-columns: 260px 1fr 380px;
-    background:var(--header-blue);
-    border-bottom:3px solid var(--border);
-    height:110px;
-    align-items:stretch;
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    height: 140px;
+    z-index: 100;
 }
 
-.header__left,
-.header__center,
-.header__right{
-    border-right:3px solid var(--border);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--text);
-    font-weight:700;
-    letter-spacing:.04em;
-}
-
-.header__left{
-    justify-content:flex-start;
-    padding-left:28px;
-    font-size:22px;
-}
-.logo{
+.headerInner{
+    max-width: 1100px;
+    height: 100%;
+    margin: auto;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    position: relative;
+}
+
+.headerLeft{
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.headerCenter{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.logo{
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    height: 100%;      /* ヘッダー高さに追従 */
-    max-width: 100%;
 }
 
-.logo__image{
-    display: block;
-    max-height: 80px;  /* 110pxヘッダーならこれくらいが安全 */
+.logoImage{
+    height: 88px;   /* ← 70px から拡大 */
     width: auto;
-    max-width: 100%;
-    object-fit: contain;
-}
-.header__center{
-    font-size:22px;
-    background:rgba(0,0,0,.08);
-    margin:0 18px;
-    border-left:3px solid var(--border);
-    border-right:3px solid var(--border);
+    display: block;
 }
 
-.header__right{
-    border-right:none;
-    justify-content:space-between;
-    padding:0 22px;
-    gap:18px;
-    font-size:18px;
+.headerRight{
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-.header__link{
-    color:var(--text);
-    text-decoration:none;
-    font-weight:700;
-    white-space:nowrap;
+/* ログイン/新規登録の並び */
+.headerAuth{
+    display: flex;
+    align-items: center;
+    gap: 14px;
 }
 
-.header__avatar{
-    width:52px; height:52px;
-    border-radius:999px;
-    border:3px solid var(--border);
-    background:rgba(255,255,255,.18);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:14px;
-    white-space:nowrap;
-    padding:6px;
-    text-align:center;
-    line-height:1.1;
+/* 新規登録 と マイページ を離す */
+.headerMypage{
+    margin-left: 28px;   /* ← ここで間隔を広げる */
+}
+
+.headerLink{
+    text-decoration: none;
+    color: #111827;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.headerLink:hover{
+    color: #2563eb;
+}
+
+.logoutBtn{
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #111827;
+    font-weight: 600;
+    padding: 0;
+}
+
+.logoutBtn:hover{
+    color: #2563eb;
+}
+
+.mypageBtn{
+    padding: 10px 18px;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: .2s;
+}
+
+.mypageBtn:hover{
+    background: #1d4ed8;
+}
+
+@media (max-width: 700px){
+    .header{
+        height: 100px;
+    }
+
+    .logoImage{
+        height: 60px;
+    }
+
+    .headerLeft{
+        display: none;
+    }
+
+    .headerCenter{
+        position: static;
+        transform: none;
+    }
+
+    .headerInner{
+        justify-content: space-between;
+    }
+
+    .headerRight{
+        gap: 12px;
+    }
+
+    .headerAuth{
+        gap: 10px;
+    }
+
+    .headerMypage{
+        margin-left: 16px;
+    }
 }
