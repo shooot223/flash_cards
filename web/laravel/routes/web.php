@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\MypageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
 
 //Route::get('/', function () {
@@ -16,7 +18,14 @@ Route::get('/', function(){
 })->name('top');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/mypage');
+    Route::get('/mypage', [MypageController::class, 'index'])->name('mypage');
+    Route::controller(QuizController::class)
+        ->prefix('quiz')->name('quiz.')->group(function () {
+            Route::match(['get', 'post'], '/create', 'create')->name('create');
+            Route::post('/confirm', 'confirm')->name('confirm');
+            Route::post('/store', 'store')->name('store');
+            Route::get('/complete', 'complete')->name('complete');
+        });
 });
 
 require __DIR__.'/auth.php';

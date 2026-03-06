@@ -11,6 +11,7 @@ class QuestionTitle extends Model
 
     protected $fillable = [
         'title',
+        'description',
         'user_id',
     ];
 
