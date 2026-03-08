@@ -23,8 +23,7 @@
         </div>
 
         <div class="card__right">
-            {{-- 必要なら詳細画面 --}}
-            {{-- <a href="{{ route('quiz.show', $quiz->id) }}" class="cardButton">詳細</a> --}}
+             <a href="{{ route('quiz.start', $quiz->id) }}" class="cardButton">開始</a>
         </div>
     </article>
 @empty
