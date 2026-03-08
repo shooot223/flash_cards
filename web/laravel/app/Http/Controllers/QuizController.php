@@ -71,7 +71,7 @@ class QuizController extends Controller
                     'question_text' => $q['question'],
                 ]);
 
-                foreach ($q['choices'] as $choiceText) {
+                foreach ($q['choices'] as $index => $choiceText) {
                     if (empty($choiceText)) {
                         continue;
                     }
@@ -79,7 +79,7 @@ class QuizController extends Controller
                     Choice::create([
                         'question_id' => $question->id,
                         'choice_text' => $choiceText,
-                        'is_correct' => trim($choiceText) === trim($q['answer']),
+                        'is_correct' => (int) $index === (int) $q['correct'],
                     ]);
                 }
             }
@@ -147,7 +147,7 @@ class QuizController extends Controller
                     'question_text' => $q['question'],
                 ]);
 
-                foreach ($q['choices'] as $choiceText) {
+                foreach ($q['choices'] as $index => $choiceText) {
                     if (empty($choiceText)) {
                         continue;
                     }
@@ -155,7 +155,7 @@ class QuizController extends Controller
                     Choice::create([
                         'question_id' => $question->id,
                         'choice_text' => $choiceText,
-                        'is_correct' => trim($choiceText) === trim($q['answer']),
+                        'is_correct' => (int) $index === (int) $q['correct'],
                     ]);
                 }
             }
@@ -176,28 +176,29 @@ class QuizController extends Controller
             'questions' => ['required', 'array', 'min:1'],
 
             'questions.0.question' => ['required', 'string'],
-            'questions.0.answer' => ['required', 'string'],
-            'questions.0.choices' => ['required', 'array'],
+            'questions.0.choices' => ['required', 'array', 'size:4'],
             'questions.0.choices.*' => ['required', 'string'],
+            'questions.0.correct' => ['required', 'integer', 'between:0,3'],
 
             'questions.*.question' => ['nullable', 'string'],
-            'questions.*.answer' => ['nullable', 'required_with:questions.*.question', 'string'],
-            'questions.*.choices' => ['nullable', 'required_with:questions.*.question', 'array'],
-            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question', 'string'],
+            'questions.*.choices' => ['nullable', 'array'],
+            'questions.*.choices.*' => ['nullable', 'string'],
+            'questions.*.correct' => ['nullable', 'integer', 'between:0,3'],
         ];
     }
 
     private function messages(): array
     {
         return [
-            'question.title.required' => 'タイトルは必須です。',
-            'question.description.required' => '説明は必須です。',
+            'title.required' => 'タイトルは必須です。',
+            'description.required' => '説明は必須です。',
+
             'questions.0.question.required' => '少なくとも1問は必要です。',
-            'questions.0.answer.required' => '少なくとも1問は必要です。',
             'questions.0.choices.required' => '少なくとも1問は必要です。',
-            'questions.0.choices.*.required' => '少なくとも1問は必要です。',
-            'questions.*.answer.required_with' => '問題文に入力があった場合は答えは必須です。',
-            'questions.*.choices.*.required_with' => '問題文に入力があった場合は選択肢は必須です。',
+            'questions.0.choices.size' => '選択肢は4つ必要です。',
+            'questions.0.choices.*.required' => '選択肢は必須です。',
+            'questions.0.correct.required' => '正解の選択肢を選んでください。',
+            'questions.0.correct.between' => '正解の選択肢が不正です。',
         ];
     }
 }

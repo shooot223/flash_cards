@@ -24,17 +24,22 @@
     $tags = array_pad($baseTags, $tagCount, '');
 
     $baseQuestions = old('questions');
+
     if (is_null($baseQuestions) && $isEdit) {
         $baseQuestions = $quiz->questions->map(function ($question) {
-            $correctChoice = $question->choices->firstWhere('is_correct', true);
+            $choices = $question->choices->values()->toArray();
+            $correctIndex = collect($choices)->search(function ($choice) {
+                return (bool) $choice['is_correct'] === true;
+            });
 
             return [
                 'question' => $question->question_text,
-                'answer' => $correctChoice->choice_text ?? '',
-                'choices' => $question->choices->pluck('choice_text')->values()->toArray(),
+                'choices' => collect($choices)->pluck('choice_text')->values()->toArray(),
+                'correct' => $correctIndex !== false ? $correctIndex : null,
             ];
         })->toArray();
     }
+
     $baseQuestions = $baseQuestions ?? [];
 
     $questionCount = max(5, count($baseQuestions));
@@ -42,10 +47,11 @@
 
     for ($i = 0; $i < $questionCount; $i++) {
         $q = $baseQuestions[$i] ?? [];
+
         $questions[] = [
             'question' => $q['question'] ?? '',
-            'answer' => $q['answer'] ?? '',
-            'choices' => array_pad(($q['choices'] ?? []), 3, ''),
+            'choices' => array_pad(($q['choices'] ?? []), 4, ''),
+            'correct' => $q['correct'] ?? null,
         ];
     }
 @endphp
@@ -68,7 +74,8 @@
 
     <div class="formGroup">
         <label class="formLabel" for="description">説明文</label>
-        <textarea id="description" name="description" class="formTextarea">{{ old('description', $quiz->description ?? '') }}</textarea>
+        <textarea id="description" name="description"
+                  class="formTextarea">{{ old('description', $quiz->description ?? '') }}</textarea>
         @error('description')
         <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
         @enderror
@@ -83,7 +90,8 @@
         <div id="tagsContainer">
             @for ($i = 0; $i < $tagCount; $i++)
                 <div class="tagRow" style="display:flex; gap:8px; margin-top:6px;">
-                    <input type="text" id="tag_{{ $i }}" name="tags[]" class="formInput" placeholder="タグ{{ $i + 1 }}" value="{{ $tags[$i] }}">
+                    <input type="text" id="tag_{{ $i }}" name="tags[]" class="formInput" placeholder="タグ{{ $i + 1 }}"
+                           value="{{ $tags[$i] }}">
                     <button type="button" class="removeTag submitButton" style="padding:6px 10px;">－</button>
                 </div>
             @endfor
@@ -102,35 +110,59 @@
 
         <div id="questionsContainer">
             @for ($i = 0; $i < $questionCount; $i++)
-                <div class="questionBlock" data-index="{{ $i }}" style="margin-top:16px; padding:16px; border:1px solid #ddd; border-radius:8px;">
+                <div class="questionBlock" data-index="{{ $i }}"
+                     style="margin-top:16px; padding:16px; border:1px solid #ddd; border-radius:8px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                         <strong>問題{{ $i + 1 }}</strong>
                         <button type="button" class="removeQuestion submitButton" style="padding:6px 10px;">－</button>
                     </div>
 
                     <label class="formLabel" for="q_{{ $i }}">問題文</label>
-                    <textarea id="q_{{ $i }}" name="questions[{{ $i }}][question]" class="formInput">{{ $questions[$i]['question'] }}</textarea>
+                    <textarea id="q_{{ $i }}" name="questions[{{ $i }}][question]"
+                              class="formInput">{{ $questions[$i]['question'] }}</textarea>
                     @error("questions.$i.question")
                     <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
                     @enderror
 
-                    <label class="formLabel" for="a_{{ $i }}">答え</label>
-                    <input type="text" id="a_{{ $i }}" name="questions[{{ $i }}][answer]" class="formInput" value="{{ $questions[$i]['answer'] }}">
-                    @error("questions.$i.answer")
-                    <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
-                    @enderror
+                    <label class="formLabel">選択肢</label>
+                    <div class="correctNote">正解にする選択肢を1つ選んでください</div>
 
-                    <label class="formLabel">その他選択肢</label>
-                    @for ($c = 0; $c < 3; $c++)
-                        <input type="text"
-                               name="questions[{{ $i }}][choices][]"
-                               class="formInput"
-                               placeholder="選択肢{{ $c + 1 }}"
-                               value="{{ $questions[$i]['choices'][$c] }}">
-                        @error("questions.$i.choices.$c")
-                        <div style="color:#b91c1c; margin-top:6px;">{{ $message }}</div>
-                        @enderror
-                    @endfor
+                    <div class="choiceEditorList">
+                        @for ($c = 0; $c < 4; $c++)
+                            <label class="choiceEditorCard">
+                                <input
+                                    type="radio"
+                                    name="questions[{{ $i }}][correct]"
+                                    value="{{ $c }}"
+                                    class="choiceEditorRadio"
+                                    {{ isset($questions[$i]['correct']) && (string)$questions[$i]['correct'] === (string)$c ? 'checked' : '' }}
+                                >
+
+                                <div class="choiceEditorBody">
+                                    <div class="choiceEditorHead">
+                                        <span class="choiceIndex">選択肢{{ $c + 1 }}</span>
+                                        <span class="correctBadge">正解</span>
+                                    </div>
+
+                                    <input
+                                        type="text"
+                                        name="questions[{{ $i }}][choices][]"
+                                        class="formInput choiceEditorInput"
+                                        placeholder="選択肢{{ $c + 1 }}"
+                                        value="{{ $questions[$i]['choices'][$c] ?? '' }}"
+                                    >
+                                </div>
+                            </label>
+
+                            @error("questions.$i.choices.$c")
+                            <div class="fieldError">{{ $message }}</div>
+                            @enderror
+                        @endfor
+                    </div>
+
+                    @error("questions.$i.correct")
+                    <div class="fieldError">{{ $message }}</div>
+                    @enderror
                 </div>
             @endfor
         </div>
@@ -182,27 +214,31 @@
         wrapper.style.borderRadius = '8px';
 
         wrapper.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-                <strong>問題${idx + 1}</strong>
-                <button type="button" class="removeQuestion submitButton" style="padding:6px 10px;">－</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <strong>問題${idx + 1}</strong>
+            <button type="button" class="removeQuestion submitButton" style="padding:6px 10px;">－</button>
+        </div>
+
+        <label class="formLabel" for="q_${idx}">問題文</label>
+        <textarea id="q_${idx}" name="questions[${idx}][question]" class="formInput"></textarea>
+
+        <label class="formLabel">選択肢</label>
+
+        ${[0,1,2,3].map(c => `
+            <div style="display:flex; gap:10px; margin-bottom:8px; align-items:center;">
+                <input type="radio" name="questions[${idx}][correct]" value="${c}">
+                <input type="text"
+                       name="questions[${idx}][choices][]"
+                       class="formInput"
+                       placeholder="選択肢${c + 1}">
             </div>
-
-            <label class="formLabel" for="q_${idx}">問題文</label>
-            <textarea id="q_${idx}" name="questions[${idx}][question]" class="formInput"></textarea>
-
-            <label class="formLabel" for="a_${idx}">答え</label>
-            <input type="text" id="a_${idx}" name="questions[${idx}][answer]" class="formInput">
-
-            <label class="formLabel">その他選択肢</label>
-            <input type="text" name="questions[${idx}][choices][]" class="formInput" placeholder="選択肢1">
-            <input type="text" name="questions[${idx}][choices][]" class="formInput" placeholder="選択肢2">
-            <input type="text" name="questions[${idx}][choices][]" class="formInput" placeholder="選択肢3">
-        `;
+        `).join('')}
+    `;
 
         questionsContainer.appendChild(wrapper);
     });
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('removeTag')) {
             e.target.closest('.tagRow')?.remove();
         }

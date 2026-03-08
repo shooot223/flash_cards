@@ -249,3 +249,132 @@ textarea.formInput:focus{
         margin-top: 10px;
     }
 }
+.correctNote{
+    font-size:13px;
+    color:#6b7280;
+    margin-bottom:8px;
+}
+
+.choiceRow{
+    display:grid;
+    grid-template-columns:90px 1fr;
+    gap:12px;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.correctSelector{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    font-weight:700;
+    color:#2563eb;
+}
+
+.correctSelector input{
+    width:18px;
+    height:18px;
+    cursor:pointer;
+}
+
+.correctLabel{
+    white-space:nowrap;
+}
+.correctNote{
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.choiceEditorList{
+    display: grid;
+    gap: 12px;
+}
+
+.choiceEditorCard{
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 14px;
+    align-items: start;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .08s ease, background-color .2s ease;
+}
+
+.choiceEditorCard:hover{
+    border-color: #93c5fd;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, .08);
+    background: #fbfdff;
+}
+
+.choiceEditorCard:active{
+    transform: translateY(1px);
+}
+
+.choiceEditorRadio{
+    width: 18px;
+    height: 18px;
+    margin-top: 10px;
+    accent-color: #2563eb;
+    cursor: pointer;
+}
+
+.choiceEditorBody{
+    min-width: 0;
+}
+
+.choiceEditorHead{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.choiceIndex{
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.correctBadge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: .45;
+    transition: opacity .2s ease, background-color .2s ease, color .2s ease;
+}
+
+.choiceEditorInput{
+    margin: 0;
+}
+
+/* checked時の見た目強調 */
+.choiceEditorCard:has(.choiceEditorRadio:checked){
+    border-color: #2563eb;
+    box-shadow: 0 8px 22px rgba(37, 99, 235, .14);
+    background: #f8fbff;
+}
+
+.choiceEditorCard:has(.choiceEditorRadio:checked) .correctBadge{
+    opacity: 1;
+    background: #2563eb;
+    color: #fff;
+}
+
+.fieldError{
+    color: #b91c1c;
+    font-size: 13px;
+    margin-top: -4px;
+}
