@@ -18,7 +18,7 @@ class QuizPlayController extends Controller
         if (Auth::check()) {
             $latestScore = Score::where('user_id', Auth::id())
                 ->where('title_id', $quiz->id)
-                ->latest()
+                ->latest('created_at')
                 ->first();
         }
 
@@ -116,38 +116,50 @@ class QuizPlayController extends Controller
         $score = 0;
         $resultDetails = [];
 
+        $confidenceLabels = [
+            'high' => '高い',
+            'medium' => '普通',
+            'low' => '低い',
+        ];
+
         foreach ($questions as $question) {
             $selected = $progress[$question->id] ?? null;
             $selectedChoiceId = $selected['choice_id'] ?? null;
             $confidence = $selected['confidence'] ?? null;
+
+            $selectedChoice = $question->choices->firstWhere('id', (int) $selectedChoiceId);
             $correctChoice = $question->choices->firstWhere('is_correct', true);
 
-            $isCorrect = $correctChoice && ((int) $selectedChoiceId === (int) $correctChoice->id);
+            $isCorrect = $correctChoice && $selectedChoice && (int)$selectedChoice->id === (int)$correctChoice->id;
 
             if ($isCorrect) {
                 $score++;
             }
 
             $resultDetails[] = [
-                'question' => $question,
-                'selected_choice_id' => $selectedChoiceId,
-                'correct_choice_id' => $correctChoice?->id,
-                'confidence' => $confidence,
+                'question_text' => $question->question_text,
+                'selected_answer' => $selectedChoice?->choice_text ?? '未回答',
+                'correct_answer' => $correctChoice?->choice_text ?? '未設定',
+                'confidence' => $confidence
+                    ? ($confidenceLabels[$confidence] ?? $confidence)
+                    : '未回答',
                 'is_correct' => $isCorrect,
             ];
         }
+
+        $total = $questions->count();
 
         if (Auth::check()) {
             Score::create([
                 'user_id' => Auth::id(),
                 'title_id' => $quiz->id,
-                'score' => $score,
+                'score_value' => $score,
+                'answered_count' => count($progress),
+                'correct_count' => $score,
             ]);
         }
 
         session()->forget("quiz_progress.$id");
-
-        $total = $questions->count();
 
         return view('quiz_result', compact('quiz', 'score', 'total', 'resultDetails'));
     }

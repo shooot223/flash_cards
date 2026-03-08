@@ -61,14 +61,15 @@
 
                     @if($latestScore)
                         <div class="quizStartInfoValue">
-                            {{ $latestScore->score }}点
+                            {{ $latestScore->score_value }}点
+                        </div>
+                        <div class="quizStartInfoSub">
+                            {{ $latestScore->correct_count }} / {{ $latestScore->answered_count }} 正解
                         </div>
                     @else
-
                         <div class="quizStartInfoSub">
                             まだ回答履歴はありません
                         </div>
-
                     @endif
 
                 @else

@@ -13,6 +13,7 @@ class Score extends Model
         'user_id',
         'title_id',
         'score_value',
+        'answered_count',
         'correct_count',
     ];
 
