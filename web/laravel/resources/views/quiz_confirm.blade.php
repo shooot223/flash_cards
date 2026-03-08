@@ -13,10 +13,10 @@
 </header>
 
 @php
-    $title = $data['title'] ?? '';
-    $description = $data['description'] ?? '';
-    $tags = $data['tags'] ?? [];
-    $questions = $data['questions'] ?? [];
+    $title = $formData['title'] ?? '';
+    $description = $formData['description'] ?? '';
+    $tags = $formData['tags'] ?? [];
+    $questions = $formData['questions'] ?? [];
 @endphp
 
 <main class="quizPage">
@@ -118,53 +118,39 @@
             </div>
         </section>
 
-        <div class="formActions">
+        <form method="POST" action="{{ $isEdit ? route('quiz.update', $quizId) : route('quiz.store') }}">
+            @csrf
+            @if($isEdit)
+                @method('PUT')
+            @endif
 
-            <form method="POST" action="{{ route('quiz.create') }}">
-                @csrf
+            <input type="hidden" name="title" value="{{ $formData['title'] ?? '' }}">
+            <input type="hidden" name="description" value="{{ $formData['description'] ?? '' }}">
 
-                <input type="hidden" name="title" value="{{ $title }}">
-                <input type="hidden" name="description" value="{{ $description }}">
-
-                @foreach ($tags as $ti => $tag)
-                    <input type="hidden" name="tags[{{ $ti }}]" value="{{ $tag }}">
+            @if(!empty($formData['tags']))
+                @foreach($formData['tags'] as $tag)
+                    <input type="hidden" name="tags[]" value="{{ $tag }}">
                 @endforeach
+            @endif
 
-                @foreach ($questions as $i => $question)
+            @if(!empty($formData['questions']))
+                @foreach($formData['questions'] as $i => $question)
                     <input type="hidden" name="questions[{{ $i }}][question]" value="{{ $question['question'] ?? '' }}">
                     <input type="hidden" name="questions[{{ $i }}][correct]" value="{{ $question['correct'] ?? '' }}">
 
-                    @foreach (($question['choices'] ?? []) as $c => $choiceText)
-                        <input type="hidden" name="questions[{{ $i }}][choices][{{ $c }}]" value="{{ $choiceText }}">
+                    @foreach(($question['choices'] ?? []) as $choice)
+                        <input type="hidden" name="questions[{{ $i }}][choices][]" value="{{ $choice }}">
                     @endforeach
                 @endforeach
+            @endif
 
-                <button type="submit" class="secondaryButton">修正する</button>
-            </form>
-
-            <form method="POST" action="{{ route('quiz.store') }}">
-                @csrf
-
-                <input type="hidden" name="title" value="{{ $title }}">
-                <input type="hidden" name="description" value="{{ $description }}">
-
-                @foreach ($tags as $ti => $tag)
-                    <input type="hidden" name="tags[{{ $ti }}]" value="{{ $tag }}">
-                @endforeach
-
-                @foreach ($questions as $i => $question)
-                    <input type="hidden" name="questions[{{ $i }}][question]" value="{{ $question['question'] ?? '' }}">
-                    <input type="hidden" name="questions[{{ $i }}][correct]" value="{{ $question['correct'] ?? '' }}">
-
-                    @foreach (($question['choices'] ?? []) as $c => $choiceText)
-                        <input type="hidden" name="questions[{{ $i }}][choices][{{ $c }}]" value="{{ $choiceText }}">
-                    @endforeach
-                @endforeach
-
-                <button type="submit" class="primaryButton">登録する</button>
-            </form>
-
-        </div>
+            <div class="formActions">
+                <button type="button" class="secondaryButton" onclick="history.back()">戻る</button>
+                <button type="submit" class="primaryButton">
+                    {{ $isEdit ? '更新する' : '登録する' }}
+                </button>
+            </div>
+        </form>
     </div>
 </main>
 </body>

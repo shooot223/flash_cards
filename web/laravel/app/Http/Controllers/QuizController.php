@@ -28,7 +28,14 @@ class QuizController extends Controller
             $this->messages()
         );
 
-        return view('quiz_confirm', ['data' => $validated]);
+        $isEdit = (bool) $request->input('is_edit', false);
+        $quizId = $request->input('quiz_id');
+
+        return view('quiz_confirm', [
+            'formData' => $validated,
+            'isEdit' => $isEdit,
+            'quizId' => $quizId,
+        ]);
     }
 
     public function store(Request $request)

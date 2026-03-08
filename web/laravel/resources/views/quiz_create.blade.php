@@ -59,11 +59,13 @@
 
 <main class="quizPage">
     <form method="POST"
-          action="{{ $isEdit ? route('quiz.update', $quiz->id) : route('quiz.confirm') }}"
+          action="{{ route('quiz.confirm') }}"
           class="quizForm">
         @csrf
+
         @if($isEdit)
-            @method('PUT')
+            <input type="hidden" name="is_edit" value="1">
+            <input type="hidden" name="quiz_id" value="{{ $quiz->id }}">
         @endif
 
         <section class="pageHeaderCard">
@@ -221,7 +223,7 @@
         <div class="formActions">
             <button type="button" class="secondaryButton" onclick="window.history.back();">戻る</button>
             <button type="submit" class="primaryButton">
-                {{ $isEdit ? '更新する' : '確認へ進む' }}
+                確認へ進む
             </button>
         </div>
     </form>
