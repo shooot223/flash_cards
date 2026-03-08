@@ -1,4 +1,4 @@
-<div class="sectionTitle">公開中のクイズ</div>
+<div class="sectionTitle">公開中の問題</div>
 
 @forelse ($quizzes as $quiz)
     <article class="card">
@@ -23,10 +23,9 @@
         </div>
 
         <div class="card__right">
-            {{-- 必要なら詳細画面 --}}
-            {{-- <a href="{{ route('quiz.show', $quiz->id) }}" class="cardButton">詳細</a> --}}
+             <a href="{{ route('quiz.start', $quiz->id) }}" class="cardButton">問題に挑戦</a>
         </div>
     </article>
 @empty
-    <div class="emptyBox">該当するクイズがありません。</div>
+    <div class="emptyBox">該当する問題がありません。</div>
 @endforelse

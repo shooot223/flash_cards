@@ -28,7 +28,14 @@ class QuizController extends Controller
             $this->messages()
         );
 
-        return view('quiz_confirm', ['data' => $validated]);
+        $isEdit = (bool) $request->input('is_edit', false);
+        $quizId = $request->input('quiz_id');
+
+        return view('quiz_confirm', [
+            'formData' => $validated,
+            'isEdit' => $isEdit,
+            'quizId' => $quizId,
+        ]);
     }
 
     public function store(Request $request)
@@ -41,7 +48,7 @@ class QuizController extends Controller
         DB::transaction(function () use ($validated) {
             $title = QuestionTitle::create([
                 'title' => $validated['title'],
-                'discription' => $validated['description'],
+                'description' => $validated['description'],
                 'user_id' => auth()->id(),
             ]);
 
@@ -71,7 +78,7 @@ class QuizController extends Controller
                     'question_text' => $q['question'],
                 ]);
 
-                foreach ($q['choices'] as $choiceText) {
+                foreach ($q['choices'] as $index => $choiceText) {
                     if (empty($choiceText)) {
                         continue;
                     }
@@ -79,7 +86,7 @@ class QuizController extends Controller
                     Choice::create([
                         'question_id' => $question->id,
                         'choice_text' => $choiceText,
-                        'is_correct' => trim($choiceText) === trim($q['answer']),
+                        'is_correct' => (int) $index === (int) $q['correct'],
                     ]);
                 }
             }
@@ -112,7 +119,7 @@ class QuizController extends Controller
 
             $title->update([
                 'title' => $validated['title'],
-                'discription' => $validated['description'],
+                'description' => $validated['description'],
             ]);
 
             QuestionTitleCategory::where('title_id', $title->id)->delete();
@@ -147,7 +154,7 @@ class QuizController extends Controller
                     'question_text' => $q['question'],
                 ]);
 
-                foreach ($q['choices'] as $choiceText) {
+                foreach ($q['choices'] as $index => $choiceText) {
                     if (empty($choiceText)) {
                         continue;
                     }
@@ -155,7 +162,7 @@ class QuizController extends Controller
                     Choice::create([
                         'question_id' => $question->id,
                         'choice_text' => $choiceText,
-                        'is_correct' => trim($choiceText) === trim($q['answer']),
+                        'is_correct' => (int) $index === (int) $q['correct'],
                     ]);
                 }
             }
@@ -176,28 +183,29 @@ class QuizController extends Controller
             'questions' => ['required', 'array', 'min:1'],
 
             'questions.0.question' => ['required', 'string'],
-            'questions.0.answer' => ['required', 'string'],
-            'questions.0.choices' => ['required', 'array'],
+            'questions.0.choices' => ['required', 'array', 'size:4'],
             'questions.0.choices.*' => ['required', 'string'],
+            'questions.0.correct' => ['required', 'integer', 'between:0,3'],
 
             'questions.*.question' => ['nullable', 'string'],
-            'questions.*.answer' => ['nullable', 'required_with:questions.*.question', 'string'],
-            'questions.*.choices' => ['nullable', 'required_with:questions.*.question', 'array'],
-            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question', 'string'],
+            'questions.*.choices' => ['nullable', 'array'],
+            'questions.*.choices.*' => ['nullable', 'string'],
+            'questions.*.correct' => ['nullable', 'integer', 'between:0,3'],
         ];
     }
 
     private function messages(): array
     {
         return [
-            'question.title.required' => 'タイトルは必須です。',
-            'question.description.required' => '説明は必須です。',
+            'title.required' => 'タイトルは必須です。',
+            'description.required' => '説明は必須です。',
+
             'questions.0.question.required' => '少なくとも1問は必要です。',
-            'questions.0.answer.required' => '少なくとも1問は必要です。',
             'questions.0.choices.required' => '少なくとも1問は必要です。',
-            'questions.0.choices.*.required' => '少なくとも1問は必要です。',
-            'questions.*.answer.required_with' => '問題文に入力があった場合は答えは必須です。',
-            'questions.*.choices.*.required_with' => '問題文に入力があった場合は選択肢は必須です。',
+            'questions.0.choices.size' => '選択肢は4つ必要です。',
+            'questions.0.choices.*.required' => '選択肢は必須です。',
+            'questions.0.correct.required' => '正解の選択肢を選んでください。',
+            'questions.0.correct.between' => '正解の選択肢が不正です。',
         ];
     }
 }
