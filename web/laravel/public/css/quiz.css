@@ -1,6 +1,3 @@
-/* public/css/quiz_create.css */
-
-/* ===== Base ===== */
 :root{
     --bg: #f6f7fb;
     --card: #ffffff;
@@ -9,39 +6,48 @@
     --border: #e5e7eb;
     --border-strong: #d1d5db;
     --shadow: 0 10px 25px rgba(0,0,0,.06);
-    --radius: 14px;
-    --radius-sm: 10px;
+
+    --radius: 16px;
+    --radius-sm: 12px;
 
     --primary: #2563eb;
     --primary-hover: #1d4ed8;
+    --primary-soft: rgba(37, 99, 235, .08);
 
     --danger: #ef4444;
     --danger-hover: #dc2626;
+    --danger-soft: #fff1f2;
+    --danger-border: #fecdd3;
 }
 
-/* Reset-ish */
-*{ box-sizing: border-box; }
-html, body{
+*{
+    box-sizing: border-box;
+}
+
+html,
+body{
     margin: 0;
     padding: 0;
-    color: var(--text);
     background: var(--bg);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN",
-    "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
     line-height: 1.6;
 }
 
-/* Page layout */
-.header{
-    position: sticky;
-    top: 0;
-    z-index: 50;
+/* ===== Page Layout ===== */
+.quizPage{
+    width: min(980px, calc(100% - 32px));
+    margin: 28px auto 60px;
 }
 
-/* Form container */
 .quizForm{
-    width: min(980px, calc(100% - 32px));
-    margin: 22px auto 60px;
+    display: grid;
+    gap: 18px;
+}
+
+/* ===== Section Cards ===== */
+.pageHeaderCard,
+.sectionCard{
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -49,241 +55,249 @@ html, body{
     padding: 22px;
 }
 
-/* Sections */
-.formGroup{
-    margin-bottom: 18px;
-    padding: 16px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: #fff;
-}
-
-.formGroup > div:first-child{
-    margin-bottom: 12px;
-}
-
-/* Labels */
-.formLabel{
-    display: inline-block;
+.pageBadge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 12px;
     font-weight: 700;
-    color: var(--text);
-    margin: 10px 0 6px;
+    margin-bottom: 10px;
+}
+
+.pageTitle{
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.pageDescription{
+    margin: 0;
+    color: var(--muted);
     font-size: 14px;
 }
 
-/* Inputs */
+.sectionHeader{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.sectionTitle{
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+/* ===== Field ===== */
+.fieldGroup{
+    margin-bottom: 16px;
+}
+
+.fieldGroup:last-child{
+    margin-bottom: 0;
+}
+
+.formLabel{
+    display: inline-block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+}
+
 .formInput,
-.formTextarea,
-textarea.formInput{
+.formTextarea{
     width: 100%;
     display: block;
-    padding: 11px 12px;
+    padding: 12px 14px;
     border: 1px solid var(--border-strong);
-    border-radius: 10px;
+    border-radius: 12px;
     background: #fff;
     color: var(--text);
     font-size: 14px;
     outline: none;
-    transition: border-color .15s ease, box-shadow .15s ease;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
 
-.formTextarea,
-textarea.formInput{
-    min-height: 110px;
+.formTextarea{
+    min-height: 120px;
     resize: vertical;
 }
 
 .formInput:focus,
-.formTextarea:focus,
-textarea.formInput:focus{
+.formTextarea:focus{
     border-color: rgba(37, 99, 235, .65);
     box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
 }
 
-/* Helper spacing inside group */
-.formGroup .formInput + .formLabel,
-.formGroup .formTextarea + .formLabel{
-    margin-top: 14px;
+.fieldError{
+    color: #b91c1c;
+    font-size: 13px;
+    margin-top: 6px;
 }
 
-/* Tag rows */
-#tagsContainer{
+/* ===== Tag ===== */
+.tagList{
     display: grid;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 14px;
 }
 
 .tagRow{
-    display: grid !important;
-    grid-template-columns: 1fr 52px;
+    display: grid;
+    grid-template-columns: 1fr 48px;
     gap: 10px;
     align-items: center;
 }
 
-/* Questions */
-#questionsContainer{
+/* ===== Question ===== */
+.questionList{
     display: grid;
     gap: 14px;
-    margin-top: 10px;
 }
 
-.questionBlock{
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius-sm) !important;
-    padding: 16px !important;
+.questionCard{
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
     background: #fff;
 }
 
-.questionBlock > div:first-child{
+.questionCardHeader{
     display: flex;
+    align-items: flex-start;
     justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px dashed var(--border);
-    margin-bottom: 12px;
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
-.questionBlock strong{
-    font-size: 15px;
-}
-
-/* Buttons */
-.submitButton{
-    appearance: none;
-    border: 1px solid transparent;
-    background: var(--primary);
-    color: #fff;
-    font-weight: 700;
-    border-radius: 10px;
-    padding: 10px 14px;
-    cursor: pointer;
-    transition: transform .06s ease, background-color .15s ease, box-shadow .15s ease;
-    box-shadow: 0 6px 14px rgba(37, 99, 235, .18);
-}
-
-.submitButton:hover{
-    background: var(--primary-hover);
-}
-
-.submitButton:active{
-    transform: translateY(1px);
-}
-
-/* Plus buttons: compact */
-#addTag,
-#addQuestion{
-    padding: 6px 12px !important;
-    border-radius: 999px;
+.questionNumber{
+    font-size: 18px;
     font-weight: 800;
 }
 
-/* Minus buttons (tag/question remove) */
-.removeTag,
-.removeQuestion{
-    background: var(--danger) !important;
-    box-shadow: 0 6px 14px rgba(239, 68, 68, .18) !important;
+.questionSubText{
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 4px;
 }
 
-.removeTag:hover,
-.removeQuestion:hover{
-    background: var(--danger-hover) !important;
-}
-
-/* Bottom action buttons */
-.quizForm > button{
-    margin-top: 8px;
-}
-
-/* Place bottom buttons nicely */
-.quizForm{
-    position: relative;
-}
-
-.quizForm > button[type="button"],
-.quizForm > button[type="submit"]{
+/* ===== Buttons ===== */
+.circleButton,
+.removeButton{
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .15s ease;
+    flex-shrink: 0;
 }
 
-.quizForm > button[type="button"]{
+.circleButton{
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, .18);
+}
+
+.circleButton:hover{
+    background: var(--primary-hover);
+}
+
+.removeButton{
+    background: var(--danger-soft);
+    color: var(--danger);
+    border: 1px solid var(--danger-border);
+}
+
+.removeButton:hover{
+    background: #ffe4e6;
+    color: var(--danger-hover);
+}
+
+.primaryButton,
+.secondaryButton{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    height: 46px;
+    padding: 0 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .15s ease;
+}
+
+.primaryButton{
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, .18);
+}
+
+.primaryButton:hover{
+    background: var(--primary-hover);
+}
+
+.secondaryButton{
     background: #fff;
     color: var(--text);
     border: 1px solid var(--border-strong);
-    box-shadow: none;
 }
 
-.quizForm > button[type="button"]:hover{
+.secondaryButton:hover{
     background: #f9fafb;
 }
 
-/* Responsive */
-@media (max-width: 640px){
-    .quizForm{
-        padding: 14px;
-    }
-
-    .formGroup{
-        padding: 12px;
-    }
-
-    .tagRow{
-        grid-template-columns: 1fr 46px;
-    }
-
-    .submitButton{
-        width: 100%;
-    }
-
-    #addTag,
-    #addQuestion{
-        width: auto;
-    }
-
-    /* bottom buttons stack */
-    .quizForm > button[type="button"],
-    .quizForm > button[type="submit"]{
-        width: 100%;
-        margin-top: 10px;
-    }
-}
-.correctNote{
-    font-size:13px;
-    color:#6b7280;
-    margin-bottom:8px;
+.formActions{
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.choiceRow{
-    display:grid;
-    grid-template-columns:90px 1fr;
-    gap:12px;
-    align-items:center;
-    margin-bottom:10px;
+/* ===== Add Question ===== */
+.addQuestionArea{
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
 }
 
-.correctSelector{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-size:13px;
-    font-weight:700;
-    color:#2563eb;
+.addQuestionButton{
+    height: 46px;
+    padding: 0 22px;
+    border-radius: 10px;
+    border: 1px dashed #cbd5e1;
+    background: #f8fafc;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: .15s ease;
 }
 
-.correctSelector input{
-    width:18px;
-    height:18px;
-    cursor:pointer;
+.addQuestionButton:hover{
+    background: #eff6ff;
+    border-color: #93c5fd;
 }
 
-.correctLabel{
-    white-space:nowrap;
-}
+/* ===== Choice Editor (Create/Edit) ===== */
 .correctNote{
     font-size: 13px;
-    color: #6b7280;
+    color: var(--muted);
     margin-bottom: 12px;
 }
 
@@ -298,7 +312,7 @@ textarea.formInput:focus{
     gap: 14px;
     align-items: start;
     padding: 14px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border);
     border-radius: 14px;
     background: #fff;
     cursor: pointer;
@@ -319,7 +333,7 @@ textarea.formInput:focus{
     width: 18px;
     height: 18px;
     margin-top: 10px;
-    accent-color: #2563eb;
+    accent-color: var(--primary);
     cursor: pointer;
 }
 
@@ -349,7 +363,7 @@ textarea.formInput:focus{
     padding: 0 10px;
     border-radius: 999px;
     background: #eef4ff;
-    color: #2563eb;
+    color: var(--primary);
     font-size: 12px;
     font-weight: 700;
     opacity: .45;
@@ -360,21 +374,149 @@ textarea.formInput:focus{
     margin: 0;
 }
 
-/* checked時の見た目強調 */
 .choiceEditorCard:has(.choiceEditorRadio:checked){
-    border-color: #2563eb;
+    border-color: var(--primary);
     box-shadow: 0 8px 22px rgba(37, 99, 235, .14);
     background: #f8fbff;
 }
 
 .choiceEditorCard:has(.choiceEditorRadio:checked) .correctBadge{
     opacity: 1;
-    background: #2563eb;
+    background: var(--primary);
     color: #fff;
 }
 
-.fieldError{
-    color: #b91c1c;
+/* ===== Confirm ===== */
+.confirmBox{
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #f9fafb;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.confirmBoxPre{
+    white-space: pre-wrap;
+}
+
+.confirmTagList{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.confirmTag{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.confirmChoiceList{
+    display: grid;
+    gap: 10px;
+}
+
+.confirmChoiceRow{
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.confirmChoiceLeft{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.confirmChoiceIndex{
     font-size: 13px;
-    margin-top: -4px;
+    font-weight: 700;
+    color: #374151;
+    white-space: nowrap;
+}
+
+.confirmCorrectBadge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.confirmChoiceText{
+    font-size: 14px;
+    color: var(--text);
+    word-break: break-word;
+}
+
+.emptyText{
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 720px){
+    .quizPage{
+        width: min(100% - 20px, 980px);
+        margin: 16px auto 40px;
+    }
+
+    .pageHeaderCard,
+    .sectionCard{
+        padding: 16px;
+    }
+
+    .pageTitle{
+        font-size: 24px;
+    }
+
+    .tagRow{
+        grid-template-columns: 1fr 42px;
+    }
+
+    .choiceEditorCard{
+        grid-template-columns: 20px 1fr;
+        gap: 10px;
+    }
+
+    .choiceEditorHead{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .confirmChoiceRow{
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .formActions{
+        flex-direction: column;
+    }
+
+    .primaryButton,
+    .secondaryButton{
+        width: 100%;
+    }
 }

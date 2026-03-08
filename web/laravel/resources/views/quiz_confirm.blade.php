@@ -4,147 +4,168 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>クイズ確認</title>
-    <link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
 </head>
 <body>
 <header class="header">
     @include('header')
 </header>
 
-<div class="quizForm">
+@php
+    $title = $data['title'] ?? '';
+    $description = $data['description'] ?? '';
+    $tags = $data['tags'] ?? [];
+    $questions = $data['questions'] ?? [];
+@endphp
 
-    <div class="formGroup">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-            <strong style="font-size:16px;">入力内容の確認</strong>
-            <span style="color:#6b7280; font-size:12px;">この内容で作成してよいか確認してください</span>
-        </div>
-    </div>
+<main class="quizPage">
+    <div class="quizForm">
 
-    @php
-        $title = $data['title'] ?? '';
-        $description = $data['description'] ?? '';
-        $tags = $data['tags'] ?? [];
-        $questions = $data['questions'] ?? [];
-    @endphp
+        <section class="pageHeaderCard">
+            <div>
+                <div class="pageBadge">Confirm Quiz</div>
+                <h1 class="pageTitle">入力内容の確認</h1>
+                <p class="pageDescription">
+                    内容を確認して、問題なければ登録してください。
+                </p>
+            </div>
+        </section>
 
-    <div class="formGroup">
-        <label class="formLabel">タイトル</label>
-        <div class="formInput" style="background:#f9fafb;">{{ $title }}</div>
+        <section class="sectionCard">
+            <div class="sectionHeader">
+                <h2 class="sectionTitle">基本情報</h2>
+            </div>
 
-        <label class="formLabel">説明</label>
-        <div class="formInput" style="background:#f9fafb; white-space:pre-wrap; min-height:110px;">{{ $description }}</div>
+            <div class="fieldGroup">
+                <label class="formLabel">クイズタイトル</label>
+                <div class="confirmBox">{{ $title }}</div>
+            </div>
 
-        <label class="formLabel">タグ</label>
-        @php
-            $tagsFiltered = collect($tags)->filter(fn($t) => $t !== null && $t !== '')->values()->all();
-        @endphp
-        <div class="formInput" style="background:#f9fafb;">
-            {{ count($tagsFiltered) ? implode(' / ', $tagsFiltered) : '（なし）' }}
-        </div>
-    </div>
+            <div class="fieldGroup">
+                <label class="formLabel">説明文</label>
+                <div class="confirmBox confirmBoxPre">{{ $description }}</div>
+            </div>
+        </section>
 
-    <div class="formGroup">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-            <strong>問題</strong>
-        </div>
+        <section class="sectionCard">
+            <div class="sectionHeader">
+                <h2 class="sectionTitle">タグ</h2>
+            </div>
 
-        <div id="questionsContainer">
-            @php $shown = 0; @endphp
-            @foreach ($questions as $i => $q)
+            <div class="confirmTagList">
                 @php
-                    $qQuestion = $q['question'] ?? null;
-                    $qAnswer   = $q['answer'] ?? null;
-                    $qChoices  = $q['choices'] ?? [];
+                    $filteredTags = collect($tags)->filter(fn($tag) => $tag !== null && $tag !== '');
                 @endphp
 
-                @if ($qQuestion === null || $qQuestion === '')
-                    @continue
-                @endif
+                @forelse ($filteredTags as $tag)
+                    <span class="confirmTag">{{ $tag }}</span>
+                @empty
+                    <div class="emptyText">タグはありません</div>
+                @endforelse
+            </div>
+        </section>
 
-                @php $shown++; @endphp
+        <section class="sectionCard">
+            <div class="sectionHeader">
+                <h2 class="sectionTitle">問題</h2>
+            </div>
 
-                <div class="questionBlock">
-                    <div>
-                        <strong>Q{{ $i + 1 }}</strong>
-                    </div>
+            <div class="questionList">
+                @forelse ($questions as $i => $question)
+                    @if (!empty($question['question']))
+                        <section class="questionCard">
+                            <div class="questionCardHeader">
+                                <div>
+                                    <div class="questionNumber">問題 {{ $i + 1 }}</div>
+                                    <div class="questionSubText">登録前の確認内容です</div>
+                                </div>
+                            </div>
 
-                    <label class="formLabel">問題文</label>
-                    <div class="formInput" style="background:#f9fafb; white-space:pre-wrap;">{{ $qQuestion }}</div>
+                            <div class="fieldGroup">
+                                <label class="formLabel">問題文</label>
+                                <div class="confirmBox confirmBoxPre">
+                                    {{ $question['question'] ?? '' }}
+                                </div>
+                            </div>
 
-                    <label class="formLabel">答え</label>
-                    <div class="formInput" style="background:#f9fafb;">{{ $qAnswer }}</div>
+                            <div class="fieldGroup">
+                                <label class="formLabel">選択肢</label>
 
-                    <label class="formLabel">選択肢</label>
-                    <div class="formInput" style="background:#f9fafb;">
-                        <ol style="margin:0; padding-left:18px;">
-                            @foreach ($qChoices as $c)
-                                @if ($c === null || $c === '')
-                                    @continue
-                                @endif
-                                <li>{{ $c }}</li>
-                            @endforeach
-                        </ol>
-                    </div>
-                </div>
-            @endforeach
+                                <div class="confirmChoiceList">
+                                    @foreach (($question['choices'] ?? []) as $c => $choiceText)
+                                        <div class="confirmChoiceRow">
+                                            <div class="confirmChoiceLeft">
+                                                <span class="confirmChoiceIndex">選択肢{{ $c + 1 }}</span>
 
-            @if ($shown === 0)
-                <div class="formInput" style="background:#f9fafb; color:#6b7280;">（表示できる問題がありません）</div>
-            @endif
+                                                @if (isset($question['correct']) && (string)$question['correct'] === (string)$c)
+                                                    <span class="confirmCorrectBadge">正解</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="confirmChoiceText">
+                                                {{ $choiceText }}
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </section>
+                    @endif
+                @empty
+                    <div class="emptyText">問題はありません</div>
+                @endforelse
+            </div>
+        </section>
+
+        <div class="formActions">
+
+            <form method="POST" action="{{ route('quiz.create') }}">
+                @csrf
+
+                <input type="hidden" name="title" value="{{ $title }}">
+                <input type="hidden" name="description" value="{{ $description }}">
+
+                @foreach ($tags as $ti => $tag)
+                    <input type="hidden" name="tags[{{ $ti }}]" value="{{ $tag }}">
+                @endforeach
+
+                @foreach ($questions as $i => $question)
+                    <input type="hidden" name="questions[{{ $i }}][question]" value="{{ $question['question'] ?? '' }}">
+                    <input type="hidden" name="questions[{{ $i }}][correct]" value="{{ $question['correct'] ?? '' }}">
+
+                    @foreach (($question['choices'] ?? []) as $c => $choiceText)
+                        <input type="hidden" name="questions[{{ $i }}][choices][{{ $c }}]" value="{{ $choiceText }}">
+                    @endforeach
+                @endforeach
+
+                <button type="submit" class="secondaryButton">修正する</button>
+            </form>
+
+            <form method="POST" action="{{ route('quiz.store') }}">
+                @csrf
+
+                <input type="hidden" name="title" value="{{ $title }}">
+                <input type="hidden" name="description" value="{{ $description }}">
+
+                @foreach ($tags as $ti => $tag)
+                    <input type="hidden" name="tags[{{ $ti }}]" value="{{ $tag }}">
+                @endforeach
+
+                @foreach ($questions as $i => $question)
+                    <input type="hidden" name="questions[{{ $i }}][question]" value="{{ $question['question'] ?? '' }}">
+                    <input type="hidden" name="questions[{{ $i }}][correct]" value="{{ $question['correct'] ?? '' }}">
+
+                    @foreach (($question['choices'] ?? []) as $c => $choiceText)
+                        <input type="hidden" name="questions[{{ $i }}][choices][{{ $c }}]" value="{{ $choiceText }}">
+                    @endforeach
+                @endforeach
+
+                <button type="submit" class="primaryButton">登録する</button>
+            </form>
+
         </div>
     </div>
-
-    <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end;">
-        {{-- 修正する（createへPOSTして old() 復元） --}}
-        <form method="post" action="{{ route('quiz.create') }}">
-            @csrf
-            <input type="hidden" name="title" value="{{ $title }}">
-            <input type="hidden" name="description" value="{{ $description }}">
-
-            @foreach ($tags as $ti => $t)
-                <input type="hidden" name="tags[{{ $ti }}]" value="{{ $t }}">
-            @endforeach
-
-            @foreach ($questions as $i => $q)
-                <input type="hidden" name="questions[{{ $i }}][question]" value="{{ $q['question'] ?? '' }}">
-                <input type="hidden" name="questions[{{ $i }}][answer]" value="{{ $q['answer'] ?? '' }}">
-
-                @foreach (($q['choices'] ?? []) as $j => $c)
-                    <input type="hidden" name="questions[{{ $i }}][choices][{{ $j }}]" value="{{ $c }}">
-                @endforeach
-            @endforeach
-
-            <button type="submit"
-                    class="submitButton"
-                    style="background:#fff; color:var(--text); border:1px solid var(--border-strong); box-shadow:none;">
-                修正する
-            </button>
-        </form>
-
-        {{-- 作成する（storeへPOST） --}}
-        <form method="post" action="{{ route('quiz.store') }}">
-            @csrf
-            <input type="hidden" name="title" value="{{ $title }}">
-            <input type="hidden" name="description" value="{{ $description }}">
-
-            @foreach ($tags as $ti => $t)
-                <input type="hidden" name="tags[{{ $ti }}]" value="{{ $t }}">
-            @endforeach
-
-            @foreach ($questions as $i => $q)
-                <input type="hidden" name="questions[{{ $i }}][question]" value="{{ $q['question'] ?? '' }}">
-                <input type="hidden" name="questions[{{ $i }}][answer]" value="{{ $q['answer'] ?? '' }}">
-
-                @foreach (($q['choices'] ?? []) as $j => $c)
-                    <input type="hidden" name="questions[{{ $i }}][choices][{{ $j }}]" value="{{ $c }}">
-                @endforeach
-            @endforeach
-
-            <button type="submit" class="submitButton">この内容で作成</button>
-        </form>
-    </div>
-
-</div>
+</main>
 </body>
 </html>
