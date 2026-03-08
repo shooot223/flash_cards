@@ -92,7 +92,7 @@
             </a>
 
             <a href="{{ route('quiz.play',$quiz->id) }}" class="quizStartButton">
-                問題に挑戦
+                開始
             </a>
 
         </div>

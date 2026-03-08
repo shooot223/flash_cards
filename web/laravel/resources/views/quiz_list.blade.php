@@ -23,7 +23,7 @@
         </div>
 
         <div class="card__right">
-             <a href="{{ route('quiz.start', $quiz->id) }}" class="cardButton">開始</a>
+             <a href="{{ route('quiz.start', $quiz->id) }}" class="cardButton">問題に挑戦</a>
         </div>
     </article>
 @empty
