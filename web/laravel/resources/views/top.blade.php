@@ -15,7 +15,7 @@
 <main class="container">
     <section class="hero">
         <h1 class="hero__title">問題一覧</h1>
-        <p class="hero__text">気になるテーマのクイズを探して、繰り返し学習しましょう。</p>
+        <p class="hero__text">気になるテーマの問題を探して、繰り返し学習しましょう。</p>
     </section>
 
     <section class="searchArea">

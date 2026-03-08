@@ -1,4 +1,4 @@
-<div class="sectionTitle">公開中のクイズ</div>
+<div class="sectionTitle">公開中の問題</div>
 
 @forelse ($quizzes as $quiz)
     <article class="card">
@@ -28,5 +28,5 @@
         </div>
     </article>
 @empty
-    <div class="emptyBox">該当するクイズがありません。</div>
+    <div class="emptyBox">該当する問題がありません。</div>
 @endforelse
