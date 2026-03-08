@@ -41,7 +41,7 @@ class QuizController extends Controller
         DB::transaction(function () use ($validated) {
             $title = QuestionTitle::create([
                 'title' => $validated['title'],
-                'discription' => $validated['description'],
+                'description' => $validated['description'],
                 'user_id' => auth()->id(),
             ]);
 
@@ -112,7 +112,7 @@ class QuizController extends Controller
 
             $title->update([
                 'title' => $validated['title'],
-                'discription' => $validated['description'],
+                'description' => $validated['description'],
             ]);
 
             QuestionTitleCategory::where('title_id', $title->id)->delete();
