@@ -26,13 +26,23 @@ Route::middleware('auth')->group(function () {
 
     //問題作成
     Route::controller(QuizController::class)->prefix('quiz')->name('quiz.')->group(function () {
-            Route::match(['get', 'post'], '/create', 'create')->name('create');
-            Route::post('/confirm', 'confirm')->name('confirm');
-            Route::post('/store', 'store')->name('store');
-            Route::get('/complete', 'complete')->name('complete');
-            Route::get('/quiz/{id}/edit', 'edit')->name('edit');
-            Route::put('/quiz/{id}', 'update')->name('update');
-        });
+        Route::match(['get', 'post'], '/create', 'create')->name('create');
+        Route::post('/confirm', 'confirm')->name('confirm');
+        Route::post('/store', 'store')->name('store');
+        Route::get('/complete', 'complete')->name('complete');
+        Route::get('/quiz/{id}/edit', 'edit')->name('edit');
+        Route::put('/quiz/{id}', 'update')->name('update');
+        Route::delete('/quiz/{id}', 'destroy')->name('destroy');
+    });
+
+    //プローフィール編集
+    Route::controller(ProfileController::class)->prefix('profile')->name('profile.')->group(function () {
+        Route::get('/edit', 'edit')->name('edit');
+        Route::patch('/', 'update')->name('update');
+        Route::patch('/password', 'updatePassword')->name('password.update');
+        Route::post('/avatar', 'updateAvatar')->name('avatar.update');
+        Route::delete('/avatar', 'destroyAvatar')->name('avatar.destroy');
+    });
 });
 
 require __DIR__.'/auth.php';
