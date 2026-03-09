@@ -20,7 +20,7 @@ html, body{
     margin:0;
     padding:0;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
-    background:var(--bg);
+    background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
     color:var(--text);
     line-height:1.6;
 }
@@ -150,6 +150,7 @@ html, body{
     font-size:13px;
     font-weight:700;
     transition:background-color .15s ease, border-color .15s ease, color .15s ease;
+    cursor: pointer;
 }
 
 .tagItem:hover{
@@ -170,15 +171,15 @@ html, body{
 /* ===== Card ===== */
 .card{
     display:grid;
-    grid-template-columns: 96px 1fr auto;
-    gap:14px;
-    align-items:stretch;
+    grid-template-columns: 120px 1fr auto;
+    gap:18px;
+    align-items:center;
     background:#fff;
     border:1px solid var(--border);
-    border-radius:var(--radius-sm);
-    padding:14px;
+    border-radius:14px;
+    padding:16px;
     margin-bottom:14px;
-    transition:box-shadow .15s ease, transform .06s ease;
+    transition:box-shadow .15s ease, transform .06s ease, border-color .15s ease;
 }
 
 .card:last-child{
@@ -187,19 +188,24 @@ html, body{
 
 .card:hover{
     box-shadow: 0 8px 20px rgba(0,0,0,.06);
+    border-color: #dbe3f0;
 }
 
 .thumb{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    min-height:92px;
+    width:120px;
+    height:120px;
+    border-radius:14px;
+    overflow:hidden;
+    background:#f3f4f6;
     border:1px solid var(--border);
-    border-radius:12px;
-    background:linear-gradient(135deg, rgba(37,99,235,.10), rgba(37,99,235,.04));
-    color:var(--primary);
-    font-size:14px;
-    font-weight:800;
+    flex-shrink:0;
+}
+
+.thumbImage{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
 }
 
 .meta{
@@ -216,8 +222,9 @@ html, body{
 }
 
 .meta__row--title{
-    font-size:18px;
+    font-size:20px;
     font-weight:800;
+    line-height:1.4;
 }
 
 .meta__tags{
@@ -250,7 +257,7 @@ html, body{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    min-width:84px;
+    min-width:108px;
     height:42px;
     padding:0 14px;
     border-radius:10px;
@@ -328,10 +335,13 @@ html, body{
 
     .card{
         grid-template-columns: 1fr;
+        gap:14px;
     }
 
     .thumb{
-        min-height:72px;
+        width:100%;
+        aspect-ratio:1 / 1;
+        height:auto;
     }
 
     .card__right{
