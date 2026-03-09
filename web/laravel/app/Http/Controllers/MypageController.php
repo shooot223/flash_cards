@@ -13,12 +13,12 @@ class MypageController extends Controller
     {
         $userId = Auth::id();
 
-        // 作成したクイズ
+        // 作成した問題
         $createdQuizzes = QuestionTitle::where('user_id', $userId)
             ->latest()
             ->get();
 
-        // 過去に回答したクイズ
+        // 過去に回答した問題
         $answeredQuizzes = QuestionTitle::whereIn(
             'id',
             Score::where('user_id', $userId)->pluck('title_id')

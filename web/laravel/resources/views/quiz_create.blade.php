@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ isset($quiz) ? 'クイズ編集' : 'クイズ作成' }}</title>
+    <title>{{ isset($quiz) ? '問題編集' : '問題作成' }}</title>
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
 </head>
@@ -71,9 +71,9 @@
         <section class="pageHeaderCard">
             <div>
                 <div class="pageBadge">{{ $isEdit ? 'Edit Quiz' : 'Create Quiz' }}</div>
-                <h1 class="pageTitle">{{ $isEdit ? 'クイズ編集' : 'クイズ作成' }}</h1>
+                <h1 class="pageTitle">{{ $isEdit ? '問題編集' : '問題作成' }}</h1>
                 <p class="pageDescription">
-                    問題文・選択肢・正解を設定してクイズを作成します。
+                    問題文・選択肢・正解を設定して問題を作成します。
                 </p>
             </div>
         </section>
@@ -84,7 +84,7 @@
             </div>
 
             <div class="fieldGroup">
-                <label class="formLabel" for="title">クイズタイトル</label>
+                <label class="formLabel" for="title">問題タイトル</label>
                 <input
                     type="text"
                     id="title"
@@ -104,7 +104,7 @@
                     id="description"
                     name="description"
                     class="formTextarea"
-                    placeholder="このクイズの概要や対象分野を入力してください"
+                    placeholder="この問題の概要や対象分野を入力してください"
                 >{{ old('description', $quiz->description ?? '') }}</textarea>
                 @error('description')
                 <div class="fieldError">{{ $message }}</div>

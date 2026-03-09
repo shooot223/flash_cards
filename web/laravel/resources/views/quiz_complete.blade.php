@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>クイズ作成完了</title>
+    <title>問題作成完了</title>
     <link rel="stylesheet" href="{{ asset('css/quiz_create.css') }}">
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
 </head>
@@ -15,11 +15,11 @@
 <div class="quizForm">
     <div class="formGroup" style="text-align: center; padding: 40px 20px;">
         <div style="font-size: 22px; font-weight: 700; margin-bottom: 16px;">
-            クイズを登録しました
+            問題を登録しました
         </div>
 
         <div style="color: var(--muted); margin-bottom: 28px;">
-            クイズの作成が正常に完了しました。
+            問題の作成が正常に完了しました。
         </div>
 
         <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">

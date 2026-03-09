@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>クイズ確認</title>
+    <title>作成問題確認</title>
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
 </head>
@@ -38,7 +38,7 @@
             </div>
 
             <div class="fieldGroup">
-                <label class="formLabel">クイズタイトル</label>
+                <label class="formLabel">問題タイトル</label>
                 <div class="confirmBox">{{ $title }}</div>
             </div>
 
