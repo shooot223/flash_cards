@@ -236,10 +236,10 @@ class QuizController extends Controller
             'questions.0.choices.*' => ['required', 'string'],
             'questions.0.correct' => ['required', 'integer', 'between:0,3'],
 
-            'questions.*.question' => ['nullable', 'string'],
-            'questions.*.choices' => ['nullable', 'array'],
-            'questions.*.choices.*' => ['nullable', 'string'],
-            'questions.*.correct' => ['nullable', 'integer', 'between:0,3'],
+            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string'],
+            'questions.*.choices' => ['nullable', 'required_with:questions.*.question,correct', 'array'],
+            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string'],
+            'questions.*.correct' => ['nullable', 'required_with:questions.*.question,choices', 'integer', 'between:0,3'],
         ];
     }
 
@@ -260,10 +260,10 @@ class QuizController extends Controller
             'questions.0.choices.*' => ['required', 'string'],
             'questions.0.correct' => ['required', 'integer', 'between:0,3'],
 
-            'questions.*.question' => ['nullable', 'string'],
-            'questions.*.choices' => ['nullable', 'array'],
-            'questions.*.choices.*' => ['nullable', 'string'],
-            'questions.*.correct' => ['nullable', 'integer', 'between:0,3'],
+            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string'],
+            'questions.*.choices' => ['nullable', 'required_with:questions.*.question,correct', 'array'],
+            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string'],
+            'questions.*.correct' => ['nullable', 'required_with:questions.*.question,choices', 'integer', 'between:0,3'],
         ];
     }
 
@@ -282,6 +282,11 @@ class QuizController extends Controller
             'questions.0.choices.*.required' => '選択肢は必須です。',
             'questions.0.correct.required' => '正解の選択肢を選んでください。',
             'questions.0.correct.between' => '正解の選択肢が不正です。',
+
+            'questions.*.question.required_with' => '選択肢が入力もしくは正解が選択されている場合、問題文は必須です。',
+            'questions.*.choices.required_with' => '問題文が入力もしくは正解が選択されている場合、選択肢は必須です。',
+            'questions.*.choices.*.required_with' => 'この選択肢は必須です。',
+            'questions.*.correct.required_with' => '問題文もしくは選択肢が入力されている場合、正解の選択肢は必須です。',
         ];
     }
 }
