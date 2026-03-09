@@ -20,7 +20,15 @@
                 <div class="headerUserMenu">
                     <button type="button" class="headerUserButton" id="userMenuButton">
                         <span class="headerUserIcon">
-                            {{ mb_substr(Auth::user()->name, 0, 1) }}
+                            @if (Auth::user()->avatar)
+                                <img
+                                    src="{{ asset('storage/' . Auth::user()->avatar) }}"
+                                    alt="プロフィール画像"
+                                    class="headerUserAvatar"
+                                >
+                            @else
+                                {{ mb_substr(Auth::user()->name, 0, 1) }}
+                            @endif
                         </span>
                         <span class="headerUserName">{{ Auth::user()->name }}</span>
                         <span class="headerUserCaret">▼</span>
