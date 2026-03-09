@@ -46,6 +46,21 @@
                 <label class="formLabel">説明文</label>
                 <div class="confirmBox confirmBoxPre">{{ $description }}</div>
             </div>
+
+            <div class="fieldGroup">
+                <label class="formLabel">問題画像</label>
+                @if (!empty($tempQuizImage))
+                    <div class="confirmImageWrap">
+                        <img src="{{ asset('storage/' . $tempQuizImage) }}" alt="問題画像" class="confirmImage">
+                    </div>
+                @elseif (!empty($currentImagePath))
+                    <div class="confirmImageWrap">
+                        <img src="{{ asset('storage/' . $currentImagePath) }}" alt="現在の問題画像" class="confirmImage">
+                    </div>
+                @else
+                    <div class="emptyText">画像はありません</div>
+                @endif
+            </div>
         </section>
 
         <section class="sectionCard">
@@ -91,7 +106,6 @@
 
                             <div class="fieldGroup">
                                 <label class="formLabel">選択肢</label>
-
                                 <div class="confirmChoiceList">
                                     @foreach (($question['choices'] ?? []) as $c => $choiceText)
                                         <div class="confirmChoiceRow">
@@ -126,6 +140,8 @@
 
             <input type="hidden" name="title" value="{{ $formData['title'] ?? '' }}">
             <input type="hidden" name="description" value="{{ $formData['description'] ?? '' }}">
+            <input type="hidden" name="temp_quiz_image" value="{{ $tempQuizImage ?? '' }}">
+            <input type="hidden" name="current_image_path" value="{{ $currentImagePath ?? '' }}">
 
             @if(!empty($formData['tags']))
                 @foreach($formData['tags'] as $tag)

@@ -73,7 +73,7 @@
             @forelse ($createdQuizzes as $quiz)
                 <article class="quizCard">
                     <div class="quizCard__thumb">
-                        <div class="quizCard__thumbText">QUIZ</div>
+                        <img src="{{ $quiz->image_path ? asset('storage/' . $quiz->image_path) : asset('img/default_quiz.png') }}" alt="quiz thumbnail" class="quizCard__thumbImage">
                     </div>
 
                     <div class="quizCard__body">
@@ -137,8 +137,8 @@
         <div class="tabContent" id="tab-answered">
             @forelse ($answeredQuizzes as $quiz)
                 <article class="quizCard">
-                    <div class="quizCard__thumb quizCard__thumb--answered">
-                        <div class="quizCard__thumbText">PLAY</div>
+                    <div class="quizCard__thumb">
+                        <img src="{{ $quiz->image_path ? asset('storage/' . $quiz->image_path) : asset('img/default_quiz.png') }}" alt="quiz thumbnail" class="quizCard__thumbImage">
                     </div>
 
                     <div class="quizCard__body">

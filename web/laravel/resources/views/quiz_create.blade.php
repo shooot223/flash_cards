@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ isset($quiz) ? '問題編集' : '問題作成' }}</title>
+    <title>{{ isset($quiz) || !empty($isEditFromConfirm) ? '問題編集' : '問題作成' }}</title>
     <link rel="stylesheet" href="{{ asset('css/header.css') }}">
     <link rel="stylesheet" href="{{ asset('css/quiz.css') }}">
 </head>
@@ -13,35 +13,52 @@
 </header>
 
 @php
-    $isEdit = isset($quiz);
+    $isEditPage = isset($quiz);
+    $isEdit = $isEditPage || !empty($isEditFromConfirm);
+
+    $quizId = $quiz->id ?? ($quizIdFromConfirm ?? null);
+
+    $fallbackTitle = $oldFormData['title'] ?? ($quiz->title ?? '');
+    $fallbackDescription = $oldFormData['description'] ?? ($quiz->description ?? '');
 
     $baseTags = old('tags');
-    if (is_null($baseTags) && $isEdit) {
-        $baseTags = $quiz->categories->pluck('category_name')->toArray();
+
+    if (is_null($baseTags)) {
+        if (!empty($oldFormData['tags'])) {
+            $baseTags = $oldFormData['tags'];
+        } elseif ($isEditPage) {
+            $baseTags = $quiz->categories->pluck('category_name')->toArray();
+        } else {
+            $baseTags = [];
+        }
     }
-    $baseTags = $baseTags ?? [];
+
     $tagCount = max(3, count($baseTags));
     $tags = array_pad($baseTags, $tagCount, '');
 
     $baseQuestions = old('questions');
 
-    if (is_null($baseQuestions) && $isEdit) {
-        $baseQuestions = $quiz->questions->map(function ($question) {
-            $choices = $question->choices->values()->toArray();
+    if (is_null($baseQuestions)) {
+        if (!empty($oldFormData['questions'])) {
+            $baseQuestions = $oldFormData['questions'];
+        } elseif ($isEditPage) {
+            $baseQuestions = $quiz->questions->map(function ($question) {
+                $choices = $question->choices->values()->toArray();
 
-            $correctIndex = collect($choices)->search(function ($choice) {
-                return (bool) $choice['is_correct'] === true;
-            });
+                $correctIndex = collect($choices)->search(function ($choice) {
+                    return (bool) $choice['is_correct'] === true;
+                });
 
-            return [
-                'question' => $question->question_text,
-                'choices' => collect($choices)->pluck('choice_text')->values()->toArray(),
-                'correct' => $correctIndex !== false ? $correctIndex : null,
-            ];
-        })->toArray();
+                return [
+                    'question' => $question->question_text,
+                    'choices' => collect($choices)->pluck('choice_text')->values()->toArray(),
+                    'correct' => $correctIndex !== false ? $correctIndex : null,
+                ];
+            })->toArray();
+        } else {
+            $baseQuestions = [];
+        }
     }
-
-    $baseQuestions = $baseQuestions ?? [];
 
     $questionCount = max(1, count($baseQuestions));
     $questions = [];
@@ -51,21 +68,32 @@
 
         $questions[] = [
             'question' => $q['question'] ?? '',
-            'choices' => array_pad(($q['choices'] ?? []), 4, ''),
+            'choices' => array_pad($q['choices'] ?? [], 4, ''),
             'correct' => $q['correct'] ?? null,
         ];
+    }
+
+    $tempImageValue = old('temp_quiz_image', $tempQuizImage ?? '');
+    $currentImageValue = old('current_image_path', $quiz->image_path ?? ($currentImagePath ?? ''));
+
+    $previewImage = '';
+    if (!empty($tempImageValue)) {
+        $previewImage = asset('storage/' . $tempImageValue);
+    } elseif (!empty($currentImageValue)) {
+        $previewImage = asset('storage/' . $currentImageValue);
     }
 @endphp
 
 <main class="quizPage">
-    <form method="POST"
-          action="{{ route('quiz.confirm') }}"
-          class="quizForm">
+    <form action="{{ route('quiz.confirm') }}" method="POST" enctype="multipart/form-data">
         @csrf
+
+        <input type="hidden" name="temp_quiz_image" value="{{ $tempImageValue }}">
+        <input type="hidden" name="current_image_path" value="{{ $currentImageValue }}">
 
         @if($isEdit)
             <input type="hidden" name="is_edit" value="1">
-            <input type="hidden" name="quiz_id" value="{{ $quiz->id }}">
+            <input type="hidden" name="quiz_id" value="{{ $quizId }}">
         @endif
 
         <section class="pageHeaderCard">
@@ -90,7 +118,7 @@
                     id="title"
                     name="title"
                     class="formInput"
-                    value="{{ old('title', $quiz->title ?? '') }}"
+                    value="{{ old('title', $fallbackTitle) }}"
                     placeholder="例：英単語 基礎 / ネットワーク基礎"
                 >
                 @error('title')
@@ -105,8 +133,26 @@
                     name="description"
                     class="formTextarea"
                     placeholder="この問題の概要や対象分野を入力してください"
-                >{{ old('description', $quiz->description ?? '') }}</textarea>
+                >{{ old('description', $fallbackDescription) }}</textarea>
                 @error('description')
+                <div class="fieldError">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="fieldGroup">
+                <label for="quiz_image" class="formLabel">問題画像</label>
+
+                <div id="quizImagePreviewArea">
+                    @if (!empty($previewImage))
+                        <div class="previewImageWrap">
+                            <img src="{{ $previewImage }}" alt="問題画像プレビュー" class="previewImage">
+                        </div>
+                    @endif
+                </div>
+
+                <input type="file" name="quiz_image" id="quiz_image" class="formInputFile" accept="image/*">
+
+                @error('quiz_image')
                 <div class="fieldError">{{ $message }}</div>
                 @enderror
             </div>
@@ -181,7 +227,7 @@
                                             name="questions[{{ $i }}][correct]"
                                             value="{{ $c }}"
                                             class="choiceEditorRadio"
-                                            {{ isset($questions[$i]['correct']) && (string)$questions[$i]['correct'] === (string)$c ? 'checked' : '' }}
+                                            {{ isset($questions[$i]['correct']) && (string) $questions[$i]['correct'] === (string) $c ? 'checked' : '' }}
                                         >
 
                                         <div class="choiceEditorBody">
@@ -213,6 +259,7 @@
                     </section>
                 @endfor
             </div>
+
             <div class="addQuestionArea">
                 <button type="button" id="addQuestion" class="addQuestionButton">
                     ＋ 問題を追加
@@ -222,9 +269,7 @@
 
         <div class="formActions">
             <button type="button" class="secondaryButton" onclick="window.history.back();">戻る</button>
-            <button type="submit" class="primaryButton">
-                確認へ進む
-            </button>
+            <button type="submit" class="primaryButton">確認へ進む</button>
         </div>
     </form>
 </main>
@@ -286,7 +331,7 @@
                 <div class="correctNote">正解にする選択肢を1つ選んでください</div>
 
                 <div class="choiceEditorList">
-                    ${[0,1,2,3].map(c => `
+                    ${[0, 1, 2, 3].map(c => `
                         <label class="choiceEditorCard">
                             <input
                                 type="radio"
@@ -317,7 +362,7 @@
         questionsContainer.appendChild(wrapper);
     });
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('removeTag')) {
             e.target.closest('.tagRow')?.remove();
         }
@@ -328,6 +373,45 @@
             e.target.closest('.questionCard')?.remove();
         }
     });
+
+    // 画像の即時プレビュー
+    const quizImageInput = document.getElementById('quiz_image');
+
+    if (quizImageInput) {
+        quizImageInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+
+            if (!file) return;
+            if (!file.type.startsWith('image/')) return;
+
+            let previewWrap = document.querySelector('.previewImageWrap');
+            let previewImage = document.querySelector('.previewImage');
+
+            if (!previewWrap) {
+                previewWrap = document.createElement('div');
+                previewWrap.className = 'previewImageWrap';
+
+                previewImage = document.createElement('img');
+                previewImage.className = 'previewImage';
+                previewImage.alt = '問題画像プレビュー';
+
+                previewWrap.appendChild(previewImage);
+
+                quizImageInput.insertAdjacentElement('beforebegin', previewWrap);
+            } else if (!previewImage) {
+                previewImage = document.createElement('img');
+                previewImage.className = 'previewImage';
+                previewImage.alt = '問題画像プレビュー';
+                previewWrap.appendChild(previewImage);
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 </script>
 </body>
 </html>
