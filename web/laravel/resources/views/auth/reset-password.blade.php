@@ -1,39 +1,74 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
-        @csrf
-
-        <!-- Password Reset Token -->
-        <input type="hidden" name="token" value="{{ $request->route('token') }}">
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+    <section class="authCard">
+        <div class="authHeader">
+            <div class="authBadge">Reset Password</div>
+            <h1 class="authTitle">新しいパスワード設定</h1>
+            <p class="authDescription">
+                新しいパスワードを入力して、再設定を完了してください。
+            </p>
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        <form method="POST" action="{{ route('password.store') }}" class="authForm">
+            @csrf
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+            <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
+            <div class="formGroup">
+                <label for="email" class="formLabel">メールアドレス</label>
+                <input
+                    id="email"
+                    class="formInput"
+                    type="email"
+                    name="email"
+                    value="{{ old('email', $request->email) }}"
+                    required
+                    autofocus
+                    autocomplete="username"
+                    placeholder="example@example.com"
+                >
+                @error('email')
+                <div class="errorText">{{ $message }}</div>
+                @enderror
+            </div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+            <div class="formGroup">
+                <label for="password" class="formLabel">新しいパスワード</label>
+                <input
+                    id="password"
+                    class="formInput"
+                    type="password"
+                    name="password"
+                    required
+                    autocomplete="new-password"
+                    placeholder="新しいパスワードを入力"
+                >
+                @error('password')
+                <div class="errorText">{{ $message }}</div>
+                @enderror
+            </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
-    </form>
+            <div class="formGroup">
+                <label for="password_confirmation" class="formLabel">新しいパスワード（確認）</label>
+                <input
+                    id="password_confirmation"
+                    class="formInput"
+                    type="password"
+                    name="password_confirmation"
+                    required
+                    autocomplete="new-password"
+                    placeholder="もう一度入力"
+                >
+            </div>
+
+            <button type="submit" class="primaryButton fullButton">
+                パスワードを再設定
+            </button>
+
+            <div class="authFooter">
+                <a href="{{ route('login') }}" class="registerLink">
+                    ログイン画面へ戻る
+                </a>
+            </div>
+        </form>
+    </section>
 </x-guest-layout>

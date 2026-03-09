@@ -2,7 +2,7 @@
     <div class="headerInner">
 
         <div class="headerLeft">
-            <a class="headerLink" href="/">問題一覧</a>
+            <a class="headerNavLink" href="/">問題一覧</a>
         </div>
 
         <div class="headerCenter">
@@ -12,22 +12,55 @@
         </div>
 
         <div class="headerRight">
-            <div class="headerAuth">
-                @auth
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="logoutBtn" type="submit">ログアウト</button>
-                    </form>
-                @else
-                    <a class="headerLink" href="{{ route('login') }}">ログイン</a>
-                    <a class="headerLink" href="{{ route('register') }}">新規登録</a>
-                @endauth
-            </div>
+            @auth
+                <div class="headerMypage">
+                    <a href="{{ route('mypage') }}" class="mypageBtn">マイページ</a>
+                </div>
 
-            <div class="headerMypage">
-                <a href="{{ route('mypage') }}" class="mypageBtn">マイページ</a>
-            </div>
+                <div class="headerUserMenu">
+                    <button type="button" class="headerUserButton" id="userMenuButton">
+                        <span class="headerUserIcon">
+                            {{ mb_substr(Auth::user()->name, 0, 1) }}
+                        </span>
+                        <span class="headerUserName">{{ Auth::user()->name }}</span>
+                        <span class="headerUserCaret">▼</span>
+                    </button>
+
+                    <div class="headerDropdown" id="userDropdown">
+                        <a href="{{ route('mypage') }}" class="headerDropdownLink">マイページ</a>
+                        <a href="{{ route('profile.edit') }}" class="headerDropdownLink">プロフィール編集</a>
+
+                        <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('ログアウトしますか？');">
+                            @csrf
+                            <button class="headerDropdownLogout" type="submit">ログアウト</button>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <div class="headerAuth">
+                    <a class="headerLoginButton" href="{{ route('login') }}">ログイン</a>
+                    <a class="headerRegisterButton" href="{{ route('register') }}">新規登録</a>
+                </div>
+            @endauth
         </div>
 
     </div>
 </header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const button = document.getElementById('userMenuButton');
+        const dropdown = document.getElementById('userDropdown');
+
+        if (!button || !dropdown) return;
+
+        button.addEventListener('click', function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('is-open');
+        });
+
+        document.addEventListener('click', function () {
+            dropdown.classList.remove('is-open');
+        });
+    });
+</script>

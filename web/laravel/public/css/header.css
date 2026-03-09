@@ -1,9 +1,10 @@
 .header{
     position: sticky;
     top: 0;
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid #e5e7eb;
-    height: 140px;
+    height: 110px;
     z-index: 100;
 }
 
@@ -22,6 +23,7 @@
     display: flex;
     align-items: center;
     gap: 24px;
+    min-width: 160px;
 }
 
 .headerCenter{
@@ -37,7 +39,7 @@
 }
 
 .logoImage{
-    height: 88px;   /* ← 70px から拡大 */
+    height: 76px;
     width: auto;
     display: block;
 }
@@ -45,70 +47,219 @@
 .headerRight{
     display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: flex-end;
+    gap: 14px;
+    min-width: 260px;
 }
 
-/* ログイン/新規登録の並び */
+.headerNavLink{
+    text-decoration: none;
+    color: #111827;
+    font-weight: 700;
+    font-size: 15px;
+    transition: color .2s ease;
+}
+
+.headerNavLink:hover{
+    color: #2563eb;
+}
+
+/* 未ログイン */
 .headerAuth{
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
 }
 
-/* 新規登録 と マイページ を離す */
-.headerMypage{
-    margin-left: 28px;   /* ← ここで間隔を広げる */
-}
-
-.headerLink{
+.headerLoginButton,
+.headerRegisterButton{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 10px;
     text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all .2s ease;
+}
+
+.headerLoginButton{
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
     color: #111827;
-    font-weight: 600;
-    font-size: 16px;
 }
 
-.headerLink:hover{
-    color: #2563eb;
+.headerLoginButton:hover{
+    background: #f9fafb;
+    border-color: #d1d5db;
 }
 
-.logoutBtn{
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: #111827;
-    font-weight: 600;
-    padding: 0;
+.headerRegisterButton{
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18);
 }
 
-.logoutBtn:hover{
-    color: #2563eb;
+.headerRegisterButton:hover{
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* ログイン済み */
+.headerMypage{
+    display: flex;
+    align-items: center;
 }
 
 .mypageBtn{
-    padding: 10px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
     background: #2563eb;
     color: #fff;
     border-radius: 10px;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 14px;
-    transition: .2s;
+    transition: .2s ease;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.18);
 }
 
 .mypageBtn:hover{
     background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
-@media (max-width: 700px){
+.headerUserMenu{
+    position: relative;
+}
+
+.headerUserButton{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 14px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.headerUserButton:hover{
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.headerUserIcon{
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.headerUserName{
+    color: #111827;
+    font-size: 14px;
+    font-weight: 700;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.headerUserCaret{
+    font-size: 11px;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.headerDropdown{
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+    padding: 8px;
+    display: none;
+    z-index: 120;
+}
+
+.headerDropdown.is-open{
+    display: block;
+}
+
+.headerDropdownLink,
+.headerDropdownLogout{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 42px;
+    padding: 0 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #111827;
+    background: transparent;
+    border: none;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.headerDropdownLink:hover,
+.headerDropdownLogout:hover{
+    background: #f3f4f6;
+}
+
+.headerDropdownLogout{
+    color: #dc2626;
+}
+
+/* レスポンシブ */
+@media (max-width: 860px){
     .header{
-        height: 100px;
+        height: 92px;
+    }
+
+    .headerInner{
+        padding: 0 16px;
     }
 
     .logoImage{
         height: 60px;
     }
 
+    .headerLeft{
+        min-width: auto;
+    }
+
+    .headerRight{
+        min-width: auto;
+        gap: 10px;
+    }
+
+    .headerUserName{
+        display: none;
+    }
+}
+
+@media (max-width: 700px){
     .headerLeft{
         display: none;
     }
@@ -123,14 +274,39 @@
     }
 
     .headerRight{
-        gap: 12px;
+        gap: 8px;
     }
 
     .headerAuth{
-        gap: 10px;
+        gap: 8px;
     }
 
-    .headerMypage{
-        margin-left: 16px;
+    .headerLoginButton,
+    .headerRegisterButton,
+    .mypageBtn{
+        min-height: 38px;
+        padding: 0 12px;
+        font-size: 13px;
+    }
+
+    .headerUserButton{
+        min-height: 38px;
+        padding: 0 10px;
+    }
+
+    .headerUserIcon{
+        width: 28px;
+        height: 28px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 520px){
+    .headerRegisterButton{
+        display: none;
+    }
+
+    .mypageBtn{
+        display: none;
     }
 }
