@@ -2,7 +2,13 @@
 
 @forelse ($quizzes as $quiz)
     <article class="card">
-        <div class="thumb">Quiz</div>
+        <div class="thumb">
+            <img
+                src="{{ $quiz->image_path ? asset('storage/' . $quiz->image_path) : asset('img/default_quiz.png') }}"
+                alt="{{ $quiz->title }} のサムネイル"
+                class="thumbImage"
+            >
+        </div>
 
         <div class="meta">
             <div class="meta__row meta__row--title">
@@ -23,7 +29,7 @@
         </div>
 
         <div class="card__right">
-             <a href="{{ route('quiz.start', $quiz->id) }}" class="cardButton">問題に挑戦</a>
+            <a href="{{ route('quiz.start', $quiz->id) }}" class="cardButton">問題に挑戦</a>
         </div>
     </article>
 @empty
