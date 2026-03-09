@@ -539,3 +539,29 @@ button{
         width: 100%;
     }
 }
+.chip--public{
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.chip--private{
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.actionButton--warning{
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.actionButton--warning:hover{
+    background: #ffedd5;
+}
+.actionButton--secondary{
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.actionButton--secondary:hover{
+    background: #e5e7eb;
+}

@@ -80,7 +80,11 @@
                         <div class="quizCard__top">
                             <h2 class="quizCard__title">{{ $quiz->title }}</h2>
                             <div class="quizCard__chips">
-                                <span class="chip">作成済み</span>
+                                @if ($quiz->is_public)
+                                    <span class="chip chip--public">公開中</span>
+                                @else
+                                    <span class="chip chip--private">非公開</span>
+                                @endif
                             </div>
                         </div>
 
@@ -98,13 +102,23 @@
                             編集
                         </a>
 
-                        <form action="{{ route('quiz.destroy', $quiz->id) }}" method="POST" onsubmit="return confirm('この問題を削除しますか？');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="actionButton actionButton--delete">
-                                削除
-                            </button>
-                        </form>
+                        @if ($quiz->is_public)
+                            <form action="{{ route('quiz.private', $quiz->id) }}" method="POST" onsubmit="return confirm('この問題を非公開にしますか？');">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="actionButton actionButton--warning">
+                                    非公開にする
+                                </button>
+                            </form>
+                        @else
+                            <form action="{{ route('quiz.public', $quiz->id) }}" method="POST" onsubmit="return confirm('この問題を再公開しますか？');">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="actionButton actionButton--primary">
+                                    再公開する
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </article>
             @empty
@@ -130,8 +144,15 @@
                     <div class="quizCard__body">
                         <div class="quizCard__top">
                             <h2 class="quizCard__title">{{ $quiz->title }}</h2>
+
                             <div class="quizCard__chips">
                                 <span class="chip chip--answered">回答済み</span>
+
+                                @if ($quiz->is_public)
+                                    <span class="chip chip--public">公開中</span>
+                                @else
+                                    <span class="chip chip--private">非公開</span>
+                                @endif
                             </div>
                         </div>
 
@@ -140,14 +161,27 @@
                         </p>
 
                         <div class="quizCard__meta">
-                            <span>最終回答日：{{ optional($quiz->pivot->created_at ?? $quiz->updated_at)->format('Y/m/d') }}</span>
+                    <span>
+                        最終回答日：
+                        {{ optional($quiz->pivot->created_at ?? $quiz->updated_at)->format('Y/m/d') }}
+                    </span>
                         </div>
                     </div>
 
                     <div class="quizCard__actions">
-                        <a href="{{ route('quiz.play', $quiz->id) }}" class="actionButton actionButton--primary">
+
+                        {{-- もう一度解く --}}
+                        <a href="{{ route('quiz.play', $quiz->id) }}"
+                           class="actionButton actionButton--primary">
                             もう一度解く
                         </a>
+
+                        {{-- 復習 --}}
+                        <a href="{{ route('quiz.result', $quiz->id) }}"
+                           class="actionButton actionButton--secondary">
+                            復習する
+                        </a>
+
                     </div>
                 </article>
             @empty
