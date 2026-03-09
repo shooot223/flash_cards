@@ -171,15 +171,50 @@ class QuizController extends Controller
         return redirect()->route('quiz.complete');
     }
 
-    public function destroy($id)
+    //物理削除
+//    public function delete($id)
+//    {
+//        DB::transaction(function () use ($id) {
+//
+//            $quiz = QuestionTitle::where('id', $id)
+//                ->where('user_id', auth()->id())
+//                ->firstOrFail();
+//
+//            foreach ($quiz->questions as $question) {
+//                $question->choices()->delete();
+//            }
+//            $quiz->questions()->delete();
+//            $quiz->categories()->detach();
+//            $quiz->delete();
+//        });
+//
+//        return redirect()->route('mypage')->with('success', '問題を削除しました。');
+//    }
+
+    public function private($id)
     {
-        $quiz = Question::where('id', $id)
+        $quiz = QuestionTitle::where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        $quiz->delete();
+        $quiz->update([
+            'is_public' => false,
+        ]);
 
-        return redirect()->route('mypage')->with('success', '問題を削除しました。');
+        return redirect()->route('mypage')->with('success', '問題を非公開にしました。');
+    }
+
+    public function public($id)
+    {
+        $quiz = QuestionTitle::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $quiz->update([
+            'is_public' => true,
+        ]);
+
+        return redirect()->route('mypage')->with('success', '問題を再公開しました。');
     }
 
     private function rules(): array

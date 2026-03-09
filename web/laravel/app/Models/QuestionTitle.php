@@ -13,6 +13,7 @@ class QuestionTitle extends Model
         'title',
         'description',
         'user_id',
+        'is_public',
     ];
 
     public function user(){
