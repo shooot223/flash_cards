@@ -171,6 +171,17 @@ class QuizController extends Controller
         return redirect()->route('quiz.complete');
     }
 
+    public function destroy($id)
+    {
+        $quiz = Question::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $quiz->delete();
+
+        return redirect()->route('mypage')->with('success', '問題を削除しました。');
+    }
+
     private function rules(): array
     {
         return [
