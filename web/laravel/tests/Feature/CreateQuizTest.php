@@ -153,7 +153,7 @@ class CreateQuizTest extends TestCase
         $response->assertSessionHasErrors('questions.0.correct');
     }
 
-    //2問目移行で問題文だけ記入されている場合にその他の値が記入されていないと失敗する
+    //2問目移行で問題文以外が記入されている場合にその他の値が記入されていると失敗する
     public function test_user_cannot_confirm_quiz_without_second_question()
     {
         $user = User::factory()->create();
@@ -188,7 +188,130 @@ class CreateQuizTest extends TestCase
         $response->assertSessionHasErrors(['questions.1.correct']);
     }
 
+    //2問目が未入力ならば、問題なし
+    public function test_user_can_confirm_quiz_when_second_question_is_completely_empty()
+    {
+        $user = User::factory()->create();
 
+        $form = $this->correct_form;
+        $form['questions'][1] = [
+            'question' => null,
+            'choices' => [],
+            'correct' => null,
+        ];
+
+        $response = $this->actingAs($user)->post('/quiz/confirm', $form);
+
+        $response->assertStatus(200);
+    }
+
+    //選択肢の数が少ない場合
+    public function test_user_cannot_confirm_quiz_when_first_question_has_less_than_four_choices()
+    {
+        $user = User::factory()->create();
+
+        $form = $this->correct_form;
+        $form['questions'][0]['choices'] = ['Apple', 'Banana', 'Orange'];
+
+        $response = $this->actingAs($user)
+            ->from('/quiz/create')
+            ->post('/quiz/confirm', $form);
+
+        $response->assertRedirect('/quiz/create');
+        $response->assertSessionHasErrors('questions.0.choices');
+    }
+
+    //正解の選択肢が範囲外の場合
+    public function test_user_cannot_confirm_quiz_when_correct_choice_is_out_of_range()
+    {
+        $user = User::factory()->create();
+
+        $form = $this->correct_form;
+        $form['questions'][0]['correct'] = 4;
+
+        $response = $this->actingAs($user)
+            ->from('/quiz/create')
+            ->post('/quiz/confirm', $form);
+
+        $response->assertRedirect('/quiz/create');
+        $response->assertSessionHasErrors('questions.0.correct');
+    }
+
+    //空タグは保存されない
+    public function test_empty_tags_are_not_saved()
+    {
+        $user = User::factory()->create();
+
+        $form = $this->correct_form;
+        $form['tags'] = ['テストタグ', '', ''];
+
+        $this->actingAs($user)->post('/quiz/store', $form);
+
+        $this->assertDatabaseHas('question_categories', [
+            'category_name' => 'テストタグ',
+        ]);
+
+        $this->assertDatabaseMissing('question_categories', [
+            'category_name' => '',
+        ]);
+    }
+
+    //重複タグは１件にまとめて保存される
+    public function test_duplicate_tags_are_saved_only_once()
+    {
+        $user = User::factory()->create();
+
+        $form = $this->correct_form;
+        $form['tags'] = ['PHP', 'PHP', 'Laravel'];
+
+        $this->actingAs($user)->post('/quiz/store', $form);
+
+        $this->assertEquals(2, \App\Models\QuestionCategory::count());
+    }
+
+    public function test_user_can_store_all_questions_and_choices()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/quiz/store', $this->correct_form);
+
+        $this->assertDatabaseCount('question_titles', 1);
+        $this->assertDatabaseCount('questions', 2);
+        $this->assertDatabaseCount('choices', 8);
+    }
+
+
+    //正解が１問に月１つだけ保存されるか
+    public function test_each_question_has_only_one_correct_choice()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/quiz/store', $this->correct_form);
+
+        $quiz = \App\Models\QuestionTitle::first();
+        $questions = \App\Models\Question::where('title_id', $quiz->id)->get();
+
+        foreach ($questions as $question) {
+            $this->assertEquals(
+                1,
+                \App\Models\Choice::where('question_id', $question->id)
+                    ->where('is_correct', 1)
+                    ->count()
+            );
+        }
+    }
+
+    //ログインユーザーとして保存されているか
+    public function test_quiz_is_saved_for_authenticated_user()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/quiz/store', $this->correct_form);
+
+        $this->assertDatabaseHas('question_titles', [
+            'user_id' => $user->id,
+        ]);
+    }
     private array $correct_form = [
         'title' => 'テスト問題',
         'description' => 'テスト問題の説明',
