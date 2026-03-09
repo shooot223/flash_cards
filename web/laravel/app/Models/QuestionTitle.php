@@ -14,6 +14,7 @@ class QuestionTitle extends Model
         'description',
         'user_id',
         'is_public',
+        'image_path',
     ];
 
     public function user(){
