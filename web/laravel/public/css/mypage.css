@@ -1,3 +1,7 @@
+/* ========================================
+   共通変数
+   アプリ全体で使う色・角丸・影などを定義
+======================================== */
 :root{
     --bg: #f5f7fb;
     --card: #ffffff;
@@ -19,10 +23,12 @@
     --shadow-hover: 0 18px 40px rgba(15, 23, 42, 0.12);
 }
 
+/* 全要素のbox-sizingをborder-boxに統一 */
 *{
     box-sizing: border-box;
 }
 
+/* ページ全体の基本設定 */
 html, body{
     margin: 0;
     padding: 0;
@@ -31,20 +37,28 @@ html, body{
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
 }
 
+/* リンクの色を親要素に合わせる */
 a{
     color: inherit;
 }
 
+/* ボタンのフォントを周囲に合わせる */
 button{
     font: inherit;
 }
 
+/* ========================================
+   マイページ全体レイアウト
+======================================== */
 .mypagePage{
     max-width: 1160px;
     margin: 0 auto;
     padding: 32px 20px 56px;
 }
 
+/* 上部ヒーローエリア
+   左: 説明
+   右: プロフィールカード */
 .mypageHero{
     display: grid;
     grid-template-columns: 1.4fr 1fr;
@@ -53,6 +67,7 @@ button{
     margin-bottom: 24px;
 }
 
+/* 左ヒーロー・プロフィールカードの共通見た目 */
 .mypageHero__left,
 .profileCard{
     background: rgba(255,255,255,0.88);
@@ -62,12 +77,14 @@ button{
     box-shadow: var(--shadow);
 }
 
+/* 左ヒーロー部分 */
 .mypageHero__left{
     padding: 28px;
     position: relative;
     overflow: hidden;
 }
 
+/* 装飾用の淡い青い円形グラデーション */
 .mypageHero__left::after{
     content: "";
     position: absolute;
@@ -79,6 +96,7 @@ button{
     pointer-events: none;
 }
 
+/* My Page バッジ */
 .mypageHero__badge{
     display: inline-flex;
     align-items: center;
@@ -91,6 +109,7 @@ button{
     margin-bottom: 14px;
 }
 
+/* メインタイトル */
 .mypageHero__title{
     margin: 0 0 10px;
     font-size: 34px;
@@ -98,6 +117,7 @@ button{
     letter-spacing: -0.02em;
 }
 
+/* 説明文 */
 .mypageHero__text{
     margin: 0;
     color: var(--muted);
@@ -105,6 +125,9 @@ button{
     line-height: 1.8;
 }
 
+/* ========================================
+   プロフィールカード
+======================================== */
 .profileCard{
     padding: 22px;
     display: flex;
@@ -113,6 +136,7 @@ button{
     gap: 18px;
 }
 
+/* ユーザーの頭文字アイコン */
 .profileCard__icon{
     width: 64px;
     height: 64px;
@@ -127,18 +151,21 @@ button{
     box-shadow: 0 12px 28px rgba(37, 99, 235, 0.25);
 }
 
+/* ユーザー名 */
 .profileCard__name{
     font-size: 20px;
     font-weight: 800;
     margin-bottom: 6px;
 }
 
+/* メールアドレス */
 .profileCard__email{
     font-size: 14px;
     color: var(--muted);
     word-break: break-all;
 }
 
+/* ユーザー情報編集ボタン */
 .profileEditButton{
     display: inline-flex;
     align-items: center;
@@ -159,10 +186,14 @@ button{
     transform: translateY(-1px);
 }
 
+/* ========================================
+   クイックアクション
+======================================== */
 .quickActions{
     margin-bottom: 20px;
 }
 
+/* 新しく問題を作成するボタン */
 .quickAction{
     display: inline-flex;
     align-items: center;
@@ -190,6 +221,9 @@ button{
     line-height: 1;
 }
 
+/* ========================================
+   統計カード
+======================================== */
 .mypageStats{
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -217,6 +251,9 @@ button{
     letter-spacing: -0.03em;
 }
 
+/* ========================================
+   メインカード
+======================================== */
 .mypageMainCard{
     background: rgba(255,255,255,0.9);
     backdrop-filter: blur(10px);
@@ -226,6 +263,7 @@ button{
     padding: 24px;
 }
 
+/* タブ切り替えエリア */
 .tabArea{
     display: inline-flex;
     gap: 8px;
@@ -250,20 +288,26 @@ button{
     color: var(--text);
 }
 
+/* 選択中のタブ */
 .tabButton.is-active{
     background: #fff;
     color: var(--text);
     box-shadow: 0 3px 10px rgba(0,0,0,.06);
 }
 
+/* タブ中身は通常非表示 */
 .tabContent{
     display: none;
 }
 
+/* 選択中タブのみ表示 */
 .tabContent.is-active{
     display: block;
 }
 
+/* ========================================
+   クイズカード
+======================================== */
 .quizCard{
     display: grid;
     grid-template-columns: 108px 1fr auto;
@@ -277,16 +321,19 @@ button{
     transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 
+/* クイズカード同士の縦余白 */
 .quizCard + .quizCard{
     margin-top: 16px;
 }
 
+/* ホバー時に少し浮かせる */
 .quizCard:hover{
     transform: translateY(-2px);
     box-shadow: var(--shadow);
     border-color: var(--line-strong);
 }
 
+/* サムネイル枠 */
 .quizCard__thumb{
     width: 108px;
     height: 108px;
@@ -297,10 +344,12 @@ button{
     justify-content: center;
 }
 
+/* 回答済み用サムネイル背景 */
 .quizCard__thumb--answered{
     background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
 }
 
+/* サムネイル内文字 */
 .quizCard__thumbText{
     font-size: 13px;
     font-weight: 800;
@@ -308,6 +357,7 @@ button{
     letter-spacing: .08em;
 }
 
+/* タイトルとチップを横並び */
 .quizCard__top{
     display: flex;
     align-items: flex-start;
@@ -316,6 +366,7 @@ button{
     margin-bottom: 10px;
 }
 
+/* クイズタイトル */
 .quizCard__title{
     margin: 0;
     font-size: 20px;
@@ -323,6 +374,7 @@ button{
     line-height: 1.4;
 }
 
+/* 説明文 */
 .quizCard__description{
     margin: 0 0 12px;
     color: var(--muted);
@@ -330,17 +382,20 @@ button{
     line-height: 1.8;
 }
 
+/* 作成日などの補足情報 */
 .quizCard__meta{
     font-size: 13px;
     color: var(--muted);
 }
 
+/* チップ群 */
 .quizCard__chips{
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
 }
 
+/* 汎用チップ */
 .chip{
     display: inline-flex;
     align-items: center;
@@ -354,11 +409,13 @@ button{
     white-space: nowrap;
 }
 
+/* 回答済みチップ */
 .chip--answered{
     background: #ecfeff;
     color: #0f766e;
 }
 
+/* ボタン群 */
 .quizCard__actions{
     display: flex;
     align-items: center;
@@ -371,6 +428,9 @@ button{
     margin: 0;
 }
 
+/* ========================================
+   ボタン共通
+======================================== */
 .actionButton{
     display: inline-flex;
     align-items: center;
@@ -390,6 +450,7 @@ button{
     transform: translateY(-1px);
 }
 
+/* メインボタン */
 .actionButton--primary{
     background: var(--primary);
     color: #fff;
@@ -399,6 +460,7 @@ button{
     background: var(--primary-hover);
 }
 
+/* 編集ボタン */
 .actionButton--edit{
     background: #ecfdf5;
     color: var(--success);
@@ -408,6 +470,7 @@ button{
     background: #d1fae5;
 }
 
+/* 削除ボタン */
 .actionButton--delete{
     background: #fef2f2;
     color: var(--danger);
@@ -417,6 +480,9 @@ button{
     background: #fee2e2;
 }
 
+/* ========================================
+   空状態
+======================================== */
 .emptyState{
     border: 1px dashed var(--line-strong);
     border-radius: 20px;
@@ -460,6 +526,9 @@ button{
     background: var(--primary-hover);
 }
 
+/* ========================================
+   タブレット向け調整
+======================================== */
 @media (max-width: 960px){
     .mypageHero{
         grid-template-columns: 1fr;
@@ -481,6 +550,9 @@ button{
     }
 }
 
+/* ========================================
+   スマホ向け調整
+======================================== */
 @media (max-width: 640px){
     .mypagePage{
         padding: 20px 14px 40px;
@@ -539,16 +611,24 @@ button{
         width: 100%;
     }
 }
+
+/* ========================================
+   状態別チップ・ボタン
+======================================== */
+
+/* 公開中チップ */
 .chip--public{
     background: #ecfdf5;
     color: #059669;
 }
 
+/* 非公開チップ */
 .chip--private{
     background: #fef2f2;
     color: #dc2626;
 }
 
+/* 非公開にするボタン */
 .actionButton--warning{
     background: #fff7ed;
     color: #ea580c;
@@ -557,6 +637,8 @@ button{
 .actionButton--warning:hover{
     background: #ffedd5;
 }
+
+/* 復習するなどの補助ボタン */
 .actionButton--secondary{
     background: #f3f4f6;
     color: #374151;
@@ -565,6 +647,11 @@ button{
 .actionButton--secondary:hover{
     background: #e5e7eb;
 }
+
+/* ========================================
+   クイズカード詳細調整
+   上の.quizCard定義の上書き
+======================================== */
 .quizCard{
     display: grid;
     grid-template-columns: 120px 1fr auto;
@@ -577,6 +664,7 @@ button{
     box-shadow: 0 6px 20px rgba(15,23,42,.04);
 }
 
+/* サムネイル画像用 */
 .quizCard__thumb{
     width: 120px;
     height: 120px;
@@ -593,6 +681,7 @@ button{
     display: block;
 }
 
+/* 本文領域 */
 .quizCard__body{
     min-width: 0;
 }
@@ -633,6 +722,8 @@ button{
     flex-wrap: wrap;
     justify-content: flex-end;
 }
+
+/* 画像付きカードの中サイズ以下対応 */
 @media (max-width: 768px){
     .quizCard{
         grid-template-columns: 1fr;
@@ -646,5 +737,194 @@ button{
 
     .quizCard__actions{
         justify-content: flex-start;
+    }
+}
+
+/* ========================================
+   CSV出力用 一括操作バー
+======================================== */
+.bulkActionBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    flex-wrap: wrap;
+}
+
+/* 全選択ラベル */
+.bulkActionBar__check {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    cursor: pointer;
+}
+
+/* 全選択チェックボックス */
+.bulkActionBar__checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* 右側の件数表示とCSV出力ボタン */
+.bulkActionBar__right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* 選択件数 */
+.bulkActionBar__count {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* CSV出力ボタン */
+.bulkActionBar__button {
+    border: none;
+    background: #2563eb;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.bulkActionBar__button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* バリデーションエラーメッセージ */
+.formError {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 14px;
+    border: 1px solid #fecaca;
+}
+
+/* ========================================
+   選択可能なクイズカード
+======================================== */
+.quizCard--selectable {
+    display: grid;
+    grid-template-columns: auto 140px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+/* 左端のチェックボックス領域 */
+.quizCard__select {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 4px;
+}
+
+/* カスタムチェックボックス全体 */
+.quizSelectCheckbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* 元のチェックボックスは非表示 */
+.quizSelectCheckbox input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 見た目用のチェックボックス */
+.quizSelectCheckbox__box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+/* チェックされたときの背景色 */
+.quizSelectCheckbox input:checked + .quizSelectCheckbox__box {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+/* チェックマーク描画 */
+.quizSelectCheckbox input:checked + .quizSelectCheckbox__box::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 11px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* 選択済みカードの強調表示 */
+.quizCard--selectable.is-selected {
+    border-color: #93c5fd;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.12);
+    background: #f8fbff;
+}
+
+/* 選択可能カードの中画面対応 */
+@media (max-width: 900px) {
+    .quizCard--selectable {
+        grid-template-columns: auto 100px 1fr;
+    }
+
+    .quizCard--selectable .quizCard__actions {
+        grid-column: 2 / 4;
+    }
+}
+
+/* 選択可能カードのスマホ対応 */
+@media (max-width: 640px) {
+    .bulkActionBar {
+        align-items: stretch;
+    }
+
+    .bulkActionBar__right {
+        justify-content: space-between;
+    }
+
+    .quizCard--selectable {
+        grid-template-columns: auto 1fr;
+        gap: 16px;
+    }
+
+    .quizCard--selectable .quizCard__thumb {
+        grid-column: 2 / 3;
+    }
+
+    .quizCard--selectable .quizCard__body {
+        grid-column: 2 / 3;
+    }
+
+    .quizCard--selectable .quizCard__actions {
+        grid-column: 1 / 3;
     }
 }

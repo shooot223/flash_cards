@@ -10,6 +10,7 @@ use App\Models\QuestionCategory;
 use App\Models\QuestionTitleCategory;
 use App\Models\Question;
 use App\Models\Choice;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class QuizController extends Controller
 {
@@ -288,5 +289,90 @@ class QuizController extends Controller
             'questions.*.choices.*.required_with' => 'この選択肢は必須です。',
             'questions.*.correct.required_with' => '問題文もしくは選択肢が入力されている場合、正解の選択肢は必須です。',
         ];
+    }
+
+    //csv出力
+
+    public function export_csv(Request $request): StreamedResponse
+    {
+        // バリデーション
+        $validated = $request->validate([
+            'quiz_ids' => ['required', 'array'],
+            'quiz_ids.*' => ['integer', 'exists:question_titles,id'],
+        ]);
+
+        $quizIds = $validated['quiz_ids'];
+
+        // クイズ取得（問題と選択肢も一緒に取得）
+        $quizzes = QuestionTitle::with(['questions.choices'])
+            ->whereIn('id', $quizIds)
+            ->where('user_id', auth()->id()) // 自分の問題だけ
+            ->get();
+
+        $fileName = 'quiz_export_' . now()->format('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename={$fileName}",
+        ];
+
+        $callback = function () use ($quizzes) {
+
+            $handle = fopen('php://output', 'w');
+
+            // Excel文字化け対策
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            // ヘッダー
+            fputcsv($handle, [
+                '問題タイトル',
+                '説明文',
+                '問題文',
+                '選択肢１',
+                '選択肢２',
+                '選択肢３',
+                '選択肢４',
+                '正解選択肢'
+            ]);
+
+            foreach ($quizzes as $quiz) {
+
+                foreach ($quiz->questions as $question) {
+
+                    // choices を配列化
+                    $choices = $question->choices->values();
+
+                    $choice1 = $choices[0]->choice_text ?? '';
+                    $choice2 = $choices[1]->choice_text ?? '';
+                    $choice3 = $choices[2]->choice_text ?? '';
+                    $choice4 = $choices[3]->choice_text ?? '';
+
+                    // 正解取得
+                    $correct = '';
+
+                    foreach ($choices as $index => $choice) {
+                        if ($choice->is_correct) {
+                            $correct = $index + 1;
+                            break;
+                        }
+                    }
+
+                    fputcsv($handle, [
+                        $quiz->title,
+                        $quiz->description,
+                        $question->question_text,
+                        $choice1,
+                        $choice2,
+                        $choice3,
+                        $choice4,
+                        $correct
+                    ]);
+                }
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

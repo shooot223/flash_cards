@@ -35,6 +35,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/quiz/{id}', 'delete')->name('delete');
         Route::patch('/{id}/private', 'private')->name('private');
         Route::patch('/{id}/public', 'public')->name('public');
+        Route::post('export_csv', 'export_csv')->name('export.csv');
     });
 
     //プローフィール編集
