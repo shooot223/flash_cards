@@ -309,6 +309,7 @@ class QuizController extends Controller
             ->where('user_id', auth()->id()) // 自分の問題だけ
             ->get();
 
+        //ファイル名
         $fileName = 'quiz_export_' . now()->format('Ymd_His') . '.csv';
 
         $headers = [
@@ -325,6 +326,7 @@ class QuizController extends Controller
 
             // ヘッダー
             fputcsv($handle, [
+                '問題ID',
                 '問題タイトル',
                 '説明文',
                 '問題文',
@@ -358,6 +360,7 @@ class QuizController extends Controller
                     }
 
                     fputcsv($handle, [
+                        $quiz->id,
                         $quiz->title,
                         $quiz->description,
                         $question->question_text,
@@ -365,7 +368,7 @@ class QuizController extends Controller
                         $choice2,
                         $choice3,
                         $choice4,
-                        $correct
+                        '選択肢'.$correct
                     ]);
                 }
             }
