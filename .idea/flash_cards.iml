@@ -182,6 +182,7 @@
       <excludeFolder url="file://$MODULE_DIR$/web/vendor/symfony/translation" />
       <excludeFolder url="file://$MODULE_DIR$/web/vendor/symfony/translation-contracts" />
       <excludeFolder url="file://$MODULE_DIR$/web/vendor/voku/portable-ascii" />
+      <excludeFolder url="file://$MODULE_DIR$/web/laravel/vendor/laravel/sanctum" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
