@@ -70,10 +70,43 @@
 
         {{-- 作成した問題 --}}
         <div class="tabContent is-active" id="tab-created">
+            <div class="bulkActionBar">
+                <label class="bulkActionBar__check">
+                    <input type="checkbox" id="checkAllCreated" class="bulkActionBar__checkbox">
+                    <span>すべて選択</span>
+                </label>
+
+                <div class="bulkActionBar__right">
+            <span class="bulkActionBar__count">
+                選択中: <span id="selectedCount">0</span>件
+            </span>
+                    <button type="button" id="exportSelectedButton" class="bulkActionBar__button">
+                        選択した問題をCSV出力
+                    </button>
+                </div>
+            </div>
+
+            @if ($errors->has('quiz_ids'))
+                <p class="formError">{{ $errors->first('quiz_ids') }}</p>
+            @endif
+
             @forelse ($createdQuizzes as $quiz)
-                <article class="quizCard">
+                <article class="quizCard quizCard--selectable">
+                    <div class="quizCard__select">
+                        <label class="quizSelectCheckbox">
+                            <input
+                                type="checkbox"
+                                value="{{ $quiz->id }}"
+                                class="quizCheckbox"
+                            >
+                            <span class="quizSelectCheckbox__box"></span>
+                        </label>
+                    </div>
+
                     <div class="quizCard__thumb">
-                        <img src="{{ $quiz->image_path ? asset('storage/' . $quiz->image_path) : asset('img/default_quiz.png') }}" alt="quiz thumbnail" class="quizCard__thumbImage">
+                        <img src="{{ $quiz->image_path ? asset('storage/' . $quiz->image_path) : asset('img/default_quiz.png') }}"
+                             alt="quiz thumbnail"
+                             class="quizCard__thumbImage">
                     </div>
 
                     <div class="quizCard__body">
@@ -132,6 +165,10 @@
                 </div>
             @endforelse
         </div>
+
+        <form action="{{ route('quiz.export.csv') }}" method="POST" id="exportCsvForm" style="display: none;">
+            @csrf
+        </form>
 
         {{-- 過去に回答した問題 --}}
         <div class="tabContent" id="tab-answered">
@@ -217,6 +254,71 @@
                 }
             });
         });
+
+        //CSV出力用フォーム
+        const checkAllCreated = document.getElementById('checkAllCreated');
+        const quizCheckboxes = document.querySelectorAll('.quizCheckbox');
+        const selectedCount = document.getElementById('selectedCount');
+        const exportSelectedButton = document.getElementById('exportSelectedButton');
+        const exportCsvForm = document.getElementById('exportCsvForm');
+
+        function updateSelectedCount() {
+            const checkedCount = document.querySelectorAll('.quizCheckbox:checked').length;
+            selectedCount.textContent = checkedCount;
+
+            if (checkAllCreated) {
+                checkAllCreated.checked = quizCheckboxes.length > 0 && checkedCount === quizCheckboxes.length;
+            }
+
+            quizCheckboxes.forEach((checkbox) => {
+                const card = checkbox.closest('.quizCard');
+                if (!card) return;
+
+                if (checkbox.checked) {
+                    card.classList.add('is-selected');
+                } else {
+                    card.classList.remove('is-selected');
+                }
+            });
+        }
+
+        if (checkAllCreated) {
+            checkAllCreated.addEventListener('change', function () {
+                quizCheckboxes.forEach((checkbox) => {
+                    checkbox.checked = this.checked;
+                });
+                updateSelectedCount();
+            });
+        }
+
+        quizCheckboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', updateSelectedCount);
+        });
+
+        if (exportSelectedButton) {
+            exportSelectedButton.addEventListener('click', function () {
+                exportCsvForm.querySelectorAll('input[name="quiz_ids[]"]').forEach(el => el.remove());
+
+                const checked = document.querySelectorAll('.quizCheckbox:checked');
+
+                if (checked.length === 0) {
+                    alert('CSV出力する問題を選択してください。');
+                    return;
+                }
+
+                checked.forEach((checkbox) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'quiz_ids[]';
+                    input.value = checkbox.value;
+                    exportCsvForm.appendChild(input);
+                });
+
+                exportCsvForm.submit();
+            });
+        }
+
+        updateSelectedCount();
     });
 </script>
 </body>
