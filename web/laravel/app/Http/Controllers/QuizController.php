@@ -60,24 +60,32 @@ class QuizController extends Controller
         ]);
     }
 
+    //保存処理
     public function store(Request $request)
     {
+        //ヴァリデーション
         $validated = $request->validate(
-            $this->storeUpdateRules(),
-            $this->messages()
+            $this->storeUpdateRules(),//バリデーションルール
+            $this->messages()//バリデーションエラーメッセージ
         );
 
+        //保存処理
         DB::transaction(function () use ($validated) {
+            //画像パスのデフォルト値（null）
             $imagePath = null;
 
+            //画像が存在するか確認
             if (!empty($validated['temp_quiz_image']) && Storage::disk('public')->exists($validated['temp_quiz_image'])) {
+                //画像のパス名を決定
                 $filename = basename($validated['temp_quiz_image']);
                 $newPath = 'quizzes/' . $filename;
 
+                //保存済み画像のディレクトリを移動
                 Storage::disk('public')->move($validated['temp_quiz_image'], $newPath);
                 $imagePath = $newPath;
             }
 
+            //問題タイトルの保存
             $title = QuestionTitle::create([
                 'title' => $validated['title'],
                 'description' => $validated['description'],
@@ -189,16 +197,19 @@ class QuizController extends Controller
         }
     }
 
+    //クイズの問題の置き換え処理
     private function replaceQuestions(QuestionTitle $title, array $questions): void
     {
+        //既存の問題・選択肢があるか確認
         $questionIds = Question::where('title_id', $title->id)->pluck('id');
+        //義損の選択肢を削除
         Choice::whereIn('question_id', $questionIds)->delete();
+        //既存の問題を削除
         Question::where('title_id', $title->id)->delete();
 
-        $filteredQuestions = collect($questions)
-            ->filter(fn ($q) => !empty($q['question']))
-            ->values();
 
+        //空の問題があれば削除し、配列をつくり直す
+        $filteredQuestions = $this->normalizeQuestions($questions);
         foreach ($filteredQuestions as $q) {
             $question = Question::create([
                 'title_id' => $title->id,
@@ -217,6 +228,29 @@ class QuizController extends Controller
                 ]);
             }
         }
+    }
+
+    // 未入力の問題を除外し、問題文・選択肢の前後の空白を削除して配列を整形する
+    private function normalizeQuestions(array $questions): array
+    {
+        return collect($questions)
+            ->map(function ($q) {
+                return [
+                    // 問題文の前後の空白を削除
+                    'question' => trim((string) ($q['question'] ?? '')),
+
+                    // 選択肢の前後の空白を削除
+                    'choices' => collect($q['choices'] ?? [])
+                        ->map(fn ($choice) => trim((string) $choice))
+                        ->all(),
+
+                    'correct' => $q['correct'] ?? null,
+                ];
+            })
+            // 問題文が空の問題は除外
+            ->filter(fn ($q) => filled($q['question']))
+            ->values()
+            ->all();
     }
 
     private function rules(): array
