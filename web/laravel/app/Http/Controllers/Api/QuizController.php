@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreQuizRequest;
+use App\Http\Requests\QuizRequest;
 use App\Http\Resources\QuizResource;
 use App\Models\Answer;
 use App\Models\Choice;
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
 class QuizController extends Controller
 {
     //クイズ保存処理（API）
-    public function store(StoreQuizRequest $request): JsonResponse
+    public function store(QuizRequest $request): JsonResponse
     {
         //リクエスト内容のバリデーション
         $validated = $request->validated();
