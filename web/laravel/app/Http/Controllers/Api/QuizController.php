@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreQuizRequest;
+use App\Http\Resources\QuizResource;
 use App\Models\Answer;
+use App\Models\Choice;
 use App\Models\Question;
 use App\Models\QuestionCategory;
 use App\Models\QuestionTitle;
@@ -40,14 +42,14 @@ class QuizController extends Controller
             $this->replaceQuestions($title, $validated['questions']);
 
             return $title->load([
-                'tags',
-                'questions.choices',
+                'categories:id,category_name',
+                'questions.choices'
             ]);
         });
 
         return response()->json([
             'message' => 'クイズを作成しました。',
-            'data' => $title,
+            'data' => new QuizResource($title),
         ], 201);
     }
 
@@ -77,21 +79,56 @@ class QuizController extends Controller
     //クイズの問題の置き換え処理
     private function replaceQuestions(QuestionTitle $title, array $questions): void
     {
-        //このクイズに紐づく問題を全部削除（updateで活用）
-        $title->questions()->delete();
+        //既存の問題・選択肢があるか確認
+        $questionIds = Question::where('title_id', $title->id)->pluck('id');
+        //義損の選択肢を削除
+        Choice::whereIn('question_id', $questionIds)->delete();
+        //既存の問題を削除
+        Question::where('title_id', $title->id)->delete();
 
-        //クイズの問題を置き換える（新たに作成する）
-        foreach ($questions as $questionData) {
-            $question = $title->questions()->create([
-                'question_text' => $questionData['question_text'],
+
+        //空の問題があれば削除し、配列をつくり直す
+        $filteredQuestions = $this->normalizeQuestions($questions);
+        foreach ($filteredQuestions as $q) {
+            $question = Question::create([
+                'title_id' => $title->id,
+                'question_text' => $q['question_text'],
             ]);
 
-            foreach ($questionData['choices'] as $index => $choiceText) {
-                $question->answers()->create([
-                    'answer_text' => $choiceText,
-                    'is_correct' => $index === (int) $questionData['correct_answer'],
+            foreach (($q['choices'] ?? []) as $index => $choiceText) {
+                if (empty($choiceText)) {
+                    continue;
+                }
+
+                Choice::create([
+                    'question_id' => $question->id,
+                    'choice_text' => $choiceText,
+                    'is_correct' => (int) $index === (int) $q['correct_answer'] ? 1 : 0,
                 ]);
             }
         }
+    }
+
+    // 未入力の問題を除外し、問題文・選択肢の前後の空白を削除して配列を整形する
+    private function normalizeQuestions(array $questions): array
+    {
+        return collect($questions)
+            ->map(function ($q) {
+                return [
+                    // 問題文の前後の空白を削除
+                    'question_text' => trim((string) ($q['question_text'] ?? '')),
+
+                    // 選択肢の前後の空白を削除
+                    'choices' => collect($q['choices'] ?? [])
+                        ->map(fn ($choice) => trim((string) $choice))
+                        ->all(),
+
+                    'correct_answer' => $q['correct_answer'] ?? null,
+                ];
+            })
+            // 問題文が空の問題は除外
+            ->filter(fn ($q) => filled($q['question_text']))
+            ->values()
+            ->all();
     }
 }
