@@ -20,10 +20,13 @@ class QuizController extends Controller
     //クイズ保存処理（API）
     public function store(StoreQuizRequest $request): JsonResponse
     {
+        //リクエスト内容のバリデーション
         $validated = $request->validated();
 
+        //保存処理
         $title = DB::transaction(function () use ($validated) {
 
+            //クイズのタイトルを保存
             $title = QuestionTitle::create([
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
@@ -31,12 +34,14 @@ class QuizController extends Controller
                 'is_public' => $validated['is_public'],
             ]);
 
+            //タグの保存処理
             $this->syncTags($title, $validated['tags'] ?? []);
+            //問題、選択肢の保存処理
             $this->replaceQuestions($title, $validated['questions']);
 
             return $title->load([
                 'tags',
-                'questions.answers',
+                'questions.choices',
             ]);
         });
 
@@ -56,7 +61,7 @@ class QuizController extends Controller
             ->values();
 
         foreach ($filteredTags as $tagName) {
-            //タグが存在するか確認して、なければ作成
+            //category_nameカラムに存在するか確認して、なければ作成
             $category = QuestionCategory::firstOrCreate([
                 'category_name' => $tagName,
             ]);
@@ -69,10 +74,10 @@ class QuizController extends Controller
         }
     }
 
-    //クイズの問題の置き換え処理（update用）
+    //クイズの問題の置き換え処理
     private function replaceQuestions(QuestionTitle $title, array $questions): void
     {
-        //このクイズに紐づく問題を全部削除
+        //このクイズに紐づく問題を全部削除（updateで活用）
         $title->questions()->delete();
 
         //クイズの問題を置き換える（新たに作成する）
