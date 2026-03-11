@@ -16,6 +16,7 @@ class StoreQuizRequest extends FormRequest
         return [
             'title' => ['required','string','max:255'],
             'description' => ['required','string'],
+            'is_public' => ['required','boolean'],
 
             'tags' => ['array'],
             'tags.*' => ['string','max:50'],
@@ -40,6 +41,9 @@ class StoreQuizRequest extends FormRequest
 
             'description.string' => '説明文は文字列で入力してください。',
 
+            'is_public.required' => '公開設定は必須です。',
+            'is_public.boolean' => '公開設定の値が不正です。',
+
             'tags.array' => 'タグの形式が不正です。',
             'tags.*.string' => 'タグは文字列で入力してください。',
             'tags.*.max' => 'タグは50文字以内で入力してください。',
@@ -60,7 +64,7 @@ class StoreQuizRequest extends FormRequest
 
             'questions.*.correct_answer.required' => '正解は必須です。',
             'questions.*.correct_answer.integer' => '正解の形式が不正です。',
-            'questions.*.correct_answer.between' => '正解の値が不正です。',
+            'questions.*.correct_answer.between' => '正解の値は0~3で入力してください。',
         ];
     }
 }
