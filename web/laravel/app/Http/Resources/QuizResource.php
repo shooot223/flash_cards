@@ -18,8 +18,17 @@ class QuizResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
-//            'quiz_category_id' => $this->quiz_category_id,
-            'questions' => QuestionResource::collection($this->whenLoaded('questions')),
+            'is_public' => $this->is_public,
+
+            'categories' => CategoryResource::collection(
+                $this->whenLoaded('categories')
+            ),
+
+            'questions' => QuestionResource::collection(
+                $this->whenLoaded('questions')
+            ),
+
+            'created_at' => $this->created_at,
         ];
     }
 }

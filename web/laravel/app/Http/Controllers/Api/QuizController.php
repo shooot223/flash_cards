@@ -24,15 +24,16 @@ class QuizController extends Controller
     {
         //リクエスト内容のバリデーション
         $validated = $request->validated();
+        $user = $request->user();
 
         //保存処理
-        $title = DB::transaction(function () use ($validated) {
+        $title = DB::transaction(function () use ($validated, $user) {
 
             //クイズのタイトルを保存
             $title = QuestionTitle::create([
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
-                'user_id' => $request->user()->id,
+                'user_id' => $user->id,
                 'is_public' => $validated['is_public'],
             ]);
 
@@ -47,10 +48,12 @@ class QuizController extends Controller
             ]);
         });
 
-        return response()->json([
-            'message' => 'クイズを作成しました。',
-            'data' => new QuizResource($title),
-        ], 201);
+        return (new QuizResource($title))
+            ->additional([
+                'message' => 'クイズを作成しました。'
+            ])
+            ->response()
+            ->setStatusCode(201);
     }
 
     //タグの保存処理
