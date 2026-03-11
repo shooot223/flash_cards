@@ -32,7 +32,7 @@ class QuizController extends Controller
             $title = QuestionTitle::create([
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
-                'user_id' => 1,
+                'user_id' => $request->user()->id,
                 'is_public' => $validated['is_public'],
             ]);
 
