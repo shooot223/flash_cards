@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class QuizRequest extends FormRequest
+class QuizAPIRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,7 +16,6 @@ class QuizRequest extends FormRequest
         return [
             'title' => ['required','string','max:255'],
             'description' => ['required','string'],
-            'is_public' => ['required','boolean'],
 
             'tags' => ['array'],
             'tags.*' => ['string','max:50'],
@@ -40,9 +39,6 @@ class QuizRequest extends FormRequest
             'title.max' => 'タイトルは255文字以内で入力してください。',
 
             'description.string' => '説明文は文字列で入力してください。',
-
-            'is_public.required' => '公開設定は必須です。',
-            'is_public.boolean' => '公開設定の値が不正です。',
 
             'tags.array' => 'タグの形式が不正です。',
             'tags.*.string' => 'タグは文字列で入力してください。',
