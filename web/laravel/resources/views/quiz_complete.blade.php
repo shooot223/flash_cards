@@ -1,41 +1,41 @@
-<!doctype html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>問題作成完了</title>
-    <link rel="stylesheet" href="{{ asset('css/quiz_create.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-</head>
-<body>
-<header class="header">
-    @include('header')
-</header>
+@extends('layouts.app')
 
-<div class="quizForm">
-    <div class="formGroup" style="text-align: center; padding: 40px 20px;">
-        <div style="font-size: 22px; font-weight: 700; margin-bottom: 16px;">
-            問題を登録しました
-        </div>
+@push('css')
+    <link rel="stylesheet" href="{{ asset('css/quiz_complete.css') }}"/>
+@endpush
 
-        <div style="color: var(--muted); margin-bottom: 28px;">
-            問題の作成が正常に完了しました。
-        </div>
+@section('title', 'Cramist | 問題登録完了')
 
-        <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-            <a href="{{ route('quiz.create') }}"
-               class="submitButton"
-               style="text-decoration: none;">
-                もう一度作成する
-            </a>
+@section('content')
+    <div class="quizForm">
+        <section class="completeCard">
+            <div class="completeIconWrap">
+                <div class="completeIcon">✔</div>
+            </div>
 
-            <a href="{{ route('top') }}"
-               class="submitButton"
-               style="background: #fff; color: var(--text); border: 1px solid var(--border-strong); box-shadow: none; text-decoration: none;">
-                ホームへ戻る
-            </a>
-        </div>
+            <h1 class="completeTitle">クイズを登録しました</h1>
+
+            <p class="completeDescription">
+                問題の作成が正常に完了しました。<br>
+                続けて新しい問題を作成することも、ホームに戻ることもできます。
+            </p>
+
+            <div class="completeMessage">
+                <div class="completeMessageTitle">📚 Cramist に新しい問題が追加されました</div>
+                <div class="completeMessageText">
+                    学習コンテンツが1つ増えました。次のアクションを選んで進めましょう。
+                </div>
+            </div>
+
+            <div class="completeActions">
+                <a href="{{ route('quiz.create') }}" class="completePrimaryButton">
+                    もう一問作成する
+                </a>
+
+                <a href="{{ route('top') }}" class="completeSecondaryButton">
+                    ホームへ戻る
+                </a>
+            </div>
+        </section>
     </div>
-</div>
-</body>
-</html>
+@endsection
