@@ -230,7 +230,7 @@
 </div>
 @endsection
 
-@push('JS')
+@push('js')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const tabButtons = document.querySelectorAll('.tabButton');

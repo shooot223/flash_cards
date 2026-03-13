@@ -31,17 +31,21 @@
                 </div>
             </div>
 
-            <div class="quizAnswerBlock">
-                <div class="quizAnswerLabel">自信度</div>
-                <div class="quizAnswerValue">
-                    @if ($confidence === 'high')
-                        高い
-                    @elseif ($confidence === 'medium')
-                        普通
-                    @else
-                        低い
-                    @endif
-                </div>
+            @php
+                $confidenceMap = [
+                    'high' => ['symbol' => '〇', 'class' => 'confidence-high'],
+                    'medium' => ['symbol' => '△', 'class' => 'confidence-medium'],
+                    'low' => ['symbol' => '×', 'class' => 'confidence-low'],
+                ];
+
+                $confidenceDisplay = $confidenceMap[$confidence ?? null] ?? ['symbol' => '-', 'class' => ''];
+            @endphp
+
+            <div class="result-row">
+                <p class="result-row__label">自信度</p>
+                <p class="result-row__value result-row__value--confidence {{ $confidenceDisplay['class'] }}">
+                    {{ $confidenceDisplay['symbol'] }}
+                </p>
             </div>
 
             <form method="POST" action="{{ route('quiz.next', $quiz->id) }}">
