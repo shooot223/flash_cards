@@ -1,102 +1,100 @@
-<!doctype html>
-<html lang="ja">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Cramist | 問題一覧</title>
-    <link rel="stylesheet" href="{{ asset('/css/top.css') }}"/>
-    <link rel="stylesheet" href="{{ asset('/css/header.css') }}" />
-</head>
-<body>
-<header class="header">
-    @include('header')
-</header>
+@extends('layouts.app')
 
-<main class="container">
-    <section class="hero">
-        <h1 class="hero__title">問題一覧</h1>
-        <p class="hero__text">気になるテーマの問題を探して、繰り返し学習しましょう。</p>
-    </section>
+@section('title', 'Cramist | 問題一覧')
 
-    <section class="searchArea">
-        <form id="searchForm" class="searchForm">
-            <input
-                type="text"
-                name="keyword"
-                id="keywordInput"
-                class="searchInput"
-                placeholder="キーワードで検索（例：HTTP / 会計 / 英単語）"
-                value="{{ request('keyword') }}"
-            >
-            <button type="submit" class="searchButton">検索</button>
-        </form>
-    </section>
+@push('css')
+    <link rel="stylesheet" href="{{ asset('css/top.css') }}"/>
+@endpush
 
-    <section class="tagArea">
-        <div class="sectionTitle">タグ</div>
-        <div class="tagBar" id="tagBar">
-            <button type="button"
-                    class="tagItem {{ request('category') ? '' : 'is-active' }}"
-                    data-category="">
-                すべて
-            </button>
+@section('content')
+    <main class="container">
+        <section class="hero">
+            <h1 class="hero__title">問題一覧</h1>
+            <p class="hero__text">気になるテーマの問題を探して、繰り返し学習しましょう。</p>
+        </section>
 
-            @foreach ($categories as $category)
+        <section class="searchArea">
+            <form id="searchForm" class="searchForm">
+                <input
+                    type="text"
+                    name="keyword"
+                    id="keywordInput"
+                    class="searchInput"
+                    placeholder="キーワードで検索（例：HTTP / 会計 / 英単語）"
+                    value="{{ request('keyword') }}"
+                >
+                <button type="submit" class="searchButton">検索</button>
+            </form>
+        </section>
+
+        <section class="tagArea">
+            <div class="sectionTitle">タグ</div>
+            <div class="tagBar" id="tagBar">
                 <button type="button"
-                        class="tagItem {{ request('category') == $category->id ? 'is-active' : '' }}"
-                        data-category="{{ $category->id }}">
-                    {{ $category->category_name }}
+                        class="tagItem {{ request('category') ? '' : 'is-active' }}"
+                        data-category="">
+                    すべて
                 </button>
-            @endforeach
-        </div>
-    </section>
 
-    <section class="listWrap" id="quizListArea">
-        @include('quiz_list', ['quizzes' => $quizzes])
-    </section>
-</main>
+                @foreach ($categories as $category)
+                    <button type="button"
+                            class="tagItem {{ request('category') == $category->id ? 'is-active' : '' }}"
+                            data-category="{{ $category->id }}">
+                        {{ $category->category_name }}
+                    </button>
+                @endforeach
+            </div>
+        </section>
 
-<script>
-    const searchForm = document.getElementById('searchForm');
-    const keywordInput = document.getElementById('keywordInput');
-    const tagButtons = document.querySelectorAll('.tagItem');
-    const quizListArea = document.getElementById('quizListArea');
+        <section class="listWrap" id="quizListArea">
+            @include('quiz_list', ['quizzes' => $quizzes])
+        </section>
+    </main>
+@endsection
 
-    let selectedCategory = '';
 
-    async function fetchQuizzes() {
-        const keyword = keywordInput.value;
+@push('js')
+    <script>
+        const searchForm = document.getElementById('searchForm');
+        const keywordInput = document.getElementById('keywordInput');
+        const tagButtons = document.querySelectorAll('.tagItem');
+        const quizListArea = document.getElementById('quizListArea');
 
-        const params = new URLSearchParams({
-            keyword: keyword,
-            category: selectedCategory
-        });
+        let selectedCategory = '';
 
-        const response = await fetch(`{{ route('top') }}?${params.toString()}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
+        async function fetchQuizzes() {
+            const keyword = keywordInput.value;
 
-        const html = await response.text();
-        quizListArea.innerHTML = html;
-    }
+            const params = new URLSearchParams({
+                keyword: keyword,
+                category: selectedCategory
+            });
 
-    searchForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        await fetchQuizzes();
-    });
+            const response = await fetch(`{{ route('top') }}?${params.toString()}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
 
-    tagButtons.forEach(button => {
-        button.addEventListener('click', async function () {
-            selectedCategory = this.dataset.category;
+            const html = await response.text();
+            quizListArea.innerHTML = html;
+        }
 
-            tagButtons.forEach(btn => btn.classList.remove('is-active'));
-            this.classList.add('is-active');
-
+        searchForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
             await fetchQuizzes();
         });
-    });
-</script>
-</body>
-</html>
+
+        tagButtons.forEach(button => {
+            button.addEventListener('click', async function () {
+                selectedCategory = this.dataset.category;
+
+                tagButtons.forEach(btn => btn.classList.remove('is-active'));
+                this.classList.add('is-active');
+
+                await fetchQuizzes();
+            });
+        });
+    </script>
+@endpush
+

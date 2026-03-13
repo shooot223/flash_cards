@@ -1,17 +1,12 @@
-<!doctype html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マイページ</title>
-    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/mypage.css') }}">
-</head>
-<body>
-<header class="header">
-    @include('header')
-</header>
+@extends('layouts.app')
 
+@section('title', 'マイページ')
+
+@push('css')
+    <link rel="stylesheet" href="{{ asset('css/mypage.css') }}">
+@endpush
+
+@section('content')
 <div class="mypagePage">
     <section class="mypageHero">
         <div class="mypageHero__left">
@@ -233,7 +228,9 @@
         </div>
     </section>
 </div>
+@endsection
 
+@push('JS')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const tabButtons = document.querySelectorAll('.tabButton');
@@ -321,5 +318,4 @@
         updateSelectedCount();
     });
 </script>
-</body>
-</html>
+@endpush
