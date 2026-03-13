@@ -8,10 +8,12 @@ use Illuminate\Http\Request;
 
 class TopController extends Controller
 {
+    //クイズ一覧画面表示（トップ画面）
     public function index(Request $request)
     {
         $query = QuestionTitle::with(['categories']);
 
+        //キーワード検索
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
 
@@ -21,6 +23,7 @@ class TopController extends Controller
             });
         }
 
+        //タグ検索
         if ($request->filled('category')) {
             $categoryId = $request->category;
 
@@ -29,7 +32,7 @@ class TopController extends Controller
             });
         }
 
-        $quizzes = $query->latest()->get();
+        $quizzes = $query->where('is_public', true)->latest()->get();
         $categories = QuestionCategory::orderBy('category_name')->get();
 
         if ($request->ajax()) {
