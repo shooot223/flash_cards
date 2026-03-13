@@ -3,7 +3,7 @@
     <link rel="stylesheet" href="{{ asset('css/quiz.css') }}"/>
 @endpush
 
-@ection('title', 'Cramist | 問題作成')
+@section('title', 'Cramist | 問題作成')
 @section('content')
 
     @php

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Answer;
 use App\Models\Choice;
 use App\Models\Question;
 use App\Models\QuestionCategory;
@@ -198,31 +199,32 @@ class QuizController extends Controller
     //クイズの問題の置き換え処理
     private function replaceQuestions(QuestionTitle $title, array $questions): void
     {
-        //既存の問題・選択肢があるか確認
         $questionIds = Question::where('title_id', $title->id)->pluck('id');
-        //義損の選択肢を削除
+
+        $choiceIds = Choice::whereIn('question_id', $questionIds)->pluck('id');
+
+        // 既存の回答を削除
+        Answer::whereIn('choice_id', $choiceIds)->delete();
+
+        // 既存の選択肢を削除
         Choice::whereIn('question_id', $questionIds)->delete();
-        //既存の問題を削除
+
+        // 既存の問題を削除
         Question::where('title_id', $title->id)->delete();
 
-
-        //空の問題があれば削除し、配列をつくり直す
         $filteredQuestions = $this->normalizeQuestions($questions);
+
         foreach ($filteredQuestions as $q) {
             $question = Question::create([
                 'title_id' => $title->id,
                 'question_text' => $q['question'],
             ]);
 
-            foreach (($q['choices'] ?? []) as $index => $choiceText) {
-                if (empty($choiceText)) {
-                    continue;
-                }
-
+            foreach ($q['choices'] as $index => $choiceText) {
                 Choice::create([
                     'question_id' => $question->id,
                     'choice_text' => $choiceText,
-                    'is_correct' => (int)$index === (int)$q['correct'],
+                    'is_correct' => (string) $index === (string) $q['correct'],
                 ]);
             }
         }
