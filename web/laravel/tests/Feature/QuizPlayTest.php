@@ -7,6 +7,8 @@ use App\Models\Score;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\Question;
+use App\Models\Choice;
 
 class QuizPlayTest extends TestCase
 {
@@ -307,5 +309,31 @@ class QuizPlayTest extends TestCase
         $this->assertNull(session("quiz_progress.{$quiz->id}"));
         $this->assertNull(session("quiz_order.{$quiz->id}"));
         $this->assertNull(session("quiz_choice_order.{$quiz->id}"));
+    }
+
+    private function createQuizWithQuestions(int $questionCount = 3): QuestionTitle
+    {
+        $quiz = QuestionTitle::factory()->create([
+            'title' => 'テストクイズ',
+            'description' => 'テスト用の説明',
+            'is_public' => true,
+        ]);
+
+        for ($i = 1; $i <= $questionCount; $i++) {
+            $question = Question::factory()->create([
+                'title_id' => $quiz->id,
+                'question_text' => "問題{$i}",
+            ]);
+
+            for ($j = 1; $j <= 4; $j++) {
+                Choice::factory()->create([
+                    'question_id' => $question->id,
+                    'choice_text' => "問題{$i}の選択肢{$j}",
+                    'is_correct' => $j === 1,
+                ]);
+            }
+        }
+
+        return $quiz->load('questions.choices');
     }
 }
