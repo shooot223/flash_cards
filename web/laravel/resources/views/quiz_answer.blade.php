@@ -33,21 +33,22 @@
 
             @php
                 $confidenceMap = [
-                    'high' => ['symbol' => '〇', 'class' => 'confidence-high'],
-                    'medium' => ['symbol' => '△', 'class' => 'confidence-medium'],
-                    'low' => ['symbol' => '×', 'class' => 'confidence-low'],
+                    'high' => ['symbol' => '〇', 'class' => 'confidenceHigh'],
+                    'medium' => ['symbol' => '△', 'class' => 'confidenceMedium'],
+                    'low' => ['symbol' => '×', 'class' => 'confidenceLow'],
                 ];
 
                 $confidenceDisplay = $confidenceMap[$confidence ?? null] ?? ['symbol' => '-', 'class' => ''];
             @endphp
 
-            <div class="result-row">
-                <p class="result-row__label">自信度</p>
-                <p class="result-row__value result-row__value--confidence {{ $confidenceDisplay['class'] }}">
-                    {{ $confidenceDisplay['symbol'] }}
-                </p>
+            <div class="quizAnswerBlock confidenceBlock">
+                <div class="quizAnswerLabel">自信度</div>
+                <div class="quizAnswerValue">
+                    <span class="confidenceBadge {{ $confidenceDisplay['class'] }}">
+                        {{ $confidenceDisplay['symbol'] }}
+                    </span>
+                </div>
             </div>
-
             <form method="POST" action="{{ route('quiz.next', $quiz->id) }}">
                 @csrf
                 <input type="hidden" name="step" value="{{ $step }}">
