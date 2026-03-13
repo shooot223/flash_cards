@@ -52,6 +52,7 @@ class CreateQuizApiTest extends TestCase
             ],
         ],
     ];
+    //正常系
     //認証済みユーザーがクイズを作成できることをテスト
     public function test_authenticated_user_can_create_quiz(): void
     {
@@ -81,4 +82,25 @@ class CreateQuizApiTest extends TestCase
             ->assertJsonStructure(self::CORRECT_RETURN_STRUCTURE);
     }
 
+    //認証系
+    //未認証ユーザーは作成できない
+    public function test_guest_cannot_create_quiz(): void
+    {
+        $response = $this->postJson(self::API_URL, self::CORRECT_DATA);
+
+        $response->assertStatus(401);
+    }
+
+    //不正なトークンでは作成できない
+    public function test_invalid_token_cannot_create_quiz(): void
+    {
+        $response = $this->postJson(self::API_URL, self::CORRECT_DATA, [
+            'Authorization' => 'Bearer invalid-token',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    //バリデーション系
+    //
 }
