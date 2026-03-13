@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Choice;
+use App\Models\Question;
+use App\Models\QuestionCategory;
+use App\Models\QuestionTitle;
+use App\Models\QuestionTitleCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Models\QuestionTitle;
-use App\Models\QuestionCategory;
-use App\Models\QuestionTitleCategory;
-use App\Models\Question;
-use App\Models\Choice;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class QuizController extends Controller
@@ -25,7 +25,7 @@ class QuizController extends Controller
             ],
             'tempQuizImage' => $request->input('temp_quiz_image'),
             'currentImagePath' => $request->input('current_image_path'),
-            'isEditFromConfirm' => (bool) $request->input('is_edit', false),
+            'isEditFromConfirm' => (bool)$request->input('is_edit', false),
             'quizIdFromConfirm' => $request->input('quiz_id'),
         ]);
     }
@@ -37,7 +37,7 @@ class QuizController extends Controller
             $this->messages()
         );
 
-        $isEdit = (bool) $request->input('is_edit', false);
+        $isEdit = (bool)$request->input('is_edit', false);
         $quizId = $request->input('quiz_id');
 
         $tempQuizImage = $request->input('temp_quiz_image');
@@ -60,32 +60,25 @@ class QuizController extends Controller
         ]);
     }
 
-    //保存処理
+    // 保存処理
     public function store(Request $request)
     {
-        //ヴァリデーション
         $validated = $request->validate(
-            $this->storeUpdateRules(),//バリデーションルール
-            $this->messages()//バリデーションエラーメッセージ
+            $this->storeUpdateRules(),
+            $this->messages()
         );
 
-        //保存処理
         DB::transaction(function () use ($validated) {
-            //画像パスのデフォルト値（null）
             $imagePath = null;
 
-            //画像が存在するか確認
             if (!empty($validated['temp_quiz_image']) && Storage::disk('public')->exists($validated['temp_quiz_image'])) {
-                //画像のパス名を決定
                 $filename = basename($validated['temp_quiz_image']);
                 $newPath = 'quizzes/' . $filename;
 
-                //保存済み画像のディレクトリを移動
                 Storage::disk('public')->move($validated['temp_quiz_image'], $newPath);
                 $imagePath = $newPath;
             }
 
-            //問題タイトルの保存
             $title = QuestionTitle::create([
                 'title' => $validated['title'],
                 'description' => $validated['description'],
@@ -97,17 +90,22 @@ class QuizController extends Controller
             $this->replaceQuestions($title, $validated['questions']);
         });
 
-        return redirect()->route('quiz.complete');
+        return redirect()->route('quiz.complete', ['mode' => 'create']);
     }
 
-    public function complete()
+    public function complete(Request $request)
     {
-        return view('quiz_complete');
+        $mode = $request->query('mode', 'create');
+
+        return view('quiz_complete', compact('mode'));
     }
 
     public function edit($id)
     {
-        $quiz = QuestionTitle::with(['questions.choices', 'categories'])->findOrFail($id);
+        $quiz = QuestionTitle::with(['questions.choices', 'categories'])
+            ->where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
 
         return view('quiz_create', compact('quiz'));
     }
@@ -149,7 +147,7 @@ class QuizController extends Controller
             $this->replaceQuestions($title, $validated['questions']);
         });
 
-        return redirect()->route('quiz.complete');
+        return redirect()->route('quiz.complete', ['mode' => 'update']);
     }
 
     public function private($id)
@@ -181,7 +179,7 @@ class QuizController extends Controller
     private function syncTags(QuestionTitle $title, array $tags): void
     {
         $filteredTags = collect($tags)
-            ->filter(fn ($tag) => !empty($tag))
+            ->filter(fn($tag) => !empty($tag))
             ->unique()
             ->values();
 
@@ -224,7 +222,7 @@ class QuizController extends Controller
                 Choice::create([
                     'question_id' => $question->id,
                     'choice_text' => $choiceText,
-                    'is_correct' => (int) $index === (int) $q['correct'],
+                    'is_correct' => (int)$index === (int)$q['correct'],
                 ]);
             }
         }
@@ -237,18 +235,18 @@ class QuizController extends Controller
             ->map(function ($q) {
                 return [
                     // 問題文の前後の空白を削除
-                    'question' => trim((string) ($q['question'] ?? '')),
+                    'question' => trim((string)($q['question'] ?? '')),
 
                     // 選択肢の前後の空白を削除
                     'choices' => collect($q['choices'] ?? [])
-                        ->map(fn ($choice) => trim((string) $choice))
+                        ->map(fn($choice) => trim((string)$choice))
                         ->all(),
 
                     'correct' => $q['correct'] ?? null,
                 ];
             })
             // 問題文が空の問題は除外
-            ->filter(fn ($q) => filled($q['question']))
+            ->filter(fn($q) => filled($q['question']))
             ->values()
             ->all();
     }
@@ -402,7 +400,7 @@ class QuizController extends Controller
                         $choice2,
                         $choice3,
                         $choice4,
-                        '選択肢'.$correct
+                        '選択肢' . $correct
                     ]);
                 }
             }
