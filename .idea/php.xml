@@ -188,6 +188,7 @@
       <path value="$PROJECT_DIR$/web/laravel/vendor/myclabs/deep-copy" />
       <path value="$PROJECT_DIR$/web/laravel/vendor/doctrine/deprecations" />
       <path value="$PROJECT_DIR$/web/laravel/vendor/hamcrest/hamcrest-php" />
+      <path value="$PROJECT_DIR$/web/laravel/vendor/laravel/sanctum" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.0">
