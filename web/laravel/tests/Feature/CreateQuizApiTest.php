@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Choice;
 use App\Models\Question;
+use App\Models\QuestionCategory;
+use App\Models\QuestionTitle;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -308,7 +311,77 @@ class CreateQuizApiTest extends TestCase
         $response->assertStatus(422);
     }
 
+    //DB保存確認
+    //question_titles に保存される
+    public function test_question_titles_are_saved(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
+        $response = $this->postJson(self::API_URL, self::CORRECT_DATA);
+        $response->assertCreated();
+
+        $quiz = Question::first();
+        $this->assertDatabaseHas('question_titles', ['id' => $quiz->id]);
+    }
+
+    //choices に保存される
+    public function test_choices_are_saved(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson(self::API_URL, self::CORRECT_DATA);
+        $response->assertCreated();
+
+        $quiz = Question::first();
+        $this->assertDatabaseHas('choices', ['question_id' => $quiz->id]);
+    }
+
+    //correct_answer に対応する choice のみ is_correct=1
+    public function test_correct_answer_is_saved_as_correct_choice(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson(self::API_URL, self::CORRECT_DATA);
+        $response->assertCreated();
+
+        $questionData = self::CORRECT_DATA['questions'][0];
+        $correctText = $questionData['choices'][$questionData['correct_answer']];
+
+        $question = Question::first();
+
+        $correctChoice = Choice::where('question_id', $question->id)
+            ->where('choice_text', $correctText)
+            ->first();
+
+        $this->assertNotNull($correctChoice);
+        $this->assertTrue($correctChoice->is_correct);
+    }
+
+    //tags が保存される
+    public function test_tags_are_saved_for_quiz_title(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $response = $this->postJson(self::API_URL, self::CORRECT_DATA);
+
+        $response->assertCreated();
+
+        $title = QuestionTitle::first();
+        $tagName = self::CORRECT_DATA['tags'][0];
+
+        $category = QuestionCategory::where('category_name', $tagName)->first();
+
+        $this->assertNotNull($category);
+
+        $this->assertDatabaseHas('question_title_categories', [
+            'title_id' => $title->id,
+            'category_id' => $category->id,
+        ]);
+    }
 
 }
 
