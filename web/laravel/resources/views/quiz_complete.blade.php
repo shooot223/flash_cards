@@ -32,8 +32,8 @@
                     もう一問作成する
                 </a>
 
-                <a href="{{ route('top') }}" class="completeSecondaryButton">
-                    ホームへ戻る
+                <a href="{{ route('mypage') }}" class="completeSecondaryButton">
+                    マイページに戻る
                 </a>
             </div>
         </section>
