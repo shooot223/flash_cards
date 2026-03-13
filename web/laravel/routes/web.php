@@ -18,6 +18,8 @@ Route::controller(QuizPlayController::class)->prefix('quiz')->name('quiz.')->gro
     Route::post('/{id}/answer', 'answer')->name('answer');
     Route::get('/{id}/result', 'result')->name('result');
     Route::post('/{id}/next', 'next')->name('next');
+    Route::post('/{id}/result/prepare-save', 'prepareSaveAfterLogin')->name('result.prepare-save');
+    Route::get('/{id}/resul/save', 'saveResultAfterLogin')->name('result.save');
 });
 
 Route::middleware('auth')->group(function () {

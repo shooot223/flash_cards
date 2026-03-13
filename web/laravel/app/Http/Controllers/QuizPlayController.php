@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\QuizPlayRequest;
+use App\Models\Answer;
+use App\Models\Confidence;
 use App\Models\QuestionTitle;
 use App\Models\Score;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\QuizPlayRequest;
 
 class QuizPlayController extends Controller
 {
@@ -14,9 +16,12 @@ class QuizPlayController extends Controller
      * クイズ開始画面を表示する
      *
      * - クイズ本体、問題、選択肢、カテゴリを取得する
-     * - ログイン中なら前回のスコアも取得する
-     * - 進捗をリセットする
-     * - 問題順と選択肢順をランダムに作成してセッションへ保存する
+     * - ログイン中なら前回スコアを取得する
+     * - 今回の挑戦用にセッションを初期化する
+     * - 問題順、選択肢順をランダムに作成してセッションに保存する
+     *
+     * ※ この時点では DB に保存しない
+     *   （result 到達時のみ正式記録にするため）
      */
     public function start($id)
     {
@@ -31,8 +36,12 @@ class QuizPlayController extends Controller
                 ->first();
         }
 
-        // 前回の解答進捗を削除する
+        // 前回挑戦時のセッション情報を初期化する
         session()->forget("quiz_progress.$id");
+        session()->forget("quiz_order.$id");
+        session()->forget("quiz_choice_order.$id");
+        session()->forget("quiz_result_snapshot.$id");
+        session()->forget("quiz_result_saved.$id");
 
         // 毎回ランダムな出題順を作成する
         $questionOrder = $quiz->questions
@@ -61,9 +70,8 @@ class QuizPlayController extends Controller
     /**
      * 指定ステップの問題画面を表示する
      *
-     * - セッションに保存した順番で問題を取得する
-     * - step パラメータから現在の問題番号を決定する
-     * - 範囲外なら結果画面へ遷移する
+     * - セッションに保存した問題順で現在の問題を取得する
+     * - step が範囲外なら結果画面へ遷移する
      */
     public function play(Request $request, $id)
     {
@@ -83,13 +91,15 @@ class QuizPlayController extends Controller
     }
 
     /**
-     * 回答を受け取り、正誤判定結果画面を表示する
+     * 回答を受け取り、回答結果画面を表示する
      *
      * - 現在の問題を取得する
-     * - 選択された choice_id がその問題に属するか確認する
-     * - 正解選択肢と比較して正誤を判定する
-     * - 解答内容と自信度をセッションへ保存する
-     * - 解答結果画面を表示する
+     * - 選択された choice_id がその問題の選択肢かを確認する
+     * - 正誤判定を行う
+     * - 回答内容と自信度を session に保存する
+     * - 回答結果画面を表示する
+     *
+     * ※ この時点では DB 保存しない
      */
     public function answer(QuizPlayRequest $request, $id)
     {
@@ -133,26 +143,24 @@ class QuizPlayController extends Controller
 
         // 次の問題が存在しない場合は最終問題と判定する
         $isLast = !isset($questions[$step + 1]);
-        $confidence = $request->confidence;
 
-        return view('quiz_answer', compact(
-            'quiz',
-            'question',
-            'step',
-            'selectedChoice',
-            'correctChoice',
-            'isCorrect',
-            'isLast',
-            'confidence'
-        ));
+        return view('quiz_answer', [
+            'quiz' => $quiz,
+            'question' => $question,
+            'selectedChoice' => $selectedChoice,
+            'correctChoice' => $correctChoice,
+            'isCorrect' => $isCorrect,
+            'isLast' => $isLast,
+            'step' => $step,
+            'confidence' => $request->input('confidence'),
+        ]);
     }
 
     /**
      * 次の問題へ遷移する
      *
-     * - 現在の step を受け取り、次の step を算出する
+     * - 現在の step をもとに次の step を計算する
      * - 次の問題がなければ結果画面へ遷移する
-     * - まだ問題があれば次の問題画面へリダイレクトする
      */
     public function next(Request $request, $id)
     {
@@ -175,10 +183,12 @@ class QuizPlayController extends Controller
     /**
      * 結果画面を表示する
      *
-     * - セッションから解答履歴を取得する
-     * - 各問題ごとの正誤、自信度、選択回答を集計する
-     * - ログイン中ならスコアを保存する
-     * - 最後に進捗・出題順・選択肢順のセッションを削除する
+     * - session に保存された解答履歴から結果を組み立てる
+     * - 問題ごとの正誤、回答内容、自信度を作成する
+     * - 表示用スナップショットを session に保持する
+     * - ログイン済みかつ未保存なら、この時点で DB に正式保存する
+     *
+     * ※ result 到達時のみ正式記録にする
      */
     public function result($id)
     {
@@ -189,12 +199,6 @@ class QuizPlayController extends Controller
 
         $score = 0;
         $resultDetails = [];
-
-        $confidenceLabels = [
-            'high' => '高い',
-            'medium' => '普通',
-            'low' => '低い',
-        ];
 
         foreach ($questions as $question) {
             $selected = $progress[$question->id] ?? null;
@@ -213,35 +217,119 @@ class QuizPlayController extends Controller
             }
 
             $resultDetails[] = [
+                'question_id' => $question->id,
                 'question_text' => $question->question_text,
+                'selected_choice_id' => $selectedChoice?->id,
                 'selected_answer' => $selectedChoice?->choice_text ?? '未回答',
+                'correct_choice_id' => $correctChoice?->id,
                 'correct_answer' => $correctChoice?->choice_text ?? '未設定',
-                'confidence' => $confidence
-                    ? ($confidenceLabels[$confidence] ?? $confidence)
-                    : '未回答',
+                'confidence' => $confidence ?? '未回答',
                 'is_correct' => $isCorrect,
             ];
         }
 
         $total = $questions->count();
 
-        // ログイン中のユーザーのみスコアを保存する
-        if (Auth::check()) {
-            Score::create([
+        // 結果画面表示用のスナップショットを session に保持する
+        // ゲストがあとでログインして保存する時にも使う
+        session()->put("quiz_result_snapshot.$id", [
+            'quiz_id' => $quiz->id,
+            'score' => $score,
+            'total' => $total,
+            'result_details' => $resultDetails,
+        ]);
+
+        // ログイン済みで、まだ今回の結果を保存していない場合のみ DB に保存する
+        if (Auth::check() && !session()->has("quiz_result_saved.$id")) {
+            $this->saveQuizResultToDb((int) $quiz->id);
+            session()->put("quiz_result_saved.$id", true);
+        }
+
+        return view('quiz_result', [
+            'quiz' => $quiz,
+            'score' => $score,
+            'total' => $total,
+            'resultDetails' => $resultDetails,
+            'canSaveResult' => !Auth::check(), // ゲスト時のみ保存導線を表示する想定
+        ]);
+    }
+
+    /**
+     * ゲストがログイン後に、result 画面で見ていた結果を DB に保存する
+     *
+     * - session に保持している result スナップショットを使う
+     * - 保存済みなら重複保存しない
+     * - 保存後は結果画面へ戻す
+     */
+    public function saveResultAfterLogin($id)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $snapshot = session()->get("quiz_result_snapshot.$id");
+
+        if (!$snapshot) {
+            return redirect()->route('quiz.start', $id)
+                ->with('error', '保存対象の結果が見つかりませんでした。');
+        }
+
+        if (!session()->has("quiz_result_saved.$id")) {
+            $this->saveQuizResultToDb((int) $id);
+            session()->put("quiz_result_saved.$id", true);
+        }
+
+        return redirect()->route('quiz.result', $id)
+            ->with('status', '結果を保存しました。');
+    }
+
+    /**
+     * session に保持している結果スナップショットを DB に保存する
+     *
+     * - Score を1件作成する
+     * - 各問題の結果を Answer として保存する
+     * - confidence は confidence_level から confidence_id に変換する
+     */
+    private function saveQuizResultToDb(int $quizId): ?Score
+    {
+        if (!Auth::check()) {
+            return null;
+        }
+
+        $snapshot = session()->get("quiz_result_snapshot.$quizId");
+
+        if (!$snapshot) {
+            return null;
+        }
+
+        $resultDetails = $snapshot['result_details'] ?? [];
+
+        $score = Score::create([
+            'user_id' => Auth::id(),
+            'title_id' => $quizId,
+            'score_value' => $snapshot['score'] ?? 0,
+            'answered_count' => collect($resultDetails)
+                ->whereNotNull('selected_choice_id')
+                ->count(),
+            'correct_count' => $snapshot['score'] ?? 0,
+        ]);
+
+        foreach ($resultDetails as $detail) {
+            Answer::create([
                 'user_id' => Auth::id(),
-                'title_id' => $quiz->id,
-                'score_value' => $score,
-                'answered_count' => count($progress),
-                'correct_count' => $score,
+                'question_id' => $detail['question_id'],
+                'choice_id' => $detail['selected_choice_id'],
+                'confidence_id' => $this->resolveConfidenceId(
+                    ($detail['confidence'] ?? null) !== '未回答'
+                        ? $detail['confidence']
+                        : null
+                ),
+                'score_id' => $score->id,
+                'is_correct' => $detail['is_correct'],
             ]);
         }
 
-        // クイズ終了後は関連セッションを削除する
-        session()->forget("quiz_progress.$id");
-        session()->forget("quiz_order.$id");
-        session()->forget("quiz_choice_order.$id");
-
-        return view('quiz_result', compact('quiz', 'score', 'total', 'resultDetails'));
+        return $score;
     }
 
     /**
@@ -249,7 +337,7 @@ class QuizPlayController extends Controller
      *
      * - quiz_order で問題順を制御する
      * - quiz_choice_order で各問題の選択肢順を制御する
-     * - セッション情報が壊れている場合は元の順序を保険として使用する
+     * - セッション情報がない場合は元の順序を保険として使用する
      */
     private function getOrderedQuestions(QuestionTitle $quiz, int|string $quizId)
     {
@@ -292,5 +380,43 @@ class QuizPlayController extends Controller
         }
 
         return $orderedQuestions;
+    }
+
+    /**
+     * confidence_level（high / medium / low）から
+     * confidence テーブルの id を取得する
+     */
+    private function resolveConfidenceId(?string $confidenceValue): ?int
+    {
+        if (!$confidenceValue) {
+            return null;
+        }
+
+        return Confidence::where('confidence_level', $confidenceValue)->value('id');
+    }
+
+    /**
+     * ゲストユーザーが「ログインして保存 / 新規登録して保存」を押した時の導線
+     *
+     * - 保存先URLを intended として session に保存する
+     * - mode が register なら新規登録画面へ、未指定ならログイン画面へ遷移する
+     */
+    public function prepareSaveAfterLogin(Request $request, $id)
+    {
+        $snapshot = session()->get("quiz_result_snapshot.$id");
+
+        if (!$snapshot) {
+            return redirect()->route('quiz.start', $id)
+                ->with('error', '保存対象の結果が見つかりませんでした。');
+        }
+
+        // ログイン / 登録後に遷移させたい保存用URLを intended にセットする
+        session()->put('url.intended', route('quiz.result.save', $id));
+
+        if ($request->input('mode') === 'register') {
+            return redirect()->route('register');
+        }
+
+        return redirect()->route('login');
     }
 }

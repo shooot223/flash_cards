@@ -1,8 +1,11 @@
 @extends('layouts.app')
+
 @push('css')
     <link rel="stylesheet" href="{{ asset('css/quiz_result.css') }}"/>
 @endpush
+
 @section('title', 'Cramist | クイズの結果')
+
 @section('content')
     <main class="result-page">
         <section class="result-summary">
@@ -38,6 +41,48 @@
             </div>
         </section>
 
+        @if (session('status'))
+            <div class="result-notice result-notice--success">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="result-notice result-notice--error">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        @guest
+            <section class="result-save-box">
+                <div class="result-save-box__content">
+                    <p class="result-save-box__label">SAVE RESULT</p>
+                    <h2 class="result-save-box__title">この結果を保存して、あとで復習しませんか？</h2>
+                    <p class="result-save-box__text">
+                        ログインまたは新規登録をすると、今回の結果を保存できます。
+                        保存した結果は、あとから復習画面で見返せます。
+                    </p>
+                </div>
+
+                <div class="result-save-box__actions">
+                    <form method="POST" action="{{ route('quiz.result.prepare-save', $quiz->id) }}">
+                        @csrf
+                        <button type="submit" class="result-button result-button--primary">
+                            ログインして保存
+                        </button>
+                    </form>
+
+                    <form method="POST" action="{{ route('quiz.result.prepare-save', $quiz->id) }}">
+                        @csrf
+                        <input type="hidden" name="mode" value="register">
+                        <button type="submit" class="result-button result-button--secondary">
+                            新規登録して保存
+                        </button>
+                    </form>
+                </div>
+            </section>
+        @endguest
+
         <section class="result-list">
             <div class="result-list__head">
                 <h2 class="result-list__title">各問題の結果</h2>
@@ -45,6 +90,16 @@
             </div>
 
             @forelse($resultDetails as $index => $detail)
+                @php
+                    $confidenceMap = [
+                        'high' => ['symbol' => '〇', 'class' => 'confidence-high'],
+                        'medium' => ['symbol' => '△', 'class' => 'confidence-medium'],
+                        'low' => ['symbol' => '×', 'class' => 'confidence-low'],
+                    ];
+
+                    $confidence = $confidenceMap[$detail['confidence']] ?? ['symbol' => '-', 'class' => ''];
+                @endphp
+
                 <article class="result-card">
                     <div class="result-card__top">
                         <div class="result-card__number">第{{ $index + 1 }}問</div>
@@ -79,7 +134,9 @@
 
                             <div class="result-row">
                                 <p class="result-row__label">自信度</p>
-                                <p class="result-row__value">{{ $detail['confidence'] }}</p>
+                                <p class="result-row__value result-row__value--confidence {{ $confidence['class'] }}">
+                                    {{ $confidence['symbol'] }}
+                                </p>
                             </div>
                         </div>
                     </div>
