@@ -6,12 +6,13 @@ use App\Models\QuestionTitle;
 use App\Models\Score;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\QuizPlayRequest;
 
 class QuizPlayController extends Controller
 {
     public function start($id)
     {
-        $quiz = QuestionTitle::with(['questions', 'categories'])->findOrFail($id);
+        $quiz = QuestionTitle::with(['questions.choices', 'categories'])->findOrFail($id);
 
         $latestScore = null;
 
@@ -22,7 +23,27 @@ class QuizPlayController extends Controller
                 ->first();
         }
 
+        // 前回の進捗を削除
         session()->forget("quiz_progress.$id");
+
+        // 出題順・選択肢順を毎回新しく作る
+        $questionOrder = $quiz->questions
+            ->pluck('id')
+            ->shuffle()
+            ->values()
+            ->all();
+
+        $choiceOrders = [];
+        foreach ($quiz->questions as $question) {
+            $choiceOrders[$question->id] = $question->choices
+                ->pluck('id')
+                ->shuffle()
+                ->values()
+                ->all();
+        }
+
+        session()->put("quiz_order.$id", $questionOrder);
+        session()->put("quiz_choice_order.$id", $choiceOrders);
 
         return view('quiz_start', compact('quiz', 'latestScore'));
     }
@@ -31,7 +52,7 @@ class QuizPlayController extends Controller
     {
         $quiz = QuestionTitle::with(['questions.choices'])->findOrFail($id);
 
-        $questions = $quiz->questions->values();
+        $questions = $this->getOrderedQuestions($quiz, $id);
         $step = (int) $request->query('step', 0);
 
         if (!isset($questions[$step])) {
@@ -44,10 +65,10 @@ class QuizPlayController extends Controller
         return view('quiz_play', compact('quiz', 'question', 'step', 'total'));
     }
 
-    public function answer(Request $request, $id)
+    public function answer(QuizPlayRequest $request, $id)
     {
         $quiz = QuestionTitle::with(['questions.choices'])->findOrFail($id);
-        $questions = $quiz->questions->values();
+        $questions = $this->getOrderedQuestions($quiz, $id);
 
         $step = (int) $request->input('step');
 
@@ -55,16 +76,18 @@ class QuizPlayController extends Controller
             return redirect()->route('quiz.result', $quiz->id);
         }
 
-        $request->validate([
-            'choice_id' => ['required', 'integer'],
-            'confidence' => ['required', 'in:high,medium,low'],
-        ]);
-
         $question = $questions[$step];
         $selectedChoice = $question->choices->firstWhere('id', (int) $request->choice_id);
         $correctChoice = $question->choices->firstWhere('is_correct', true);
 
-        $isCorrect = $correctChoice && $selectedChoice && (int)$selectedChoice->id === (int)$correctChoice->id;
+        if (!$selectedChoice) {
+            return back()
+                ->withErrors(['choice_id' => '不正な選択肢です。'])
+                ->withInput();
+        }
+
+        $isCorrect = $correctChoice
+            && (int) $selectedChoice->id === (int) $correctChoice->id;
 
         $progress = session()->get("quiz_progress.$id", []);
         $progress[$question->id] = [
@@ -91,7 +114,7 @@ class QuizPlayController extends Controller
     public function next(Request $request, $id)
     {
         $quiz = QuestionTitle::with(['questions'])->findOrFail($id);
-        $questions = $quiz->questions->values();
+        $questions = $this->getOrderedQuestions($quiz, $id);
 
         $step = (int) $request->input('step');
         $nextStep = $step + 1;
@@ -111,7 +134,7 @@ class QuizPlayController extends Controller
         $quiz = QuestionTitle::with(['questions.choices'])->findOrFail($id);
 
         $progress = session()->get("quiz_progress.$id", []);
-        $questions = $quiz->questions->values();
+        $questions = $this->getOrderedQuestions($quiz, $id);
 
         $score = 0;
         $resultDetails = [];
@@ -130,7 +153,9 @@ class QuizPlayController extends Controller
             $selectedChoice = $question->choices->firstWhere('id', (int) $selectedChoiceId);
             $correctChoice = $question->choices->firstWhere('is_correct', true);
 
-            $isCorrect = $correctChoice && $selectedChoice && (int)$selectedChoice->id === (int)$correctChoice->id;
+            $isCorrect = $correctChoice
+                && $selectedChoice
+                && (int) $selectedChoice->id === (int) $correctChoice->id;
 
             if ($isCorrect) {
                 $score++;
@@ -160,7 +185,55 @@ class QuizPlayController extends Controller
         }
 
         session()->forget("quiz_progress.$id");
+        session()->forget("quiz_order.$id");
+        session()->forget("quiz_choice_order.$id");
 
         return view('quiz_result', compact('quiz', 'score', 'total', 'resultDetails'));
+    }
+
+    /**
+     * セッションに保存した順番で問題・選択肢を並べ替える
+     */
+    private function getOrderedQuestions(QuestionTitle $quiz, int|string $quizId)
+    {
+        $questionOrder = session()->get("quiz_order.$quizId", []);
+        $choiceOrders = session()->get("quiz_choice_order.$quizId", []);
+
+        $questionsById = $quiz->questions->keyBy('id');
+
+        $orderedQuestions = collect($questionOrder)
+            ->map(function ($questionId) use ($questionsById, $choiceOrders) {
+                $question = $questionsById->get($questionId);
+
+                if (!$question) {
+                    return null;
+                }
+
+                $choiceOrder = $choiceOrders[$questionId] ?? [];
+                $choicesById = $question->choices->keyBy('id');
+
+                $orderedChoices = collect($choiceOrder)
+                    ->map(fn ($choiceId) => $choicesById->get($choiceId))
+                    ->filter()
+                    ->values();
+
+                // セッションに順序が無い場合の保険
+                if ($orderedChoices->isEmpty()) {
+                    $orderedChoices = $question->choices->values();
+                }
+
+                $question->setRelation('choices', $orderedChoices);
+
+                return $question;
+            })
+            ->filter()
+            ->values();
+
+        // セッションが空だった場合の保険
+        if ($orderedQuestions->isEmpty()) {
+            $orderedQuestions = $quiz->questions->values();
+        }
+
+        return $orderedQuestions;
     }
 }
