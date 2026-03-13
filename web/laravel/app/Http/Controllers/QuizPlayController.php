@@ -77,8 +77,11 @@ class QuizPlayController extends Controller
         }
 
         $question = $questions[$step];
-        $selectedChoice = $question->choices->firstWhere('id', (int) $request->choice_id);
-        $correctChoice = $question->choices->firstWhere('is_correct', true);
+
+        $selectedChoice = $question->choices->firstWhere(
+            'id',
+            (int) $request->choice_id
+        );
 
         if (!$selectedChoice) {
             return back()
@@ -86,8 +89,16 @@ class QuizPlayController extends Controller
                 ->withInput();
         }
 
+        $correctChoice = $question->choices->firstWhere('is_correct', true);
+
         $isCorrect = $correctChoice
             && (int) $selectedChoice->id === (int) $correctChoice->id;
+
+        if (!$selectedChoice) {
+            return back()
+                ->withErrors(['choice_id' => '不正な選択肢です。'])
+                ->withInput();
+        }
 
         $progress = session()->get("quiz_progress.$id", []);
         $progress[$question->id] = [
