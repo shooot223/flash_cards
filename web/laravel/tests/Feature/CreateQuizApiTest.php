@@ -65,6 +65,20 @@ class CreateQuizApiTest extends TestCase
             ->assertJsonStructure(self::CORRECT_RETURN_STRUCTURE);
     }
 
-    //タグ無でも作成可能
+    //タグなしでも作成可能
+    public function test_quiz_can_be_created_without_tags(): void
+    {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user);
+
+        $data = self::CORRECT_DATA;
+        unset($data['tags']);
+
+        $response = $this->postJson(self::API_URL, $data);
+
+        $response->assertCreated()
+            ->assertJsonStructure(self::CORRECT_RETURN_STRUCTURE);
+    }
 
 }
