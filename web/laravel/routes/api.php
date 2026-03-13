@@ -7,6 +7,6 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/quizzes', [QuizController::class, 'store']);
+    Route::post('/quiz/store', [QuizController::class, 'store']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
