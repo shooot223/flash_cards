@@ -35,7 +35,7 @@ class CreateQuizTest extends TestCase
     {
         $user = User::factory()->create();
         $response = $this->actingAs($user)->post('/quiz/store', $this->correct_form);
-        $response->assertRedirect('quiz/complete');
+        $response->assertRedirect(route('quiz.complete', ['mode' => 'create']));
     }
 
     //quiz/completeへのルートが通っているか
@@ -74,7 +74,7 @@ class CreateQuizTest extends TestCase
         $user = User::factory()->create();
         $response = $this->actingAs($user)->post('/quiz/store', $this->correct_form);
 
-        $response->assertRedirect('quiz/complete');
+        $response->assertRedirect(route('quiz.complete', ['mode' => 'create']));
         //保存ができているかの確認
         $this->assertDatabaseHas('question_titles', [
             'title' => 'テスト問題',

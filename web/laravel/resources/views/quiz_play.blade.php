@@ -35,7 +35,7 @@
                                 class="choiceRadio"
                                 {{ old('choice_id') == $choice->id ? 'checked' : '' }}
                             >
-                            <span>{{ $choice->choice_text }}</span>
+                            <span class="choiceText">{{ $choice->choice_text }}</span>
                         </label>
                     @endforeach
                 </div>
@@ -48,22 +48,37 @@
                     <div class="confidenceLabel">この回答への自信度</div>
 
                     <div class="confidenceOptions">
-                        <label class="confidenceItem">
-                            <input type="radio" name="confidence"
-                                   value="high" {{ old('confidence') === 'high' ? 'checked' : '' }}>
-                            <span>高い</span>
+                        <label class="confidenceButton confidenceHigh">
+                            <input
+                                type="radio"
+                                name="confidence"
+                                value="high"
+                                class="confidenceRadio"
+                                {{ old('confidence') === 'high' ? 'checked' : '' }}
+                            >
+                            <span class="confidenceMark">〇</span>
                         </label>
 
-                        <label class="confidenceItem">
-                            <input type="radio" name="confidence"
-                                   value="medium" {{ old('confidence') === 'medium' ? 'checked' : '' }}>
-                            <span>普通</span>
+                        <label class="confidenceButton confidenceMedium">
+                            <input
+                                type="radio"
+                                name="confidence"
+                                value="medium"
+                                class="confidenceRadio"
+                                {{ old('confidence') === 'medium' ? 'checked' : '' }}
+                            >
+                            <span class="confidenceMark">△</span>
                         </label>
 
-                        <label class="confidenceItem">
-                            <input type="radio" name="confidence"
-                                   value="low" {{ old('confidence') === 'low' ? 'checked' : '' }}>
-                            <span>低い</span>
+                        <label class="confidenceButton confidenceLow">
+                            <input
+                                type="radio"
+                                name="confidence"
+                                value="low"
+                                class="confidenceRadio"
+                                {{ old('confidence') === 'low' ? 'checked' : '' }}
+                            >
+                            <span class="confidenceMark">×</span>
                         </label>
                     </div>
 

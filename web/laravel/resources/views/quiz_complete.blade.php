@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="{{ asset('css/quiz_complete.css') }}"/>
 @endpush
 
-@section('title', 'Cramist | 問題登録完了')
+@section('title', 'Cramist | 完了')
 
 @section('content')
     <div class="quizForm">
@@ -13,27 +13,39 @@
                 <div class="completeIcon">✔</div>
             </div>
 
-            <h1 class="completeTitle">クイズを登録しました</h1>
+            <h1 class="completeTitle">
+                {{ $mode === 'update' ? 'クイズを更新しました' : 'クイズを登録しました' }}
+            </h1>
 
             <p class="completeDescription">
-                問題の作成が正常に完了しました。<br>
-                続けて新しい問題を作成することも、ホームに戻ることもできます。
+                @if($mode === 'update')
+                    クイズの更新が正常に完了しました。<br>
+                    続けて別の問題を作成することも、マイページに戻ることもできます。
+                @else
+                    問題の作成が正常に完了しました。<br>
+                    続けて新しい問題を作成することも、ホームに戻ることもできます。
+                @endif
             </p>
 
             <div class="completeMessage">
-                <div class="completeMessageTitle">📚 Cramist に新しい問題が追加されました</div>
+                <div class="completeMessageTitle">
+                    {{ $mode === 'update' ? '✅ Cramist の問題を更新しました' : '📚 Cramist に新しい問題が追加されました' }}
+                </div>
                 <div class="completeMessageText">
-                    学習コンテンツが1つ増えました。次のアクションを選んで進めましょう。
+                    {{ $mode === 'update'
+                        ? '内容が最新の状態に反映されました。次のアクションを選んで進めましょう。'
+                        : '学習コンテンツが1つ増えました。次のアクションを選んで進めましょう。'
+                    }}
                 </div>
             </div>
 
             <div class="completeActions">
                 <a href="{{ route('quiz.create') }}" class="completePrimaryButton">
-                    もう一問作成する
+                    {{ $mode === 'update' ? '新しいクイズを作成する' : 'もう一問作成する' }}
                 </a>
 
-                <a href="{{ route('top') }}" class="completeSecondaryButton">
-                    ホームへ戻る
+                <a href="{{ route('mypage') }}" class="completeSecondaryButton">
+                    マイページに戻る
                 </a>
             </div>
         </section>

@@ -30,12 +30,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/confirm', 'confirm')->name('confirm');
         Route::post('/store', 'store')->name('store');
         Route::get('/complete', 'complete')->name('complete');
-        Route::get('/quiz/{id}/edit', 'edit')->name('edit');
-        Route::put('/quiz/{id}', 'update')->name('update');
-        Route::delete('/quiz/{id}', 'delete')->name('delete');
+
+        Route::get('/{id}/edit', 'edit')->name('edit');
+        Route::put('/{id}', 'update')->name('update');
+        Route::delete('/{id}', 'delete')->name('delete');
+
         Route::patch('/{id}/private', 'private')->name('private');
         Route::patch('/{id}/public', 'public')->name('public');
-        Route::post('export_csv', 'export_csv')->name('export.csv');
+
+        Route::post('/export_csv', 'export_csv')->name('export.csv');
     });
 
     //プローフィール編集
