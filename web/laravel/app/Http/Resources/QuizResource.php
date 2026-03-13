@@ -20,7 +20,7 @@ class QuizResource extends JsonResource
             'description' => $this->description,
             'is_public' => $this->is_public,
 
-            'categories' => CategoryResource::collection(
+            'tags' => CategoryResource::collection(
                 $this->whenLoaded('categories')
             ),
 
