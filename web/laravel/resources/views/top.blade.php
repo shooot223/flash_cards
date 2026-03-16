@@ -44,6 +44,7 @@
                     </button>
                 @endforeach
             </div>
+            <button type="button" id="tagExpandBtn" class="tagExpandBtn" style="display: none;">＋ 詳細表示</button>
         </section>
 
         <section class="listWrap" id="quizListArea">

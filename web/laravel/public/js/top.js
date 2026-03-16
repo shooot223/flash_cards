@@ -47,3 +47,24 @@ if (tagButtons) {
         });
     });
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const tagBar = document.getElementById('tagBar');
+    const tagExpandBtn = document.getElementById('tagExpandBtn');
+
+    if (tagBar && tagExpandBtn) {
+        // Check if content exceeds 3 lines
+        if (tagBar.scrollHeight > tagBar.clientHeight) {
+            tagExpandBtn.style.display = 'block';
+        }
+
+        tagExpandBtn.addEventListener('click', function () {
+            tagBar.classList.toggle('is-expanded');
+            if (tagBar.classList.contains('is-expanded')) {
+                tagExpandBtn.textContent = '－ 閉じる';
+            } else {
+                tagExpandBtn.textContent = '＋ 詳細表示';
+            }
+        });
+    }
+});

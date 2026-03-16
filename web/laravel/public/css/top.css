@@ -134,6 +134,13 @@ html, body{
     display:flex;
     flex-wrap:wrap;
     gap:10px;
+    max-height: 128px; /* 3 lines (36px * 3 + gap 10px * 2) */
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.tagBar.is-expanded{
+    max-height: 2000px;
 }
 
 .tagItem{
@@ -161,6 +168,26 @@ html, body{
     background:var(--primary);
     border-color:var(--primary);
     color:#fff;
+}
+
+.tagExpandBtn{
+    display:block;
+    width:100%;
+    margin-top:14px;
+    background:transparent;
+    border:none;
+    color:var(--primary);
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+    padding:8px 0;
+    transition:color .15s ease;
+}
+
+.tagExpandBtn:hover{
+    text-decoration:underline;
+    color:var(--primary-hover);
 }
 
 .emptyText{
