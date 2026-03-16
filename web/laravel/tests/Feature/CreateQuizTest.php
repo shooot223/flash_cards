@@ -264,20 +264,19 @@ class CreateQuizTest extends TestCase
         $form = $this->correct_form;
         $form['tags'] = ['PHP', 'PHP', 'Laravel'];
 
-        $this->actingAs($user)->post('/quiz/store', $form);
+        $response = $this->actingAs($user)->post('/quiz/store', $form);
 
-        $this->assertEquals(2, \App\Models\QuestionCategory::count());
-    }
+        $response->assertRedirect(route('quiz.complete', ['mode' => 'create']));
 
-    public function test_user_can_store_all_questions_and_choices()
-    {
-        $user = User::factory()->create();
+        $this->assertDatabaseCount('question_categories', 2);
 
-        $this->actingAs($user)->post('/quiz/store', $this->correct_form);
+        $this->assertDatabaseHas('question_categories', [
+            'category_name' => 'PHP',
+        ]);
 
-        $this->assertDatabaseCount('question_titles', 1);
-        $this->assertDatabaseCount('questions', 2);
-        $this->assertDatabaseCount('choices', 8);
+        $this->assertDatabaseHas('question_categories', [
+            'category_name' => 'Laravel',
+        ]);
     }
 
 
@@ -312,6 +311,71 @@ class CreateQuizTest extends TestCase
             'user_id' => $user->id,
         ]);
     }
+    //不適切なタイトルが含まれている場合に失敗になる
+    public function test_user_cannot_confirm_quiz_with_inappropriate_title()
+    {
+        $user = User::factory()->create();
+        $form = $this->correct_form;
+        $form['title'] = 'アホな問題';
+        $response = $this->actingAs($user)
+            ->from('quiz/create')
+            ->post('/quiz/confirm', $form);
+        $response->assertRedirect('/quiz/create');
+        $response->assertSessionHasErrors('title');
+    }
+
+    //不適切な説明が含まれている場合に失敗になる
+    public function test_user_cannot_confirm_quiz_with_inappropriate_description()
+    {
+        $user = User::factory()->create();
+        $form = $this->correct_form;
+        $form['description'] = 'バカな説明';
+        $response = $this->actingAs($user)
+            ->from('quiz/create')
+            ->post('/quiz/confirm', $form);
+        $response->assertRedirect('/quiz/create');
+        $response->assertSessionHasErrors('description');
+    }
+
+    //不適切なタグが含まれている場合に失敗になる
+    public function test_user_cannot_confirm_quiz_with_inappropriate_tags()
+    {
+        $user = User::factory()->create();
+        $form = $this->correct_form;
+        $form['tags'] = ['死ね'];
+        $response = $this->actingAs($user)
+            ->from('quiz/create')
+            ->post('/quiz/confirm', $form);
+        $response->assertRedirect('/quiz/create');
+        $response->assertSessionHasErrors('tags.0');
+    }
+
+    //不適切な問題文が含まれている場合に失敗になる
+    public function test_user_cannot_confirm_quiz_with_inappropriate_question()
+    {
+        $user = User::factory()->create();
+        $form = $this->correct_form;
+        $form['questions'][0]['question'] = 'お前はクズか？';
+        $response = $this->actingAs($user)
+            ->from('quiz/create')
+            ->post('/quiz/confirm', $form);
+        $response->assertRedirect('/quiz/create');
+        $response->assertSessionHasErrors('questions.0.question');
+    }
+
+    //不適切な選択肢が含まれている場合に失敗になる
+    public function test_user_cannot_confirm_quiz_with_inappropriate_choices()
+    {
+        $user = User::factory()->create();
+        $form = $this->correct_form;
+        $form['questions'][0]['choices'][0] = 'ゴミ';
+        $response = $this->actingAs($user)
+            ->from('quiz/create')
+            ->post('/quiz/confirm', $form);
+        $response->assertRedirect('/quiz/create');
+        $response->assertSessionHasErrors('questions.0.choices.0');
+    }
+
     private array $correct_form = [
         'title' => 'テスト問題',
         'description' => 'テスト問題の説明',
