@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\QuestionCategory;
 use App\Models\QuestionTitle;
 use App\Models\QuestionTitleCategory;
+use App\Rules\InappropriateWord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -256,24 +257,24 @@ class QuizController extends Controller
     private function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'title' => ['required', 'string', 'max:255', new InappropriateWord()],
+            'description' => ['required', 'string', new InappropriateWord()],
             'quiz_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'temp_quiz_image' => ['nullable', 'string'],
             'current_image_path' => ['nullable', 'string'],
 
             'tags' => ['array'],
-            'tags.*' => ['nullable', 'string', 'max:50'],
+            'tags.*' => ['nullable', 'string', 'max:50', new InappropriateWord()],
 
             'questions' => ['required', 'array', 'min:1'],
-            'questions.0.question' => ['required', 'string'],
+            'questions.0.question' => ['required', 'string', new InappropriateWord()],
             'questions.0.choices' => ['required', 'array', 'size:4'],
-            'questions.0.choices.*' => ['required', 'string'],
+            'questions.0.choices.*' => ['required', 'string', new InappropriateWord()],
             'questions.0.correct' => ['required', 'integer', 'between:0,3'],
 
-            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string'],
+            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string', new InappropriateWord()],
             'questions.*.choices' => ['nullable', 'required_with:questions.*.question,correct', 'array'],
-            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string'],
+            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string', new InappropriateWord()],
             'questions.*.correct' => ['nullable', 'required_with:questions.*.question,choices', 'integer', 'between:0,3'],
         ];
     }
@@ -281,23 +282,23 @@ class QuizController extends Controller
     private function storeUpdateRules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'title' => ['required', 'string', 'max:255', new InappropriateWord()],
+            'description' => ['required', 'string', new InappropriateWord()],
             'temp_quiz_image' => ['nullable', 'string'],
             'current_image_path' => ['nullable', 'string'],
 
             'tags' => ['array'],
-            'tags.*' => ['nullable', 'string', 'max:50'],
+            'tags.*' => ['nullable', 'string', 'max:50', new InappropriateWord()],
 
             'questions' => ['required', 'array', 'min:1'],
-            'questions.0.question' => ['required', 'string'],
+            'questions.0.question' => ['required', 'string', new InappropriateWord()],
             'questions.0.choices' => ['required', 'array', 'size:4'],
-            'questions.0.choices.*' => ['required', 'string'],
+            'questions.0.choices.*' => ['required', 'string', new InappropriateWord()],
             'questions.0.correct' => ['required', 'integer', 'between:0,3'],
 
-            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string'],
+            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string', new InappropriateWord()],
             'questions.*.choices' => ['nullable', 'required_with:questions.*.question,correct', 'array'],
-            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string'],
+            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string', new InappropriateWord()],
             'questions.*.correct' => ['nullable', 'required_with:questions.*.question,choices', 'integer', 'between:0,3'],
         ];
     }

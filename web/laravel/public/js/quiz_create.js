@@ -11,13 +11,15 @@ if (addTagBtn) {
         row.className = 'tagRow';
 
         row.innerHTML = `
-        <input
-            type="text"
-            id="tag_${idx}"
-            name="tags[]"
-            class="formInput"
-            placeholder="タグ${idx + 1}"
-        >
+        <div>
+            <input
+                type="text"
+                id="tag_${idx}"
+                name="tags[]"
+                class="formInput"
+                placeholder="タグ${idx + 1}"
+            >
+        </div>
         <button type="button" class="removeButton removeTag" aria-label="タグを削除">－</button>
     `;
 

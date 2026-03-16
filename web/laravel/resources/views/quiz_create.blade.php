@@ -161,14 +161,19 @@
                 <div id="tagsContainer" class="tagList">
                     @for ($i = 0; $i < $tagCount; $i++)
                         <div class="tagRow">
-                            <input
-                                type="text"
-                                id="tag_{{ $i }}"
-                                name="tags[]"
-                                class="formInput"
-                                placeholder="タグ{{ $i + 1 }}"
-                                value="{{ $tags[$i] }}"
-                            >
+                            <div>
+                                <input
+                                    type="text"
+                                    id="tag_{{ $i }}"
+                                    name="tags[]"
+                                    class="formInput"
+                                    placeholder="タグ{{ $i + 1 }}"
+                                    value="{{ $tags[$i] }}"
+                                >
+                                @error("tags.$i")
+                                <div class="fieldError">{{ $message }}</div>
+                                @enderror
+                            </div>
                             <button type="button" class="removeButton removeTag" aria-label="タグを削除">－</button>
                         </div>
                     @endfor

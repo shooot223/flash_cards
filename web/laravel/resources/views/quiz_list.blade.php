@@ -1,4 +1,6 @@
-<div class="sectionTitle">公開中の問題</div>
+@if($quizzes->currentPage() === 1)
+    <div class="sectionTitle">公開中の問題</div>
+@endif
 
 @forelse ($quizzes as $quiz)
     <article class="card">
@@ -33,5 +35,13 @@
         </div>
     </article>
 @empty
-    <div class="emptyBox">該当する問題がありません。</div>
+    @if($quizzes->currentPage() === 1)
+        <div class="emptyBox">該当する問題がありません。</div>
+    @endif
 @endforelse
+
+@if($quizzes->hasMorePages())
+    <div class="infinite-scroll-trigger" data-next-page="{{ $quizzes->currentPage() + 1 }}" style="text-align:center; padding: 20px; color: var(--muted); font-size: 14px;">
+        読み込み中...
+    </div>
+@endif
