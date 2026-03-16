@@ -195,7 +195,7 @@
                         <div class="quizCard__meta">
                     <span>
                         最終回答日：
-                        {{ optional($quiz->pivot->created_at ?? $quiz->updated_at)->format('Y/m/d') }}
+                        {{ optional($quiz->latest_answered_at)->format('Y/m/d') ?? '未回答' }}
                     </span>
                         </div>
                     </div>

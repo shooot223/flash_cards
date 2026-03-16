@@ -18,11 +18,22 @@ class MypageController extends Controller
             ->latest()
             ->get();
 
-        // 過去に回答した問題
-        $answeredQuizzes = QuestionTitle::whereIn(
-            'id',
-            Score::where('user_id', $userId)->pluck('title_id')
-        )->get();
+        $scoreRecords = Score::where('user_id', $userId)
+            ->latest('created_at')
+            ->get()
+            ->unique('title_id'); // 最新の回答記録のみを残す
+
+        // 回答したクイズの情報リスト（最終回答日時の最新順に保持）
+        $answeredQuizzes = collect();
+
+        foreach ($scoreRecords as $score) {
+            $quiz = QuestionTitle::find($score->title_id);
+            if ($quiz) {
+                // ビュー上で「いつ回答したか」を表示するためのプロパティをセット
+                $quiz->latest_answered_at = $score->created_at;
+                $answeredQuizzes->push($quiz);
+            }
+        }
 
         return view('mypage', [
             'createdQuizzes' => $createdQuizzes,
