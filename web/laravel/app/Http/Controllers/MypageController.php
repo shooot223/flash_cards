@@ -30,6 +30,11 @@ class MypageController extends Controller
         foreach ($scoreRecords as $score) {
             $quiz = QuestionTitle::find($score->title_id);
             if ($quiz) {
+                // 非公開問題で、かつ自分が作成した問題ではない場合はスキップ
+                if (!$quiz->is_public && $quiz->user_id !== $userId) {
+                    continue;
+                }
+
                 // ビュー上で「いつ回答したか」を表示するためのプロパティをセット
                 $quiz->latest_answered_at = $score->created_at;
                 $answeredQuizzes->push($quiz);
