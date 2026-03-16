@@ -12,6 +12,7 @@ use App\Models\QuestionTitle;
 use App\Models\QuestionTitleCategory;
 use App\Models\Score;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -89,6 +90,9 @@ class QuizController extends Controller
             $this->replaceQuestions($title, $validated['questions']);
         });
 
+        // キャッシュをクリアして最新状態を反映させる
+        $this->clearTopCache();
+
         return redirect()->route('quiz.complete', ['mode' => 'create']);
     }
 
@@ -143,6 +147,9 @@ class QuizController extends Controller
             $this->replaceQuestions($title, $validated['questions']);
         });
 
+        // キャッシュをクリアして最新状態を反映させる
+        $this->clearTopCache();
+
         return redirect()->route('quiz.complete', ['mode' => 'update']);
     }
 
@@ -156,6 +163,9 @@ class QuizController extends Controller
             'is_public' => false,
         ]);
 
+        // キャッシュをクリアして最新状態を反映させる
+        $this->clearTopCache();
+
         return redirect()->route('mypage')->with('success', '問題を非公開にしました。');
     }
 
@@ -168,6 +178,9 @@ class QuizController extends Controller
         $quiz->update([
             'is_public' => true,
         ]);
+
+        // キャッシュをクリアして最新状態を反映させる
+        $this->clearTopCache();
 
         return redirect()->route('mypage')->with('success', '問題を再公開しました。');
     }
@@ -424,6 +437,21 @@ class QuizController extends Controller
             $quiz->delete();
         });
 
+        // キャッシュをクリアして最新状態を反映させる
+        $this->clearTopCache();
+
         return redirect()->route('mypage')->with('status', '問題を削除しました。');
+    }
+
+    /**
+     * トップ画面のクイズ一覧キャッシュを全ページ分、カテゴリ一覧分クリアする
+     */
+    private function clearTopCache(): void
+    {
+        // top_quizzes_page_1, top_quizzes_page_2, ... を削除（5ページ分まで対応）
+        for ($i = 1; $i <= 50; $i++) {
+            Cache::forget("top_quizzes_page_{$i}");
+        }
+        Cache::forget('top_categories');
     }
 }

@@ -5,35 +5,60 @@ namespace App\Http\Controllers;
 use App\Models\QuestionTitle;
 use App\Models\QuestionCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class TopController extends Controller
 {
+    // キャッシュのTTL（秒） ＝ 5分
+    private const CACHE_TTL = 300;
+
     //クイズ一覧画面表示（トップ画面）
     public function index(Request $request)
     {
-        $query = QuestionTitle::with(['categories']);
+        $keyword    = $request->input('keyword');
+        $categoryId = $request->input('category');
 
-        //キーワード検索
-        if ($request->filled('keyword')) {
-            $keyword = $request->keyword;
+        // 検索・タグ絞り込みがある場合はキャッシュを使わず直接クエリ
+        $hasFilter = filled($keyword) || filled($categoryId);
 
-            $query->where(function ($q) use ($keyword) {
-                $q->where('title', 'like', '%' . $keyword . '%')
-                    ->orWhere('description', 'like', '%' . $keyword . '%');
+        $quizzes = null;
+
+        if (!$hasFilter) {
+            // フィルターなしの場合はページ番号をキャッシュキーに含める
+            $page      = $request->input('page', 1);
+            $cacheKey  = "top_quizzes_page_{$page}";
+
+            $quizzes = Cache::remember($cacheKey, self::CACHE_TTL, function () {
+                return QuestionTitle::with(['categories'])
+                    ->where('is_public', true)
+                    ->latest()
+                    ->paginate(10);
             });
+        } else {
+            // フィルターあり：毎回DBから取得
+            $query = QuestionTitle::with(['categories']);
+
+            // キーワード検索
+            if (filled($keyword)) {
+                $query->where(function ($q) use ($keyword) {
+                    $q->where('title', 'like', '%' . $keyword . '%')
+                      ->orWhere('description', 'like', '%' . $keyword . '%');
+                });
+            }
+
+            // タグ検索
+            if (filled($categoryId)) {
+                $query->whereHas('categories', function ($q) use ($categoryId) {
+                    $q->where('question_categories.id', $categoryId);
+                });
+            }
+
+            $quizzes = $query->where('is_public', true)->latest()->paginate(10);
         }
 
-        //タグ検索
-        if ($request->filled('category')) {
-            $categoryId = $request->category;
-
-            $query->whereHas('categories', function ($q) use ($categoryId) {
-                $q->where('question_categories.id', $categoryId);
-            });
-        }
-
-        $quizzes = $query->where('is_public', true)->latest()->paginate(10);
-        $categories = QuestionCategory::orderBy('category_name')->get();
+        $categories = Cache::remember('top_categories', self::CACHE_TTL, function () {
+            return QuestionCategory::orderBy('category_name')->get();
+        });
 
         if ($request->ajax()) {
             return view('quiz_list', compact('quizzes'))->render();
