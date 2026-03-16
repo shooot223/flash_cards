@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\QuizCreated;
 use App\Http\Requests\StoreQuizRequest;
 use App\Http\Requests\UpdateQuizRequest;
 use App\Models\Answer;
@@ -68,7 +69,10 @@ class QuizController extends Controller
     {
         $validated = $request->validated();
 
-        DB::transaction(function () use ($validated) {
+        // トランザクション内で作成したクイズを外側で参照するための変数
+        $createdQuiz = null;
+
+        DB::transaction(function () use ($validated, &$createdQuiz) {
             $imagePath = null;
 
             if (!empty($validated['temp_quiz_image']) && Storage::disk('public')->exists($validated['temp_quiz_image'])) {
@@ -88,7 +92,13 @@ class QuizController extends Controller
 
             $this->syncTags($title, $validated['tags'] ?? []);
             $this->replaceQuestions($title, $validated['questions']);
+
+            // リレーション済みモデルをイベントに渡すため事前に取得しておく
+            $createdQuiz = $title->load(['categories', 'questions']);
         });
+
+        // クイズ作成イベントを発火してログリスナーに通知する
+        QuizCreated::dispatch($createdQuiz);
 
         // キャッシュをクリアして最新状態を反映させる
         $this->clearTopCache();
