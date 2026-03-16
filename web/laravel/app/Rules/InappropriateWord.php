@@ -7,12 +7,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 class InappropriateWord implements ValidationRule
 {
-    /**
-     * 不適切なワードのリスト
-     *
-     * @var array
-     */
-    protected $badWords = [
+    protected array $badWords = [
         'バカ',
         '馬鹿',
         'アホ',
@@ -39,12 +34,10 @@ class InappropriateWord implements ValidationRule
         '拷問',
         '誘拐',
         'セックス',
-        'SEX',
         '性交',
         '性行為',
         'エロ',
         'アダルト',
-        'AV',
         'ポルノ',
         '裸',
         'ヌード',
@@ -62,7 +55,6 @@ class InappropriateWord implements ValidationRule
         '麻薬',
         '大麻',
         'コカイン',
-        'LSD',
         'ドラッグ',
         '詐欺',
         '不正アクセス',
@@ -72,20 +64,29 @@ class InappropriateWord implements ValidationRule
         'マネーロンダリング',
     ];
 
-    /**
-     * Run the validation rule.
-     *
-     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
-     */
+    protected array $exactMatchWords = [
+        'AV',
+        'SEX',
+        'LSD',
+    ];
+
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (!is_string($value)) {
             return;
         }
 
+        $normalized = mb_strtolower(trim($value));
+
+        foreach ($this->exactMatchWords as $word) {
+            if ($normalized === mb_strtolower($word)) {
+                $fail('不適切な単語が含まれています。');
+                return;
+            }
+        }
+
         foreach ($this->badWords as $word) {
             if (mb_stripos($value, $word) !== false) {
-                // $fail('指定された項目に不適切な単語（' . $word . '）が含まれています。');
                 $fail('不適切な単語が含まれています。');
                 return;
             }
