@@ -19,6 +19,7 @@ class MypageController extends Controller
             ->get();
 
         $scoreRecords = Score::where('user_id', $userId)
+            ->where('answered_count', '>', 0)
             ->latest('created_at')
             ->get()
             ->unique('title_id'); // 最新の回答記録のみを残す

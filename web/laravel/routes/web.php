@@ -41,8 +41,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{id}/public', 'public')->name('public');
 
         Route::post('/export_csv', 'export_csv')->name('export.csv');
-        
-        // 復習画面
+
         Route::get('/{id}/review', 'review')->name('review');
     });
 

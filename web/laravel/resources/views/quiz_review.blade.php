@@ -64,13 +64,15 @@
             $countOk       = 0; // 問題なし：正解
 
             foreach ($resultDetails as $d) {
-                if ($d['is_correct']) {
-                    $countOk++;
+                if (!$d['is_correct'] || $d['confidence'] === 'low') {
+                    /* 不正解 or 自信度× => 確認必須 */
+                    $countRequired++;
                 } elseif ($d['confidence'] === 'medium') {
+                    /* それ以外で、自信度△ => 曖昧 */
                     $countAmbig++;
                 } else {
-                    /* confidence が high(〇) or low(×) で不正解 */
-                    $countRequired++;
+                    /* それ以外(正解 かつ 自信度〇など) => 問題なし */
+                    $countOk++;
                 }
             }
         @endphp
@@ -112,12 +114,12 @@
                     $confidence = $confidenceMap[$detail['confidence']] ?? ['symbol' => '-', 'class' => ''];
 
                     /* タブ分類を data 属性で付与 */
-                    if ($detail['is_correct']) {
-                        $tabGroup = 'ok';
+                    if (!$detail['is_correct'] || $detail['confidence'] === 'low') {
+                        $tabGroup = 'required';
                     } elseif ($detail['confidence'] === 'medium') {
                         $tabGroup = 'ambig';
                     } else {
-                        $tabGroup = 'required';
+                        $tabGroup = 'ok';
                     }
                 @endphp
 
