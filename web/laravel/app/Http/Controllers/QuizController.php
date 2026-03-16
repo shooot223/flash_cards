@@ -466,4 +466,43 @@ class QuizController extends Controller
             'resultDetails' => $resultDetails,
         ]);
     }
+
+    // クイズの物理削除処理
+    public function delete($id)
+    {
+        DB::transaction(function () use ($id) {
+            $quiz = QuestionTitle::where('id', $id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+
+            // 関連テーブルの削除準備
+            $questionIds = Question::where('title_id', $quiz->id)->pluck('id');
+            $choiceIds = Choice::whereIn('question_id', $questionIds)->pluck('id');
+
+            // 回答記録 (Answer) の削除
+            Answer::whereIn('choice_id', $choiceIds)->delete();
+
+            // 成績記録 (Score) の削除
+            Score::where('title_id', $quiz->id)->delete();
+
+            // 選択肢 (Choice) の削除
+            Choice::whereIn('question_id', $questionIds)->delete();
+
+            // 問題 (Question) の削除
+            Question::where('title_id', $quiz->id)->delete();
+
+            // カテゴリ連携 (QuestionTitleCategory) の削除
+            QuestionTitleCategory::where('title_id', $quiz->id)->delete();
+
+            // 画像の物理削除
+            if (!empty($quiz->image_path) && Storage::disk('public')->exists($quiz->image_path)) {
+                Storage::disk('public')->delete($quiz->image_path);
+            }
+
+            // クイズ本体 (QuestionTitle) の削除
+            $quiz->delete();
+        });
+
+        return redirect()->route('mypage')->with('status', '問題を削除しました。');
+    }
 }

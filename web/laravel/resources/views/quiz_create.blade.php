@@ -272,6 +272,16 @@
                 <button type="submit" class="primaryButton">確認へ進む</button>
             </div>
         </form>
+
+        @if($isEdit)
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #ffcccc; display: flex; justify-content: flex-end;">
+                <form action="{{ route('quiz.delete', $quizId) }}" method="POST" onsubmit="return confirm('本当にこの問題を削除しますか？\n（問題、回答データなどが完全に削除され、復元できません）');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="primaryButton" style="background-color: #dc3545; color: white;">この問題を削除する</button>
+                </form>
+            </div>
+        @endif
     </main>
 @endsection
 
