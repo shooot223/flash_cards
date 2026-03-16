@@ -53,35 +53,7 @@
             </div>
         @endif
 
-        @guest
-            <section class="result-save-box">
-                <div class="result-save-box__content">
-                    <p class="result-save-box__label">SAVE RESULT</p>
-                    <h2 class="result-save-box__title">この結果を保存して、あとで復習しませんか？</h2>
-                    <p class="result-save-box__text">
-                        ログインまたは新規登録をすると、今回の結果を保存できます。
-                        保存した結果は、あとから復習画面で見返せます。
-                    </p>
-                </div>
 
-                <div class="result-save-box__actions">
-                    <form method="POST" action="{{ route('quiz.result.prepare-save', $quiz->id) }}">
-                        @csrf
-                        <button type="submit" class="result-button result-button--primary">
-                            ログインして保存
-                        </button>
-                    </form>
-
-                    <form method="POST" action="{{ route('quiz.result.prepare-save', $quiz->id) }}">
-                        @csrf
-                        <input type="hidden" name="mode" value="register">
-                        <button type="submit" class="result-button result-button--secondary">
-                            新規登録して保存
-                        </button>
-                    </form>
-                </div>
-            </section>
-        @endguest
 
         {{-- ===== タブナビゲーション ===== --}}
         @php
@@ -237,11 +209,11 @@
         @endpush
 
         <div class="result-actions">
-            <a href="{{ route('quiz.start', $quiz->id) }}" class="result-button result-button--primary">
+            <a href="{{ route('quiz.play', $quiz->id) }}" class="result-button result-button--primary">
                 もう一度挑戦する
             </a>
-            <a href="/" class="result-button result-button--secondary">
-                トップへ戻る
+            <a href="{{ route('mypage') }}" class="result-button result-button--secondary">
+                マイページへ戻る
             </a>
         </div>
     </main>

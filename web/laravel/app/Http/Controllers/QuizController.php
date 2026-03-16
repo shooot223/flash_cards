@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\QuestionCategory;
 use App\Models\QuestionTitle;
 use App\Models\QuestionTitleCategory;
+use App\Models\Score;
 use App\Rules\InappropriateWord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -412,5 +413,57 @@ class QuizController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    // 復習画面の表示
+    public function review($id)
+    {
+        $quiz = QuestionTitle::findOrFail($id);
+        $userId = auth()->id();
+
+        // 当該クイズに対する、このユーザーの最新のScoreを取得する
+        $scoreRecord = Score::where('user_id', $userId)
+            ->where('title_id', $quiz->id)
+            ->latest()
+            ->first();
+
+        if (!$scoreRecord) {
+            return redirect()->route('mypage')
+                ->with('error', 'この問題の回答履歴がありません');
+        }
+
+        // Scoreに紐づくAnswerを取得 (問題, 選択肢, 自信度 をロード)
+        $scoreRecord->load(['answers.question', 'answers.choice', 'answers.confidence']);
+
+        $resultDetails = [];
+        foreach ($scoreRecord->answers as $answer) {
+            // 問題がない、または選択肢がない場合はスキップするなどの安全策
+            if (!$answer->question) {
+                continue;
+            }
+
+            // この問題の「正解」の選択肢を取得する
+            $correctChoice = Choice::where('question_id', $answer->question_id)
+                ->where('is_correct', true)
+                ->first();
+
+            $resultDetails[] = [
+                'question_id'        => $answer->question_id,
+                'question_text'      => $answer->question->question_text,
+                'selected_choice_id' => $answer->choice_id,
+                'selected_answer'    => $answer->choice ? $answer->choice->choice_text : '未回答',
+                'correct_choice_id'  => $correctChoice ? $correctChoice->id : null,
+                'correct_answer'     => $correctChoice ? $correctChoice->choice_text : '未設定',
+                'confidence'         => $answer->confidence ? $answer->confidence->confidence_level : '未回答',
+                'is_correct'         => (bool) $answer->is_correct,
+            ];
+        }
+
+        return view('quiz_review', [
+            'quiz'          => $quiz,
+            'score'         => $scoreRecord->correct_count,
+            'total'         => $scoreRecord->answers->count(),
+            'resultDetails' => $resultDetails,
+        ]);
     }
 }

@@ -209,7 +209,7 @@
                         </a>
 
                         {{-- 復習 --}}
-                        <a href="{{ route('quiz.result', $quiz->id) }}"
+                        <a href="{{ route('quiz.review', $quiz->id) }}"
                            class="actionButton actionButton--secondary">
                             復習する
                         </a>
