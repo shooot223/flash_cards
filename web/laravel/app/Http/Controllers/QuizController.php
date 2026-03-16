@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreQuizRequest;
+use App\Http\Requests\UpdateQuizRequest;
 use App\Models\Answer;
 use App\Models\Choice;
 use App\Models\Question;
@@ -9,7 +11,6 @@ use App\Models\QuestionCategory;
 use App\Models\QuestionTitle;
 use App\Models\QuestionTitleCategory;
 use App\Models\Score;
-use App\Rules\InappropriateWord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -33,12 +34,10 @@ class QuizController extends Controller
         ]);
     }
 
-    public function confirm(Request $request)
+    // 確認画面
+    public function confirm(StoreQuizRequest $request)
     {
-        $validated = $request->validate(
-            $this->rules(),
-            $this->messages()
-        );
+        $validated = $request->validated();
 
         $isEdit = (bool)$request->input('is_edit', false);
         $quizId = $request->input('quiz_id');
@@ -64,12 +63,9 @@ class QuizController extends Controller
     }
 
     // 保存処理
-    public function store(Request $request)
+    public function store(StoreQuizRequest $request)
     {
-        $validated = $request->validate(
-            $this->storeUpdateRules(),
-            $this->messages()
-        );
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated) {
             $imagePath = null;
@@ -113,12 +109,9 @@ class QuizController extends Controller
         return view('quiz_create', compact('quiz'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateQuizRequest $request, $id)
     {
-        $validated = $request->validate(
-            $this->storeUpdateRules(),
-            $this->messages()
-        );
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated, $id) {
             $title = QuestionTitle::where('id', $id)
@@ -253,78 +246,6 @@ class QuizController extends Controller
             ->filter(fn($q) => filled($q['question']))
             ->values()
             ->all();
-    }
-
-    private function rules(): array
-    {
-        return [
-            'title' => ['required', 'string', 'max:255', new InappropriateWord()],
-            'description' => ['required', 'string', new InappropriateWord()],
-            'quiz_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'temp_quiz_image' => ['nullable', 'string'],
-            'current_image_path' => ['nullable', 'string'],
-
-            'tags' => ['array'],
-            'tags.*' => ['nullable', 'string', 'max:50', new InappropriateWord()],
-
-            'questions' => ['required', 'array', 'min:1'],
-            'questions.0.question' => ['required', 'string', new InappropriateWord()],
-            'questions.0.choices' => ['required', 'array', 'size:4'],
-            'questions.0.choices.*' => ['required', 'string', new InappropriateWord()],
-            'questions.0.correct' => ['required', 'integer', 'between:0,3'],
-
-            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string', new InappropriateWord()],
-            'questions.*.choices' => ['nullable', 'required_with:questions.*.question,correct', 'array'],
-            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string', new InappropriateWord()],
-            'questions.*.correct' => ['nullable', 'required_with:questions.*.question,choices', 'integer', 'between:0,3'],
-        ];
-    }
-
-    private function storeUpdateRules(): array
-    {
-        return [
-            'title' => ['required', 'string', 'max:255', new InappropriateWord()],
-            'description' => ['required', 'string', new InappropriateWord()],
-            'temp_quiz_image' => ['nullable', 'string'],
-            'current_image_path' => ['nullable', 'string'],
-
-            'tags' => ['array'],
-            'tags.*' => ['nullable', 'string', 'max:50', new InappropriateWord()],
-
-            'questions' => ['required', 'array', 'min:1'],
-            'questions.0.question' => ['required', 'string', new InappropriateWord()],
-            'questions.0.choices' => ['required', 'array', 'size:4'],
-            'questions.0.choices.*' => ['required', 'string', new InappropriateWord()],
-            'questions.0.correct' => ['required', 'integer', 'between:0,3'],
-
-            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string', new InappropriateWord()],
-            'questions.*.choices' => ['nullable', 'required_with:questions.*.question,correct', 'array'],
-            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string', new InappropriateWord()],
-            'questions.*.correct' => ['nullable', 'required_with:questions.*.question,choices', 'integer', 'between:0,3'],
-        ];
-    }
-
-    private function messages(): array
-    {
-        return [
-            'title.required' => 'タイトルは必須です。',
-            'description.required' => '説明は必須です。',
-            'quiz_image.image' => '画像ファイルを選択してください。',
-            'quiz_image.mimes' => '画像は jpg / jpeg / png / webp を選択してください。',
-            'quiz_image.max' => '画像サイズは 2MB 以下にしてください。',
-
-            'questions.0.question.required' => '少なくとも1問は必要です。',
-            'questions.0.choices.required' => '少なくとも1問は必要です。',
-            'questions.0.choices.size' => '選択肢は4つ必要です。',
-            'questions.0.choices.*.required' => '選択肢は必須です。',
-            'questions.0.correct.required' => '正解の選択肢を選んでください。',
-            'questions.0.correct.between' => '正解の選択肢が不正です。',
-
-            'questions.*.question.required_with' => '選択肢が入力もしくは正解が選択されている場合、問題文は必須です。',
-            'questions.*.choices.required_with' => '問題文が入力もしくは正解が選択されている場合、選択肢は必須です。',
-            'questions.*.choices.*.required_with' => 'この選択肢は必須です。',
-            'questions.*.correct.required_with' => '問題文もしくは選択肢が入力されている場合、正解の選択肢は必須です。',
-        ];
     }
 
     //csv出力
