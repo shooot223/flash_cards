@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
     //マイページ
     Route::get('/mypage', [MypageController::class, 'display'])->name('mypage');
 
-    //問題作成
+    //問題作成・管理・復習
     Route::controller(QuizController::class)->prefix('quiz')->name('quiz.')->group(function () {
         Route::match(['get', 'post'], '/create', 'create')->name('create');
         Route::post('/confirm', 'confirm')->name('confirm');
@@ -41,6 +41,8 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{id}/public', 'public')->name('public');
 
         Route::post('/export_csv', 'export_csv')->name('export.csv');
+
+        Route::get('/{id}/review', 'review')->name('review');
     });
 
     //プローフィール編集

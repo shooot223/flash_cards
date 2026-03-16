@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\InappropriateWord;
 
 class QuizAPIRequest extends FormRequest
 {
@@ -14,18 +15,18 @@ class QuizAPIRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required','string','max:255'],
-            'description' => ['required','string'],
+            'title' => ['required','string','max:255', new InappropriateWord()],
+            'description' => ['required','string', new InappropriateWord()],
 
             'tags' => ['array'],
-            'tags.*' => ['string','max:50'],
+            'tags.*' => ['string','max:50', new InappropriateWord()],
 
             'questions' => ['required','array','min:1'],
 
-            'questions.*.question_text' => ['required','string'],
+            'questions.*.question_text' => ['required','string', new InappropriateWord()],
 
             'questions.*.choices' => ['required','array','size:4'],
-            'questions.*.choices.*' => ['required','string'],
+            'questions.*.choices.*' => ['required','string', new InappropriateWord()],
 
             'questions.*.correct_answer' => ['required','integer','between:0,3'],
         ];

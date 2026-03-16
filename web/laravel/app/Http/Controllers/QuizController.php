@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreQuizRequest;
+use App\Http\Requests\UpdateQuizRequest;
 use App\Models\Answer;
 use App\Models\Choice;
 use App\Models\Question;
 use App\Models\QuestionCategory;
 use App\Models\QuestionTitle;
 use App\Models\QuestionTitleCategory;
+use App\Models\Score;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -31,12 +34,10 @@ class QuizController extends Controller
         ]);
     }
 
-    public function confirm(Request $request)
+    // 確認画面
+    public function confirm(StoreQuizRequest $request)
     {
-        $validated = $request->validate(
-            $this->rules(),
-            $this->messages()
-        );
+        $validated = $request->validated();
 
         $isEdit = (bool)$request->input('is_edit', false);
         $quizId = $request->input('quiz_id');
@@ -62,12 +63,9 @@ class QuizController extends Controller
     }
 
     // 保存処理
-    public function store(Request $request)
+    public function store(StoreQuizRequest $request)
     {
-        $validated = $request->validate(
-            $this->storeUpdateRules(),
-            $this->messages()
-        );
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated) {
             $imagePath = null;
@@ -111,12 +109,9 @@ class QuizController extends Controller
         return view('quiz_create', compact('quiz'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateQuizRequest $request, $id)
     {
-        $validated = $request->validate(
-            $this->storeUpdateRules(),
-            $this->messages()
-        );
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated, $id) {
             $title = QuestionTitle::where('id', $id)
@@ -253,78 +248,6 @@ class QuizController extends Controller
             ->all();
     }
 
-    private function rules(): array
-    {
-        return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'quiz_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'temp_quiz_image' => ['nullable', 'string'],
-            'current_image_path' => ['nullable', 'string'],
-
-            'tags' => ['array'],
-            'tags.*' => ['nullable', 'string', 'max:50'],
-
-            'questions' => ['required', 'array', 'min:1'],
-            'questions.0.question' => ['required', 'string'],
-            'questions.0.choices' => ['required', 'array', 'size:4'],
-            'questions.0.choices.*' => ['required', 'string'],
-            'questions.0.correct' => ['required', 'integer', 'between:0,3'],
-
-            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string'],
-            'questions.*.choices' => ['nullable', 'required_with:questions.*.question,correct', 'array'],
-            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string'],
-            'questions.*.correct' => ['nullable', 'required_with:questions.*.question,choices', 'integer', 'between:0,3'],
-        ];
-    }
-
-    private function storeUpdateRules(): array
-    {
-        return [
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'temp_quiz_image' => ['nullable', 'string'],
-            'current_image_path' => ['nullable', 'string'],
-
-            'tags' => ['array'],
-            'tags.*' => ['nullable', 'string', 'max:50'],
-
-            'questions' => ['required', 'array', 'min:1'],
-            'questions.0.question' => ['required', 'string'],
-            'questions.0.choices' => ['required', 'array', 'size:4'],
-            'questions.0.choices.*' => ['required', 'string'],
-            'questions.0.correct' => ['required', 'integer', 'between:0,3'],
-
-            'questions.*.question' => ['nullable', 'required_with:questions.*.choices,correct', 'string'],
-            'questions.*.choices' => ['nullable', 'required_with:questions.*.question,correct', 'array'],
-            'questions.*.choices.*' => ['nullable', 'required_with:questions.*.question,correct', 'string'],
-            'questions.*.correct' => ['nullable', 'required_with:questions.*.question,choices', 'integer', 'between:0,3'],
-        ];
-    }
-
-    private function messages(): array
-    {
-        return [
-            'title.required' => 'タイトルは必須です。',
-            'description.required' => '説明は必須です。',
-            'quiz_image.image' => '画像ファイルを選択してください。',
-            'quiz_image.mimes' => '画像は jpg / jpeg / png / webp を選択してください。',
-            'quiz_image.max' => '画像サイズは 2MB 以下にしてください。',
-
-            'questions.0.question.required' => '少なくとも1問は必要です。',
-            'questions.0.choices.required' => '少なくとも1問は必要です。',
-            'questions.0.choices.size' => '選択肢は4つ必要です。',
-            'questions.0.choices.*.required' => '選択肢は必須です。',
-            'questions.0.correct.required' => '正解の選択肢を選んでください。',
-            'questions.0.correct.between' => '正解の選択肢が不正です。',
-
-            'questions.*.question.required_with' => '選択肢が入力もしくは正解が選択されている場合、問題文は必須です。',
-            'questions.*.choices.required_with' => '問題文が入力もしくは正解が選択されている場合、選択肢は必須です。',
-            'questions.*.choices.*.required_with' => 'この選択肢は必須です。',
-            'questions.*.correct.required_with' => '問題文もしくは選択肢が入力されている場合、正解の選択肢は必須です。',
-        ];
-    }
-
     //csv出力
 
     public function export_csv(Request $request): StreamedResponse
@@ -411,5 +334,96 @@ class QuizController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    // 復習画面の表示
+    public function review($id)
+    {
+        $quiz = QuestionTitle::findOrFail($id);
+        $userId = auth()->id();
+
+        // 当該クイズに対する、このユーザーの最新のScoreを取得する
+        $scoreRecord = Score::where('user_id', $userId)
+            ->where('title_id', $quiz->id)
+            ->latest()
+            ->first();
+
+        if (!$scoreRecord) {
+            return redirect()->route('mypage')
+                ->with('error', 'この問題の回答履歴がありません');
+        }
+
+        // Scoreに紐づくAnswerを取得 (問題, 選択肢, 自信度 をロード)
+        $scoreRecord->load(['answers.question', 'answers.choice', 'answers.confidence']);
+
+        $resultDetails = [];
+        foreach ($scoreRecord->answers as $answer) {
+            // 問題がない、または選択肢がない場合はスキップするなどの安全策
+            if (!$answer->question) {
+                continue;
+            }
+
+            // この問題の「正解」の選択肢を取得する
+            $correctChoice = Choice::where('question_id', $answer->question_id)
+                ->where('is_correct', true)
+                ->first();
+
+            $resultDetails[] = [
+                'question_id'        => $answer->question_id,
+                'question_text'      => $answer->question->question_text,
+                'selected_choice_id' => $answer->choice_id,
+                'selected_answer'    => $answer->choice ? $answer->choice->choice_text : '未回答',
+                'correct_choice_id'  => $correctChoice ? $correctChoice->id : null,
+                'correct_answer'     => $correctChoice ? $correctChoice->choice_text : '未設定',
+                'confidence'         => $answer->confidence ? $answer->confidence->confidence_level : '未回答',
+                'is_correct'         => (bool) $answer->is_correct,
+            ];
+        }
+
+        return view('quiz_review', [
+            'quiz'          => $quiz,
+            'score'         => $scoreRecord->correct_count,
+            'total'         => $scoreRecord->answers->count(),
+            'resultDetails' => $resultDetails,
+        ]);
+    }
+
+    // クイズの物理削除処理
+    public function delete($id)
+    {
+        DB::transaction(function () use ($id) {
+            $quiz = QuestionTitle::where('id', $id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+
+            // 関連テーブルの削除準備
+            $questionIds = Question::where('title_id', $quiz->id)->pluck('id');
+            $choiceIds = Choice::whereIn('question_id', $questionIds)->pluck('id');
+
+            // 回答記録 (Answer) の削除
+            Answer::whereIn('choice_id', $choiceIds)->delete();
+
+            // 成績記録 (Score) の削除
+            Score::where('title_id', $quiz->id)->delete();
+
+            // 選択肢 (Choice) の削除
+            Choice::whereIn('question_id', $questionIds)->delete();
+
+            // 問題 (Question) の削除
+            Question::where('title_id', $quiz->id)->delete();
+
+            // カテゴリ連携 (QuestionTitleCategory) の削除
+            QuestionTitleCategory::where('title_id', $quiz->id)->delete();
+
+            // 画像の物理削除
+            if (!empty($quiz->image_path) && Storage::disk('public')->exists($quiz->image_path)) {
+                Storage::disk('public')->delete($quiz->image_path);
+            }
+
+            // クイズ本体 (QuestionTitle) の削除
+            $quiz->delete();
+        });
+
+        return redirect()->route('mypage')->with('status', '問題を削除しました。');
     }
 }

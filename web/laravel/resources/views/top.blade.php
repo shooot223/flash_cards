@@ -14,7 +14,7 @@
         </section>
 
         <section class="searchArea">
-            <form id="searchForm" class="searchForm">
+            <form id="searchForm" class="searchForm" action="{{ route('top') }}">
                 <input
                     type="text"
                     name="keyword"
@@ -44,6 +44,7 @@
                     </button>
                 @endforeach
             </div>
+            <button type="button" id="tagExpandBtn" class="tagExpandBtn" style="display: none;">＋ 詳細表示</button>
         </section>
 
         <section class="listWrap" id="quizListArea">
@@ -54,47 +55,6 @@
 
 
 @push('js')
-    <script>
-        const searchForm = document.getElementById('searchForm');
-        const keywordInput = document.getElementById('keywordInput');
-        const tagButtons = document.querySelectorAll('.tagItem');
-        const quizListArea = document.getElementById('quizListArea');
-
-        let selectedCategory = '';
-
-        async function fetchQuizzes() {
-            const keyword = keywordInput.value;
-
-            const params = new URLSearchParams({
-                keyword: keyword,
-                category: selectedCategory
-            });
-
-            const response = await fetch(`{{ route('top') }}?${params.toString()}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-
-            const html = await response.text();
-            quizListArea.innerHTML = html;
-        }
-
-        searchForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            await fetchQuizzes();
-        });
-
-        tagButtons.forEach(button => {
-            button.addEventListener('click', async function () {
-                selectedCategory = this.dataset.category;
-
-                tagButtons.forEach(btn => btn.classList.remove('is-active'));
-                this.classList.add('is-active');
-
-                await fetchQuizzes();
-            });
-        });
-    </script>
+    <script src="{{ asset('js/top.js') }}"></script>
 @endpush
 

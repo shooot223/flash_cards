@@ -32,7 +32,7 @@ class TopController extends Controller
             });
         }
 
-        $quizzes = $query->where('is_public', true)->latest()->get();
+        $quizzes = $query->where('is_public', true)->latest()->paginate(10);
         $categories = QuestionCategory::orderBy('category_name')->get();
 
         if ($request->ajax()) {
