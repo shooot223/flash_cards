@@ -27,8 +27,12 @@ class QuizPlayController extends Controller
     {
         $quiz = QuestionTitle::with(['questions.choices', 'categories'])->findOrFail($id);
 
-        $latestScore = null;
+        // 非公開クイズはオーナー以外アクセス不可
+        if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
+            abort(403, 'このクイズは非公開です。');
+        }
 
+        $latestScore = null;
         if (Auth::check()) {
             $latestScore = Score::where('user_id', Auth::id())
                 ->where('title_id', $quiz->id)
@@ -77,6 +81,11 @@ class QuizPlayController extends Controller
     {
         $quiz = QuestionTitle::with(['questions.choices'])->findOrFail($id);
 
+        // 非公開クイズはオーナー以外アクセス不可
+        if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
+            abort(403, 'このクイズは非公開です。');
+        }
+
         $questions = $this->getOrderedQuestions($quiz, $id);
         $step = (int) $request->query('step', 0);
 
@@ -104,6 +113,12 @@ class QuizPlayController extends Controller
     public function answer(QuizPlayRequest $request, $id)
     {
         $quiz = QuestionTitle::with(['questions.choices'])->findOrFail($id);
+
+        // 非公開クイズはオーナー以外アクセス不可
+        if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
+            abort(403, 'このクイズは非公開です。');
+        }
+
         $questions = $this->getOrderedQuestions($quiz, $id);
 
         $step = (int) $request->input('step');
@@ -165,6 +180,12 @@ class QuizPlayController extends Controller
     public function next(Request $request, $id)
     {
         $quiz = QuestionTitle::with(['questions'])->findOrFail($id);
+
+        // 非公開クイズはオーナー以外アクセス不可
+        if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
+            abort(403, 'このクイズは非公開です。');
+        }
+
         $questions = $this->getOrderedQuestions($quiz, $id);
 
         $step = (int) $request->input('step');
@@ -193,6 +214,11 @@ class QuizPlayController extends Controller
     public function result($id)
     {
         $quiz = QuestionTitle::with(['questions.choices'])->findOrFail($id);
+
+        // 非公開クイズはオーナー以外アクセス不可
+        if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
+            abort(403, 'このクイズは非公開です。');
+        }
 
         $progress = session()->get("quiz_progress.$id", []);
         $questions = $this->getOrderedQuestions($quiz, $id);
@@ -315,6 +341,11 @@ class QuizPlayController extends Controller
         ]);
 
         foreach ($resultDetails as $detail) {
+            // 未回答の問題は Answer レコードを作成しない（choice_id / confidence_id が非nullableのため）
+            if ($detail['selected_choice_id'] === null) {
+                continue;
+            }
+
             Answer::create([
                 'user_id' => Auth::id(),
                 'question_id' => $detail['question_id'],

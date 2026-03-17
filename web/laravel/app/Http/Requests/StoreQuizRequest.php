@@ -26,8 +26,8 @@ class StoreQuizRequest extends FormRequest
         return [
             'title'               => ['required', 'string', 'max:255', new InappropriateWord()],
             'description'         => ['required', 'string', new InappropriateWord()],
-            'temp_quiz_image'     => ['nullable', 'string'],
-            'current_image_path'  => ['nullable', 'string'],
+            'temp_quiz_image'     => ['nullable', 'string', 'regex:/^tmp\/quizzes\//'],
+            'current_image_path'  => ['nullable', 'string', 'regex:/^quizzes\//'],
 
             'tags'   => ['array'],
             'tags.*' => ['nullable', 'string', 'max:50', new InappropriateWord()],

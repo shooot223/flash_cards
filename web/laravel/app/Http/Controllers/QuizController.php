@@ -221,8 +221,11 @@ class QuizController extends Controller
 
         $choiceIds = Choice::whereIn('question_id', $questionIds)->pluck('id');
 
-        // 既存の回答を削除
+        // 既存の回答を削除（choiceに紐づくAnswerを先に消す）
         Answer::whereIn('choice_id', $choiceIds)->delete();
+
+        // Answerが消えたあと、関連するScoreも削除（不整合を防ぐ）
+        Score::where('title_id', $title->id)->delete();
 
         // 既存の選択肢を削除
         Choice::whereIn('question_id', $questionIds)->delete();
