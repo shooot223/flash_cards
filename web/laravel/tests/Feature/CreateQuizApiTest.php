@@ -321,7 +321,7 @@ class CreateQuizApiTest extends TestCase
         $response = $this->postJson(self::API_URL, self::CORRECT_DATA);
         $response->assertCreated();
 
-        $quiz = Question::first();
+        $quiz = QuestionTitle::first();
         $this->assertDatabaseHas('question_titles', ['id' => $quiz->id]);
     }
 
