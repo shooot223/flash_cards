@@ -1,6 +1,5 @@
 <?php
 
-namespace Database\Factories;
 
 namespace Database\Factories;
 
@@ -14,7 +13,7 @@ class QuestionFactory extends Factory
     public function definition()
     {
         return [
-            'title_id' => null,
+            'quiz_id' => null,
             'question_text' => $this->faker->sentence(),
         ];
     }
