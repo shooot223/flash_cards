@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\QuizPlayRequest;
 use App\Models\Answer;
 use App\Models\Confidence;
-use App\Models\QuestionTitle;
+use App\Models\Quiz;
 use App\Models\Score;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +25,7 @@ class QuizPlayController extends Controller
      */
     public function start($id)
     {
-        $quiz = QuestionTitle::with(['questions.choices', 'categories'])->findOrFail($id);
+        $quiz = Quiz::with(['questions.choices', 'categories'])->findOrFail($id);
 
         // 非公開クイズはオーナー以外アクセス不可
         if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
@@ -35,7 +35,7 @@ class QuizPlayController extends Controller
         $latestScore = null;
         if (Auth::check()) {
             $latestScore = Score::where('user_id', Auth::id())
-                ->where('title_id', $quiz->id)
+                ->where('quiz_id', $quiz->id)
                 ->latest('created_at')
                 ->first();
         }
@@ -79,7 +79,7 @@ class QuizPlayController extends Controller
      */
     public function play(Request $request, $id)
     {
-        $quiz = QuestionTitle::with(['questions.choices'])->findOrFail($id);
+        $quiz = Quiz::with(['questions.choices'])->findOrFail($id);
 
         // 非公開クイズはオーナー以外アクセス不可
         if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
@@ -112,7 +112,7 @@ class QuizPlayController extends Controller
      */
     public function answer(QuizPlayRequest $request, $id)
     {
-        $quiz = QuestionTitle::with(['questions.choices'])->findOrFail($id);
+        $quiz = Quiz::with(['questions.choices'])->findOrFail($id);
 
         // 非公開クイズはオーナー以外アクセス不可
         if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
@@ -179,7 +179,7 @@ class QuizPlayController extends Controller
      */
     public function next(Request $request, $id)
     {
-        $quiz = QuestionTitle::with(['questions'])->findOrFail($id);
+        $quiz = Quiz::with(['questions'])->findOrFail($id);
 
         // 非公開クイズはオーナー以外アクセス不可
         if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
@@ -213,7 +213,7 @@ class QuizPlayController extends Controller
      */
     public function result($id)
     {
-        $quiz = QuestionTitle::with(['questions.choices'])->findOrFail($id);
+        $quiz = Quiz::with(['questions.choices'])->findOrFail($id);
 
         // 非公開クイズはオーナー以外アクセス不可
         if (!$quiz->is_public && $quiz->user_id !== Auth::id()) {
@@ -332,7 +332,7 @@ class QuizPlayController extends Controller
 
         $score = Score::create([
             'user_id' => Auth::id(),
-            'title_id' => $quizId,
+            'quiz_id' => $quizId,
             'score_value' => $snapshot['score'] ?? 0,
             'answered_count' => collect($resultDetails)
                 ->whereNotNull('selected_choice_id')
@@ -370,7 +370,7 @@ class QuizPlayController extends Controller
      * - quiz_choice_order で各問題の選択肢順を制御する
      * - セッション情報がない場合は元の順序を保険として使用する
      */
-    private function getOrderedQuestions(QuestionTitle $quiz, int|string $quizId)
+    private function getOrderedQuestions(Quiz $quiz, int|string $quizId)
     {
         $questionOrder = session()->get("quiz_order.$quizId", []);
         $choiceOrders = session()->get("quiz_choice_order.$quizId", []);

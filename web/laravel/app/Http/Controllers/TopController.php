@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\QuestionTitle;
+use App\Models\Quiz;
 use App\Models\QuestionCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -29,14 +29,14 @@ class TopController extends Controller
             $cacheKey  = "top_quizzes_page_{$page}";
 
             $quizzes = Cache::remember($cacheKey, self::CACHE_TTL, function () {
-                return QuestionTitle::with(['categories'])
+                return Quiz::with(['categories'])
                     ->where('is_public', true)
                     ->latest()
                     ->paginate(10);
             });
         } else {
             // フィルターあり：毎回DBから取得
-            $query = QuestionTitle::with(['categories']);
+            $query = Quiz::with(['categories']);
 
             // キーワード検索
             if (filled($keyword)) {

@@ -9,8 +9,8 @@ use App\Models\Answer;
 use App\Models\Choice;
 use App\Models\Question;
 use App\Models\QuestionCategory;
-use App\Models\QuestionTitle;
-use App\Models\QuestionTitleCategory;
+use App\Models\Quiz;
+use App\Models\QuizCategory;
 use App\Models\Tag;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -30,7 +30,7 @@ class QuizController extends Controller
         $title = DB::transaction(function () use ($validated, $user) {
 
             //クイズのタイトルを保存
-            $title = QuestionTitle::create([
+            $title = Quiz::create([
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
                 'user_id' => $user->id,
@@ -57,7 +57,7 @@ class QuizController extends Controller
     }
 
     //タグの保存処理
-    private function syncTags(QuestionTitle $title, array $tags): void
+    private function syncTags(Quiz $title, array $tags): void
     {
         //タグを取ってきて、空タグは排除
         $filteredTags = collect($tags)
@@ -72,29 +72,29 @@ class QuizController extends Controller
             ]);
 
             //タグとクイズの関連付けを作成
-            QuestionTitleCategory::create([
-                'title_id' => $title->id,
+            QuizCategory::create([
+                'quiz_id' => $title->id,
                 'category_id' => $category->id,
             ]);
         }
     }
 
     //クイズの問題の置き換え処理
-    private function replaceQuestions(QuestionTitle $title, array $questions): void
+    private function replaceQuestions(Quiz $title, array $questions): void
     {
         //既存の問題・選択肢があるか確認
-        $questionIds = Question::where('title_id', $title->id)->pluck('id');
+        $questionIds = Question::where('quiz_id', $title->id)->pluck('id');
         //義損の選択肢を削除
         Choice::whereIn('question_id', $questionIds)->delete();
         //既存の問題を削除
-        Question::where('title_id', $title->id)->delete();
+        Question::where('quiz_id', $title->id)->delete();
 
 
         //空の問題があれば削除し、配列をつくり直す
         $filteredQuestions = $this->normalizeQuestions($questions);
         foreach ($filteredQuestions as $q) {
             $question = Question::create([
-                'title_id' => $title->id,
+                'quiz_id' => $title->id,
                 'question_text' => $q['question_text'],
             ]);
 

@@ -4,11 +4,11 @@ namespace Database\Factories;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\QuestionTitle;
+use App\Models\Quiz;
 
-class QuestionTitleFactory extends Factory
+class QuizFactory extends Factory
 {
-    protected $model = QuestionTitle::class;
+    protected $model = Quiz::class;
 
     public function definition(): array
     {

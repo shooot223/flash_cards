@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class QuestionTitle extends Model
+class Quiz extends Model
 {
     use HasFactory;
 
@@ -25,18 +25,18 @@ class QuestionTitle extends Model
     {
         return $this->belongsToMany(
             QuestionCategory::class,
-            'question_title_categories',
-            'title_id',
+            'quiz_categories',
+            'quiz_id',
             'category_id'
         );
     }
 
     public function questions()
     {
-        return $this->hasMany(Question::class, 'title_id');
+        return $this->hasMany(Question::class, 'quiz_id');
     }
 
     public function scores(){
-        return $this->hasMany(Score::class, 'title_id');
+        return $this->hasMany(Score::class, 'quiz_id');
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Models\QuestionTitle;
+use App\Models\Quiz;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -14,14 +14,14 @@ class QuizCreated
     /**
      * 作成されたクイズのモデル
      */
-    public QuestionTitle $quiz;
+    public Quiz $quiz;
 
     /**
      * イベントインスタンスを生成する
      *
-     * @param QuestionTitle $quiz 新しく作成されたクイズ
+     * @param Quiz $quiz 新しく作成されたクイズ
      */
-    public function __construct(QuestionTitle $quiz)
+    public function __construct(Quiz $quiz)
     {
         $this->quiz = $quiz;
     }

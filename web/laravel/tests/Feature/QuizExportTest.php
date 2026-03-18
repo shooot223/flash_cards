@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Choice;
 use App\Models\Question;
-use App\Models\QuestionTitle;
+use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -19,7 +19,7 @@ class QuizExportTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $quiz = QuestionTitle::factory()->create([
+        $quiz = Quiz::factory()->create([
             'user_id' => $user->id,
         ]);
 
@@ -34,7 +34,7 @@ class QuizExportTest extends TestCase
     public function test_guest_cannot_export_csv()
     {
         $user = User::factory()->create();
-        $quiz = QuestionTitle::factory()->create([
+        $quiz = Quiz::factory()->create([
             'user_id' => $user->id,
         ]);
 
@@ -50,13 +50,13 @@ class QuizExportTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $quiz1 = QuestionTitle::factory()->create([
+        $quiz1 = Quiz::factory()->create([
             'user_id' => $user->id,
             'title' => '出力されるクイズ',
             'description' => '説明1',
         ]);
 
-        $quiz2 = QuestionTitle::factory()->create([
+        $quiz2 = Quiz::factory()->create([
             'user_id' => $user->id,
             'title' => '出力されないクイズ',
             'description' => '説明2',
@@ -64,7 +64,7 @@ class QuizExportTest extends TestCase
 
         // quiz1 の問題と選択肢
         $question1 = Question::factory()->create([
-            'title_id' => $quiz1->id,
+            'quiz_id' => $quiz1->id,
             'question_text' => 'quiz1の問題文',
         ]);
 
@@ -75,7 +75,7 @@ class QuizExportTest extends TestCase
 
         // quiz2 の問題と選択肢
         $question2 = Question::factory()->create([
-            'title_id' => $quiz2->id,
+            'quiz_id' => $quiz2->id,
             'question_text' => 'quiz2の問題文',
         ]);
 
@@ -111,14 +111,14 @@ class QuizExportTest extends TestCase
         $user2 = User::factory()->create();
 
         //user1によるクイズ作成
-        $quiz1 = QuestionTitle::factory()->create([
+        $quiz1 = Quiz::factory()->create([
             'user_id' => $user1->id,
             'title' => '出力されるクイズ',
             'description' => '説明1',
         ]);
 
         $question1 = Question::factory()->create([
-            'title_id' => $quiz1->id,
+            'quiz_id' => $quiz1->id,
             'question_text' => 'quiz1の問題文',
         ]);
 
@@ -128,14 +128,14 @@ class QuizExportTest extends TestCase
         Choice::factory()->create(['question_id' => $question1->id, 'choice_text' => 'D', 'is_correct' => false]);
 
         //user2によるクイズ作成
-        $quiz2 = QuestionTitle::factory()->create([
+        $quiz2 = Quiz::factory()->create([
             'user_id' => $user2->id,
             'title' => '出力されるクイズ',
             'description' => '説明1',
         ]);
 
         $question1 = Question::factory()->create([
-            'title_id' => $quiz2->id,
+            'quiz_id' => $quiz2->id,
             'question_text' => 'quiz1の問題文',
         ]);
 

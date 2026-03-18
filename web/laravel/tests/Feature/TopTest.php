@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Question;
 use App\Models\QuestionCategory;
-use App\Models\QuestionTitle;
+use App\Models\Quiz;
 use Database\Factories\QuestionCategoryFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -26,11 +26,11 @@ class TopTest extends TestCase
     //公開問題のみ表示されるかのテスト
     public function test_only_public_questions_displayed(): void
     {
-        $publicQuestion = QuestionTitle::factory()->create([
+        $publicQuestion = Quiz::factory()->create([
             'title' => '公開問題',
             'is_public' => true
         ]);
-        $privateQuestion = QuestionTitle::factory()->create([
+        $privateQuestion = Quiz::factory()->create([
             'title' => '非公開問題',
             'is_public' => false
         ]);
@@ -44,13 +44,13 @@ class TopTest extends TestCase
     //問題が新しい順で並ぶかのテスト
     public function test_questions_sorted_by_newest()
     {
-        $oldQuestion = QuestionTitle::factory()->create([
+        $oldQuestion = Quiz::factory()->create([
             'title' => '古い問題',
             'is_public' => true,
             'created_at' => now()->subDays(3),
         ]);
 
-        $newQuestion = QuestionTitle::factory()->create([
+        $newQuestion = Quiz::factory()->create([
             'title' => '新しい問題',
             'is_public' => true,
             'created_at' => now(),
@@ -78,12 +78,12 @@ class TopTest extends TestCase
 //キーワード検索: title に一致する場合のテスト
     public function test_keyword_search_matches_title()
     {
-        QuestionTitle::factory()->create([
+        Quiz::factory()->create([
             'title' => '特定のキーワードを含む問題',
             'is_public' => true,
         ]);
 
-        QuestionTitle::factory()->create([
+        Quiz::factory()->create([
             'title' => '別の問題',
             'is_public' => true,
         ]);
@@ -98,12 +98,12 @@ class TopTest extends TestCase
     //キーワード検索: description に一致する場合のテスト
     public function test_keyword_search_matches_description()
     {
-        QuestionTitle::factory()->create([
+        Quiz::factory()->create([
             'title' => 'テスト１',
             'description' => '特定のキーワードを含む説明',
         ]);
 
-        QuestionTitle::factory()->create([
+        Quiz::factory()->create([
             'title' => 'テスト２',
             'description' => '別の説明',
         ]);
@@ -125,12 +125,12 @@ class TopTest extends TestCase
             'category_name' => '別カテゴリ',
         ]);
 
-        $targetQuiz = QuestionTitle::factory()->create([
+        $targetQuiz = Quiz::factory()->create([
             'title' => '特定カテゴリの問題',
             'is_public' => true,
         ]);
 
-        $otherQuiz = QuestionTitle::factory()->create([
+        $otherQuiz = Quiz::factory()->create([
             'title' => '別カテゴリの問題',
             'is_public' => true,
         ]);
@@ -151,19 +151,19 @@ class TopTest extends TestCase
         $category1 = QuestionCategory::factory()->create(['category_name' => 'カテゴリ1']);
         $category2 = QuestionCategory::factory()->create(['category_name' => 'カテゴリ2']);
 
-        $quiz1 = QuestionTitle::factory()->create([
+        $quiz1 = Quiz::factory()->create([
             'title' => 'キーワードを含む問題',
             'is_public' => true,
         ]);
         $quiz1->categories()->attach($category1->id);
 
-        $quiz2 = QuestionTitle::factory()->create([
+        $quiz2 = Quiz::factory()->create([
             'title' => 'キーワードを含む問題',
             'is_public' => true,
         ]);
         $quiz2->categories()->attach($category2->id);
 
-        $quiz3 = QuestionTitle::factory()->create([
+        $quiz3 = Quiz::factory()->create([
             'title' => '別のタイトル',
             'is_public' => true,
         ]);
@@ -179,7 +179,7 @@ class TopTest extends TestCase
     //Ajaxリクエスト時は quiz_list ビューが返る
     public function test_ajax_request_returns_quiz_list_view()
     {
-        QuestionTitle::factory()->create([
+        Quiz::factory()->create([
             'title' => 'Ajaxテスト問題',
             'is_public' => true,
         ]);

@@ -9,8 +9,8 @@ use App\Models\Answer;
 use App\Models\Choice;
 use App\Models\Question;
 use App\Models\QuestionCategory;
-use App\Models\QuestionTitle;
-use App\Models\QuestionTitleCategory;
+use App\Models\Quiz;
+use App\Models\QuizCategory;
 use App\Models\Score;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -83,7 +83,7 @@ class QuizController extends Controller
                 $imagePath = $newPath;
             }
 
-            $title = QuestionTitle::create([
+            $title = Quiz::create([
                 'title' => $validated['title'],
                 'description' => $validated['description'],
                 'user_id' => auth()->id(),
@@ -115,7 +115,7 @@ class QuizController extends Controller
 
     public function edit($id)
     {
-        $quiz = QuestionTitle::with(['questions.choices', 'categories'])
+        $quiz = Quiz::with(['questions.choices', 'categories'])
             ->where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
@@ -128,7 +128,7 @@ class QuizController extends Controller
         $validated = $request->validated();
 
         DB::transaction(function () use ($validated, $id) {
-            $title = QuestionTitle::where('id', $id)
+            $title = Quiz::where('id', $id)
                 ->where('user_id', auth()->id())
                 ->firstOrFail();
 
@@ -152,7 +152,7 @@ class QuizController extends Controller
                 'image_path' => $imagePath,
             ]);
 
-            QuestionTitleCategory::where('title_id', $title->id)->delete();
+            QuizCategory::where('quiz_id', $title->id)->delete();
             $this->syncTags($title, $validated['tags'] ?? []);
             $this->replaceQuestions($title, $validated['questions']);
         });
@@ -165,7 +165,7 @@ class QuizController extends Controller
 
     public function private($id)
     {
-        $quiz = QuestionTitle::where('id', $id)
+        $quiz = Quiz::where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
@@ -181,7 +181,7 @@ class QuizController extends Controller
 
     public function public($id)
     {
-        $quiz = QuestionTitle::where('id', $id)
+        $quiz = Quiz::where('id', $id)
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
@@ -195,7 +195,7 @@ class QuizController extends Controller
         return redirect()->route('mypage')->with('success', '問題を再公開しました。');
     }
 
-    private function syncTags(QuestionTitle $title, array $tags): void
+    private function syncTags(Quiz $title, array $tags): void
     {
         $filteredTags = collect($tags)
             ->filter(fn($tag) => !empty($tag))
@@ -207,17 +207,17 @@ class QuizController extends Controller
                 'category_name' => $tagName,
             ]);
 
-            QuestionTitleCategory::create([
-                'title_id' => $title->id,
+            QuizCategory::create([
+                'quiz_id' => $title->id,
                 'category_id' => $category->id,
             ]);
         }
     }
 
     //クイズの問題の置き換え処理
-    private function replaceQuestions(QuestionTitle $title, array $questions): void
+    private function replaceQuestions(Quiz $title, array $questions): void
     {
-        $questionIds = Question::where('title_id', $title->id)->pluck('id');
+        $questionIds = Question::where('quiz_id', $title->id)->pluck('id');
 
         $choiceIds = Choice::whereIn('question_id', $questionIds)->pluck('id');
 
@@ -225,19 +225,19 @@ class QuizController extends Controller
         Answer::whereIn('choice_id', $choiceIds)->delete();
 
         // Answerが消えたあと、関連するScoreも削除（不整合を防ぐ）
-        Score::where('title_id', $title->id)->delete();
+        Score::where('quiz_id', $title->id)->delete();
 
         // 既存の選択肢を削除
         Choice::whereIn('question_id', $questionIds)->delete();
 
         // 既存の問題を削除
-        Question::where('title_id', $title->id)->delete();
+        Question::where('quiz_id', $title->id)->delete();
 
         $filteredQuestions = $this->normalizeQuestions($questions);
 
         foreach ($filteredQuestions as $q) {
             $question = Question::create([
-                'title_id' => $title->id,
+                'quiz_id' => $title->id,
                 'question_text' => $q['question'],
             ]);
 
@@ -281,13 +281,13 @@ class QuizController extends Controller
         // バリデーション
         $validated = $request->validate([
             'quiz_ids' => ['required', 'array'],
-            'quiz_ids.*' => ['integer', 'exists:question_titles,id'],
+            'quiz_ids.*' => ['integer', 'exists:quizzes,id'],
         ]);
 
         $quizIds = $validated['quiz_ids'];
 
         // クイズ取得（問題と選択肢も一緒に取得）
-        $quizzes = QuestionTitle::with(['questions.choices'])
+        $quizzes = Quiz::with(['questions.choices'])
             ->whereIn('id', $quizIds)
             ->where('user_id', auth()->id()) // 自分の問題だけ
             ->get();
@@ -365,12 +365,12 @@ class QuizController extends Controller
     // 復習画面の表示
     public function review($id)
     {
-        $quiz = QuestionTitle::findOrFail($id);
+        $quiz = Quiz::findOrFail($id);
         $userId = auth()->id();
 
         // 当該クイズに対する、このユーザーの最新のScoreを取得する
         $scoreRecord = Score::where('user_id', $userId)
-            ->where('title_id', $quiz->id)
+            ->where('quiz_id', $quiz->id)
             ->latest()
             ->first();
 
@@ -418,35 +418,35 @@ class QuizController extends Controller
     public function delete($id)
     {
         DB::transaction(function () use ($id) {
-            $quiz = QuestionTitle::where('id', $id)
+            $quiz = Quiz::where('id', $id)
                 ->where('user_id', auth()->id())
                 ->firstOrFail();
 
             // 関連テーブルの削除準備
-            $questionIds = Question::where('title_id', $quiz->id)->pluck('id');
+            $questionIds = Question::where('quiz_id', $quiz->id)->pluck('id');
             $choiceIds = Choice::whereIn('question_id', $questionIds)->pluck('id');
 
             // 回答記録 (Answer) の削除
             Answer::whereIn('choice_id', $choiceIds)->delete();
 
             // 成績記録 (Score) の削除
-            Score::where('title_id', $quiz->id)->delete();
+            Score::where('quiz_id', $quiz->id)->delete();
 
             // 選択肢 (Choice) の削除
             Choice::whereIn('question_id', $questionIds)->delete();
 
             // 問題 (Question) の削除
-            Question::where('title_id', $quiz->id)->delete();
+            Question::where('quiz_id', $quiz->id)->delete();
 
-            // カテゴリ連携 (QuestionTitleCategory) の削除
-            QuestionTitleCategory::where('title_id', $quiz->id)->delete();
+            // カテゴリ連携 (QuizCategory) の削除
+            QuizCategory::where('quiz_id', $quiz->id)->delete();
 
             // 画像の物理削除
             if (!empty($quiz->image_path) && Storage::disk('public')->exists($quiz->image_path)) {
                 Storage::disk('public')->delete($quiz->image_path);
             }
 
-            // クイズ本体 (QuestionTitle) の削除
+            // クイズ本体 (Quiz) の削除
             $quiz->delete();
         });
 

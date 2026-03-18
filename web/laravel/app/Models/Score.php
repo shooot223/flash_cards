@@ -11,7 +11,7 @@ class Score extends Model
 
     protected $fillable = [
         'user_id',
-        'title_id',
+        'quiz_id',
         'score_value',
         'answered_count',
         'correct_count',
@@ -21,8 +21,8 @@ class Score extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function questionTitle(){
-        return $this->belongsTo(QuestionTitle::class, 'title_id');
+    public function quiz(){
+        return $this->belongsTo(Quiz::class);
     }
 
     public function answers()

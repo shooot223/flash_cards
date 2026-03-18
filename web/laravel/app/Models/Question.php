@@ -11,11 +11,11 @@ class Question extends Model
 
     protected $fillable = [
         'question_text',
-        'title_id',
+        'quiz_id',
     ];
 
-    public function questionTitle(){
-        return $this->belongsTo(QuestionTitle::class);
+    public function quiz(){
+        return $this->belongsTo(Quiz::class);
     }
 
     public function choices()

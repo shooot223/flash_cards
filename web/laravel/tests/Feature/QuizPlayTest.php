@@ -6,7 +6,7 @@ use App\Models\Answer;
 use App\Models\Choice;
 use App\Models\Confidence;
 use App\Models\Question;
-use App\Models\QuestionTitle;
+use App\Models\Quiz;
 use App\Models\Score;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -390,14 +390,14 @@ class QuizPlayTest extends TestCase
 
         $this->assertDatabaseHas('scores', [
             'user_id' => $user->id,
-            'title_id' => $quiz->id,
+            'quiz_id' => $quiz->id,
             'score_value' => 1,
             'answered_count' => 2,
             'correct_count' => 1,
         ]);
 
         $score = Score::where('user_id', $user->id)
-            ->where('title_id', $quiz->id)
+            ->where('quiz_id', $quiz->id)
             ->latest('id')
             ->first();
 
@@ -487,14 +487,14 @@ class QuizPlayTest extends TestCase
 
         $this->assertDatabaseHas('scores', [
             'user_id' => $user->id,
-            'title_id' => $quiz->id,
+            'quiz_id' => $quiz->id,
             'score_value' => 1,
             'answered_count' => 1,
             'correct_count' => 1,
         ]);
 
         $score = Score::where('user_id', $user->id)
-            ->where('title_id', $quiz->id)
+            ->where('quiz_id', $quiz->id)
             ->latest('id')
             ->first();
 
@@ -525,9 +525,9 @@ class QuizPlayTest extends TestCase
         $this->assertDatabaseCount('answers', 0);
     }
 
-    private function createQuizWithQuestions(int $questionCount = 3): QuestionTitle
+    private function createQuizWithQuestions(int $questionCount = 3): Quiz
     {
-        $quiz = QuestionTitle::factory()->create([
+        $quiz = Quiz::factory()->create([
             'title' => 'テストクイズ',
             'description' => 'テスト用の説明',
             'is_public' => true,
@@ -535,7 +535,7 @@ class QuizPlayTest extends TestCase
 
         for ($i = 1; $i <= $questionCount; $i++) {
             $question = Question::factory()->create([
-                'title_id' => $quiz->id,
+                'quiz_id' => $quiz->id,
                 'question_text' => "問題{$i}",
             ]);
 

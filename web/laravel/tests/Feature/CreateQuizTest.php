@@ -76,7 +76,7 @@ class CreateQuizTest extends TestCase
 
         $response->assertRedirect(route('quiz.complete', ['mode' => 'create']));
         //保存ができているかの確認
-        $this->assertDatabaseHas('question_titles', [
+        $this->assertDatabaseHas('quizzes', [
             'title' => 'テスト問題',
             'description' => 'テスト問題の説明',
             'user_id' => $user->id,
@@ -287,8 +287,8 @@ class CreateQuizTest extends TestCase
 
         $this->actingAs($user)->post('/quiz/store', $this->correct_form);
 
-        $quiz = \App\Models\QuestionTitle::first();
-        $questions = \App\Models\Question::where('title_id', $quiz->id)->get();
+        $quiz = \App\Models\Quiz::first();
+        $questions = \App\Models\Question::where('quiz_id', $quiz->id)->get();
 
         foreach ($questions as $question) {
             $this->assertEquals(
@@ -307,7 +307,7 @@ class CreateQuizTest extends TestCase
 
         $this->actingAs($user)->post('/quiz/store', $this->correct_form);
 
-        $this->assertDatabaseHas('question_titles', [
+        $this->assertDatabaseHas('quizzes', [
             'user_id' => $user->id,
         ]);
     }

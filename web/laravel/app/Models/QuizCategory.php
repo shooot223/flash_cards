@@ -5,22 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class QuestionTitleCategory extends Model
+class QuizCategory extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'category_id',
-        'title_id',
+        'quiz_id',
     ];
 
-    public function titles()
+    public function quizzes()
     {
         return $this->belongsToMany(
-            QuestionTitle::class,
-            'question_title_categories',
+            Quiz::class,
+            'quiz_categories',
             'category_id',
-            'title_id'
+            'quiz_id'
         );
     }
 }

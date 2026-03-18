@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Choice;
 use App\Models\Question;
 use App\Models\QuestionCategory;
-use App\Models\QuestionTitle;
+use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -312,8 +312,8 @@ class CreateQuizApiTest extends TestCase
     }
 
     //DB保存確認
-    //question_titles に保存される
-    public function test_question_titles_are_saved(): void
+    //quizzes に保存される
+    public function test_quizzes_are_saved(): void
     {
         $user = User::factory()->create();
         Sanctum::actingAs($user);
@@ -321,8 +321,8 @@ class CreateQuizApiTest extends TestCase
         $response = $this->postJson(self::API_URL, self::CORRECT_DATA);
         $response->assertCreated();
 
-        $quiz = QuestionTitle::first();
-        $this->assertDatabaseHas('question_titles', ['id' => $quiz->id]);
+        $quiz = Quiz::first();
+        $this->assertDatabaseHas('quizzes', ['id' => $quiz->id]);
     }
 
     //choices に保存される
@@ -370,15 +370,15 @@ class CreateQuizApiTest extends TestCase
 
         $response->assertCreated();
 
-        $title = QuestionTitle::first();
+        $title = Quiz::first();
         $tagName = self::CORRECT_DATA['tags'][0];
 
         $category = QuestionCategory::where('category_name', $tagName)->first();
 
         $this->assertNotNull($category);
 
-        $this->assertDatabaseHas('question_title_categories', [
-            'title_id' => $title->id,
+        $this->assertDatabaseHas('quiz_categories', [
+            'quiz_id' => $title->id,
             'category_id' => $category->id,
         ]);
     }

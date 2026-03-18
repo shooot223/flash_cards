@@ -14,13 +14,13 @@ class QuestionCategory extends Model
     ];
 
 
-    public function titles()
+    public function quizzes()
     {
         return $this->belongsToMany(
-            QuestionTitle::class,
-            'question_title_categories',
+            Quiz::class,
+            'quiz_categories',
             'category_id',
-            'title_id'
+            'quiz_id'
         );
     }
 }
