@@ -96,6 +96,7 @@ class QuizController extends Controller
             $question = Question::create([
                 'quiz_id' => $title->id,
                 'question_text' => $q['question_text'],
+                'explanation' => $q['explanation'],
             ]);
 
             foreach (($q['choices'] ?? []) as $index => $choiceText) {
@@ -120,6 +121,9 @@ class QuizController extends Controller
                 return [
                     // 問題文の前後の空白を削除
                     'question_text' => trim((string) ($q['question_text'] ?? '')),
+
+                    // 解説の前後の空白を削除
+                    'explanation' => trim((string) ($q['explanation'] ?? '')),
 
                     // 選択肢の前後の空白を削除
                     'choices' => collect($q['choices'] ?? [])

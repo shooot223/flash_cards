@@ -41,6 +41,7 @@ class StoreQuizRequest extends FormRequest
 
             // 2問目以降はいずれかが入力されていれば全項目必須
             'questions.*.question'    => ['nullable', 'required_with:questions.*.choices,correct', 'string', new InappropriateWord()],
+            'questions.*.explanation' => ['nullable', 'string', new InappropriateWord()],
             'questions.*.choices'     => ['nullable', 'required_with:questions.*.question,correct', 'array'],
             'questions.*.choices.*'   => ['nullable', 'required_with:questions.*.question,correct', 'string', new InappropriateWord()],
             'questions.*.correct'     => ['nullable', 'required_with:questions.*.question,choices', 'integer', 'between:0,3'],

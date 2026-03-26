@@ -239,6 +239,7 @@ class QuizController extends Controller
             $question = Question::create([
                 'quiz_id' => $title->id,
                 'question_text' => $q['question'],
+                'explanation' => $q['explanation'],
             ]);
 
             foreach ($q['choices'] as $index => $choiceText) {
@@ -259,6 +260,9 @@ class QuizController extends Controller
                 return [
                     // 問題文の前後の空白を削除
                     'question' => trim((string)($q['question'] ?? '')),
+
+                    // 解説の前後の空白を削除
+                    'explanation' => trim((string)($q['explanation'] ?? '')),
 
                     // 選択肢の前後の空白を削除
                     'choices' => collect($q['choices'] ?? [])
@@ -397,6 +401,7 @@ class QuizController extends Controller
             $resultDetails[] = [
                 'question_id'        => $answer->question_id,
                 'question_text'      => $answer->question->question_text,
+                'question_explanation'=> $answer->question->explanation,
                 'selected_choice_id' => $answer->choice_id,
                 'selected_answer'    => $answer->choice ? $answer->choice->choice_text : '未回答',
                 'correct_choice_id'  => $correctChoice ? $correctChoice->id : null,

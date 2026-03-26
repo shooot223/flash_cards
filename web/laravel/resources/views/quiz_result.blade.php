@@ -189,6 +189,13 @@
                                     {{ $confidence['symbol'] }}
                                 </p>
                             </div>
+
+                            <div class="result-row" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #e2e8f0; grid-column: 1 / -1;">
+                                <p class="result-row__label">解説</p>
+                                <p class="result-row__value result-row__value--explanation" style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.6; color: #4a5568; margin-top: 0.5rem; max-height: 100px; overflow-y: auto;">
+                                    {{ !empty($detail['question_explanation']) ? $detail['question_explanation'] : '解説なし' }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </article>

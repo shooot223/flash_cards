@@ -24,6 +24,7 @@ class QuizAPIRequest extends FormRequest
             'questions' => ['required','array','min:1'],
 
             'questions.*.question_text' => ['required','string', new InappropriateWord()],
+            'questions.*.explanation' => ['nullable','string', new InappropriateWord()],
 
             'questions.*.choices' => ['required','array','size:4'],
             'questions.*.choices.*' => ['required','string', new InappropriateWord()],

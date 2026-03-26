@@ -55,6 +55,16 @@ if (addQuestionBtn) {
         </div>
 
         <div class="fieldGroup">
+            <label class="formLabel" for="expl_${idx}">解説（任意）</label>
+            <textarea
+                id="expl_${idx}"
+                name="questions[${idx}][explanation]"
+                class="formTextarea"
+                placeholder="回答後に表示される解説を入力してください（任意）"
+            ></textarea>
+        </div>
+
+        <div class="fieldGroup">
             <label class="formLabel">選択肢</label>
             <div class="correctNote">正解にする選択肢を1つ選んでください</div>
 

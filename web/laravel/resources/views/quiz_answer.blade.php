@@ -38,7 +38,7 @@
                     'low' => ['symbol' => '×', 'class' => 'confidenceLow'],
                 ];
 
-                $confidenceDisplay = $confidenceMap[$confidence ?? null] ?? ['symbol' => '-', 'class' => ''];
+                $confidenceDisplay = (is_string($confidence) && isset($confidenceMap[$confidence])) ? $confidenceMap[$confidence] : ['symbol' => '-', 'class' => ''];
             @endphp
 
             <div class="quizAnswerBlock confidenceBlock">
@@ -49,6 +49,14 @@
                     </span>
                 </div>
             </div>
+
+            <div class="quizAnswerBlock explanationBlock" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #e2e8f0;">
+                <div class="quizAnswerLabel">解説</div>
+                <div class="quizAnswerValue" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; color: #4a5568; text-align: left; max-height: 15vh; overflow-y: auto;">
+                    {{ !empty($question->explanation) ? $question->explanation : '解説なし' }}
+                </div>
+            </div>
+
             <form method="POST" action="{{ route('quiz.next', $quiz->id) }}">
                 @csrf
                 <input type="hidden" name="step" value="{{ $step }}">

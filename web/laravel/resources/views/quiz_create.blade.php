@@ -45,6 +45,7 @@
 
                     return [
                         'question' => $question->question_text,
+                        'explanation' => $question->explanation,
                         'choices' => collect($choices)->pluck('choice_text')->values()->toArray(),
                         'correct' => $correctIndex !== false ? $correctIndex : null,
                     ];
@@ -62,6 +63,7 @@
 
             $questions[] = [
                 'question' => $q['question'] ?? '',
+                'explanation' => $q['explanation'] ?? '',
                 'choices' => array_pad($q['choices'] ?? [], 4, ''),
                 'correct' => $q['correct'] ?? null,
             ];
@@ -211,6 +213,20 @@
                                 >{{ $questions[$i]['question'] }}</textarea>
 
                                 @error("questions.$i.question")
+                                <div class="fieldError">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="fieldGroup">
+                                <label class="formLabel" for="expl_{{ $i }}">解説（任意）</label>
+                                <textarea
+                                    id="expl_{{ $i }}"
+                                    name="questions[{{ $i }}][explanation]"
+                                    class="formTextarea"
+                                    placeholder="回答後に表示される解説を入力してください（任意）"
+                                >{{ $questions[$i]['explanation'] }}</textarea>
+
+                                @error("questions.$i.explanation")
                                 <div class="fieldError">{{ $message }}</div>
                                 @enderror
                             </div>

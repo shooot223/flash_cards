@@ -245,6 +245,7 @@ class QuizPlayController extends Controller
             $resultDetails[] = [
                 'question_id' => $question->id,
                 'question_text' => $question->question_text,
+                'question_explanation' => $question->explanation,
                 'selected_choice_id' => $selectedChoice?->id,
                 'selected_answer' => $selectedChoice?->choice_text ?? '未回答',
                 'correct_choice_id' => $correctChoice?->id,
