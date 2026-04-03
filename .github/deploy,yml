@@ -1,0 +1,52 @@
+name: CD
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-1
+  AWS_ACCOUNT_ID: 294145424898
+  ECR_APP_REPOSITORY: flash-cards-app
+  ECR_NGINX_REPOSITORY: flash-cards-nginx
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build app image
+        run: |
+          docker build \
+            -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_APP_REPOSITORY:latest \
+            -f docker/app.prod.Dockerfile .
+
+      - name: Build nginx image
+        run: |
+          docker build \
+            -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_NGINX_REPOSITORY:latest \
+            -f docker/nginx.prod.Dockerfile .
+
+      - name: Push app image
+        run: |
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_APP_REPOSITORY:latest
+
+      - name: Push nginx image
+        run: |
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_NGINX_REPOSITORY:latest
