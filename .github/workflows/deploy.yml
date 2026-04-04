@@ -41,7 +41,7 @@ jobs:
         run: |
           docker build \
             -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_NGINX_REPOSITORY:latest \
-            -f docker/nginx.prod.Dockerfile .
+            -f docker/nginx/nginx.prod.Dockerfile .
 
       - name: Push app image
         run: |
