@@ -74,9 +74,9 @@
 
         $previewImage = '';
         if (!empty($tempImageValue)) {
-            $previewImage = asset('storage/' . $tempImageValue);
+            $previewImage = Storage::url($tempImageValue);
         } elseif (!empty($currentImageValue)) {
-            $previewImage = asset('storage/' . $currentImageValue);
+            $previewImage = Storage::url($currentImageValue);
         }
     @endphp
 

@@ -48,11 +48,11 @@ class QuizController extends Controller
         $currentImagePath = $request->input('current_image_path');
 
         if ($request->hasFile('quiz_image')) {
-            if (!empty($tempQuizImage) && Storage::disk('public')->exists($tempQuizImage)) {
-                Storage::disk('public')->delete($tempQuizImage);
+            if (!empty($tempQuizImage) && Storage::exists($tempQuizImage)) {
+                Storage::delete($tempQuizImage);
             }
 
-            $tempQuizImage = $request->file('quiz_image')->store('tmp/quizzes', 'public');
+            $tempQuizImage = $request->file('quiz_image')->store('tmp/quizzes');
         }
 
         return view('quiz_confirm', [
@@ -75,11 +75,11 @@ class QuizController extends Controller
         DB::transaction(function () use ($validated, &$createdQuiz) {
             $imagePath = null;
 
-            if (!empty($validated['temp_quiz_image']) && Storage::disk('public')->exists($validated['temp_quiz_image'])) {
+            if (!empty($validated['temp_quiz_image']) && Storage::exists($validated['temp_quiz_image'])) {
                 $filename = basename($validated['temp_quiz_image']);
                 $newPath = 'quizzes/' . $filename;
 
-                Storage::disk('public')->move($validated['temp_quiz_image'], $newPath);
+                Storage::move($validated['temp_quiz_image'], $newPath);
                 $imagePath = $newPath;
             }
 
@@ -134,15 +134,15 @@ class QuizController extends Controller
 
             $imagePath = $validated['current_image_path'] ?? $title->image_path;
 
-            if (!empty($validated['temp_quiz_image']) && Storage::disk('public')->exists($validated['temp_quiz_image'])) {
-                if (!empty($title->image_path) && Storage::disk('public')->exists($title->image_path)) {
-                    Storage::disk('public')->delete($title->image_path);
+            if (!empty($validated['temp_quiz_image']) && Storage::exists($validated['temp_quiz_image'])) {
+                if (!empty($title->image_path) && Storage::exists($title->image_path)) {
+                    Storage::delete($title->image_path);
                 }
 
                 $filename = basename($validated['temp_quiz_image']);
                 $newPath = 'quizzes/' . $filename;
 
-                Storage::disk('public')->move($validated['temp_quiz_image'], $newPath);
+                Storage::move($validated['temp_quiz_image'], $newPath);
                 $imagePath = $newPath;
             }
 
@@ -447,8 +447,8 @@ class QuizController extends Controller
             QuizCategory::where('quiz_id', $quiz->id)->delete();
 
             // 画像の物理削除
-            if (!empty($quiz->image_path) && Storage::disk('public')->exists($quiz->image_path)) {
-                Storage::disk('public')->delete($quiz->image_path);
+            if (!empty($quiz->image_path) && Storage::exists($quiz->image_path)) {
+                Storage::delete($quiz->image_path);
             }
 
             // クイズ本体 (Quiz) の削除

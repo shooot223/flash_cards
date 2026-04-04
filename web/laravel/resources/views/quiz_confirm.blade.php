@@ -44,11 +44,11 @@
                     <label class="formLabel">問題画像</label>
                     @if (!empty($tempQuizImage))
                         <div class="confirmImageWrap">
-                            <img src="{{ asset('storage/' . $tempQuizImage) }}" alt="問題画像" class="confirmImage">
+                            <img src="{{ Storage::url($tempQuizImage) }}" alt="問題画像" class="confirmImage">
                         </div>
                     @elseif (!empty($currentImagePath))
                         <div class="confirmImageWrap">
-                            <img src="{{ asset('storage/' . $currentImagePath) }}" alt="現在の問題画像"
+                            <img src="{{ Storage::url($currentImagePath) }}" alt="現在の問題画像"
                                  class="confirmImage">
                         </div>
                     @else

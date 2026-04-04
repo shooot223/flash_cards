@@ -6,7 +6,7 @@
     <article class="card">
         <div class="thumb">
             <img
-                src="{{ $quiz->image_path ? asset('storage/' . $quiz->image_path) : asset('img/default_quiz.png') }}"
+                src="{{ $quiz->image_path ? Storage::url($quiz->image_path) : asset('img/default_quiz.png') }}"
                 alt="{{ $quiz->title }} のサムネイル"
                 class="thumbImage"
             >

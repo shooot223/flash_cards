@@ -99,7 +99,7 @@
                     </div>
 
                     <div class="quizCard__thumb">
-                        <img src="{{ $quiz->image_path ? asset('storage/' . $quiz->image_path) : asset('img/default_quiz.png') }}"
+                        <img src="{{ $quiz->image_path ? Storage::url($quiz->image_path) : asset('img/default_quiz.png') }}"
                              alt="quiz thumbnail"
                              class="quizCard__thumbImage">
                     </div>
@@ -170,7 +170,7 @@
             @forelse ($answeredQuizzes as $quiz)
                 <article class="quizCard">
                     <div class="quizCard__thumb">
-                        <img src="{{ $quiz->image_path ? asset('storage/' . $quiz->image_path) : asset('img/default_quiz.png') }}" alt="quiz thumbnail" class="quizCard__thumbImage">
+                        <img src="{{ $quiz->image_path ? Storage::url($quiz->image_path) : asset('img/default_quiz.png') }}" alt="quiz thumbnail" class="quizCard__thumbImage">
                     </div>
 
                     <div class="quizCard__body">

@@ -52,7 +52,7 @@
             <div class="avatarArea">
                 @if (Auth::user()->avatar)
                     <img
-                        src="{{ asset('storage/' . Auth::user()->avatar) }}"
+                        src="{{ Storage::url(Auth::user()->avatar) }}"
                         alt="プロフィール画像"
                         class="avatarImage"
                     >
