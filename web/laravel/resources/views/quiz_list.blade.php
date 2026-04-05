@@ -9,6 +9,7 @@
                 src="{{ $quiz->image_path ? Storage::url($quiz->image_path) : asset('img/default_quiz.png') }}"
                 alt="{{ $quiz->title }} のサムネイル"
                 class="thumbImage"
+                onerror="this.onerror=null; this.src='{{ asset('img/default_quiz.png') }}';"
             >
         </div>
 
