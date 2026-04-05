@@ -268,8 +268,17 @@ class QuizPlayController extends Controller
 
         // ログイン済みで、まだ今回の結果を保存していない場合のみ DB に保存する
         if (Auth::check() && !session()->has("quiz_result_saved.$id")) {
-            $this->saveQuizResultToDb((int) $quiz->id);
-            session()->put("quiz_result_saved.$id", true);
+            try {
+                $this->saveQuizResultToDb((int) $quiz->id);
+                session()->put("quiz_result_saved.$id", true);
+            } catch (\Throwable $e) {
+                // DB保存に失敗してもリザルト画面は表示する（ログに記録）
+                \Log::error('クイズ結果のDB保存に失敗しました', [
+                    'quiz_id' => $quiz->id,
+                    'user_id' => Auth::id(),
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         return view('quiz_result', [
@@ -347,15 +356,23 @@ class QuizPlayController extends Controller
                 continue;
             }
 
+            // 自信度を解決する（DBに該当レコードがなければnull）
+            $confidenceId = $this->resolveConfidenceId(
+                ($detail['confidence'] ?? null) !== '未回答'
+                    ? $detail['confidence']
+                    : null
+            );
+
+            // confidence_id が解決できなかった場合もスキップ（NOT NULL制約を満たすため）
+            if ($confidenceId === null) {
+                continue;
+            }
+
             Answer::create([
                 'user_id' => Auth::id(),
                 'question_id' => $detail['question_id'],
                 'choice_id' => $detail['selected_choice_id'],
-                'confidence_id' => $this->resolveConfidenceId(
-                    ($detail['confidence'] ?? null) !== '未回答'
-                        ? $detail['confidence']
-                        : null
-                ),
+                'confidence_id' => $confidenceId,
                 'score_id' => $score->id,
                 'is_correct' => $detail['is_correct'],
             ]);
