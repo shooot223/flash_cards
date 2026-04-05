@@ -52,7 +52,7 @@ class QuizController extends Controller
                 Storage::delete($tempQuizImage);
             }
 
-            $tempQuizImage = $request->file('quiz_image')->store('tmp/quizzes');
+            $tempQuizImage = $request->file('quiz_image')->storePublicly('tmp/quizzes');
         }
 
         return view('quiz_confirm', [
@@ -80,6 +80,7 @@ class QuizController extends Controller
                 $newPath = 'quizzes/' . $filename;
 
                 Storage::move($validated['temp_quiz_image'], $newPath);
+                Storage::setVisibility($newPath, 'public');
                 $imagePath = $newPath;
             }
 
@@ -143,6 +144,7 @@ class QuizController extends Controller
                 $newPath = 'quizzes/' . $filename;
 
                 Storage::move($validated['temp_quiz_image'], $newPath);
+                Storage::setVisibility($newPath, 'public');
                 $imagePath = $newPath;
             }
 

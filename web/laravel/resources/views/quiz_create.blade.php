@@ -289,7 +289,7 @@
             </div>
         </form>
 
-        @if($isEdit)
+        @if(isset($quizId) && $isEditPage)
             <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #ffcccc; display: flex; justify-content: flex-end;">
                 <form action="{{ route('quiz.delete', $quizId) }}" method="POST" onsubmit="return confirm('本当にこの問題を削除しますか？\n（問題、回答データなどが完全に削除され、復元できません）');">
                     @csrf
