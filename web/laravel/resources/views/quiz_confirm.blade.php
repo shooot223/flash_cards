@@ -119,6 +119,13 @@
                                         @endforeach
                                     </div>
                                 </div>
+
+                                <div class="fieldGroup">
+                                    <label class="formLabel">解説</label>
+                                    <div class="confirmBox confirmBoxPre">
+                                        {{ $question['explanation'] ?? '' }}
+                                    </div>
+                                </div>
                             </section>
                         @endif
                     @empty
@@ -148,6 +155,8 @@
                     @foreach($formData['questions'] as $i => $question)
                         <input type="hidden" name="questions[{{ $i }}][question]"
                                value="{{ $question['question'] ?? '' }}">
+                        <input type="hidden" name="questions[{{ $i }}][explanation]"
+                               value="{{ $question['explanation'] ?? '' }}">
                         <input type="hidden" name="questions[{{ $i }}][correct]"
                                value="{{ $question['correct'] ?? '' }}">
 
