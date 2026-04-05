@@ -15,6 +15,7 @@
         <div class="meta">
             <div class="meta__row meta__row--title">
                 {{ $quiz->title }}
+                <span class="miniTag miniTag--questions">{{ $quiz->questions->count() }}問</span>
             </div>
 
             <div class="meta__row">
@@ -26,11 +27,6 @@
                     @foreach ($quiz->categories as $category)
                         <span class="miniTag">{{ $category->category_name }}</span>
                     @endforeach
-                    <span class="miniTag miniTag--questions">{{ $quiz->questions->count() }}問</span>
-                </div>
-            @else
-                <div class="meta__tags">
-                    <span class="miniTag miniTag--questions">{{ $quiz->questions->count() }}問</span>
                 </div>
             @endif
         </div>
