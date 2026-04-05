@@ -52,7 +52,7 @@ class QuizController extends Controller
                 Storage::delete($tempQuizImage);
             }
 
-            $tempQuizImage = $request->file('quiz_image')->store('tmp/quizzes');
+            $tempQuizImage = $request->file('quiz_image')->store('quizzes');
         }
 
         return view('quiz_confirm', [
@@ -76,12 +76,7 @@ class QuizController extends Controller
             $imagePath = null;
 
             if (!empty($validated['temp_quiz_image']) && Storage::exists($validated['temp_quiz_image'])) {
-                $filename = basename($validated['temp_quiz_image']);
-                $newPath = 'quizzes/' . $filename;
-
-                Storage::move($validated['temp_quiz_image'], $newPath);
-                Storage::setVisibility($newPath, 'public');
-                $imagePath = $newPath;
+                $imagePath = $validated['temp_quiz_image'];
             }
 
             $title = Quiz::create([
@@ -139,13 +134,7 @@ class QuizController extends Controller
                 if (!empty($title->image_path) && Storage::exists($title->image_path)) {
                     Storage::delete($title->image_path);
                 }
-
-                $filename = basename($validated['temp_quiz_image']);
-                $newPath = 'quizzes/' . $filename;
-
-                Storage::move($validated['temp_quiz_image'], $newPath);
-                Storage::setVisibility($newPath, 'public');
-                $imagePath = $newPath;
+                $imagePath = $validated['temp_quiz_image'];
             }
 
             $title->update([
