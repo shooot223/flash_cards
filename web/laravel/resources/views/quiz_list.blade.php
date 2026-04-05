@@ -26,6 +26,11 @@
                     @foreach ($quiz->categories as $category)
                         <span class="miniTag">{{ $category->category_name }}</span>
                     @endforeach
+                    <span class="miniTag miniTag--questions">{{ $quiz->questions->count() }}問</span>
+                </div>
+            @else
+                <div class="meta__tags">
+                    <span class="miniTag miniTag--questions">{{ $quiz->questions->count() }}問</span>
                 </div>
             @endif
         </div>

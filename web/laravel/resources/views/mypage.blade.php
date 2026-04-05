@@ -116,6 +116,7 @@
                                 @else
                                     <span class="chip chip--private">非公開</span>
                                 @endif
+                                <span class="chip chip--questions">{{ $quiz->questions->count() }}問</span>
                             </div>
                         </div>
 
@@ -247,6 +248,7 @@
                                 @else
                                     <span class="chip chip--private">非公開</span>
                                 @endif
+                                <span class="chip chip--questions">{{ $quiz->questions->count() }}問</span>
                             </div>
                         </div>
 

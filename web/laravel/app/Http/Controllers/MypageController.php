@@ -29,7 +29,7 @@ class MypageController extends Controller
         $answeredQuizzes = collect();
 
         foreach ($scoreRecords as $score) {
-            $quiz = Quiz::find($score->quiz_id);
+            $quiz = Quiz::with('questions')->find($score->quiz_id);
             if ($quiz) {
                 // 非公開問題で、かつ自分が作成した問題ではない場合はスキップ
                 if (!$quiz->is_public && $quiz->user_id !== $userId) {

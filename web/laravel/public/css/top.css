@@ -274,6 +274,12 @@ html, body{
     font-weight:700;
 }
 
+/* 問題数チップ — マイページと同じ配色 */
+.miniTag--questions{
+    background: #f0f9ff;
+    color: #0369a1;
+}
+
 .card__right{
     display:flex;
     align-items:center;

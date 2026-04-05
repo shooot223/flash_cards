@@ -29,14 +29,14 @@ class TopController extends Controller
             $cacheKey  = "top_quizzes_page_{$page}";
 
             $quizzes = Cache::remember($cacheKey, self::CACHE_TTL, function () {
-                return Quiz::with(['categories'])
+                return Quiz::with(['categories', 'questions'])
                     ->where('is_public', true)
                     ->latest()
                     ->paginate(10);
             });
         } else {
             // フィルターあり：毎回DBから取得
-            $query = Quiz::with(['categories']);
+            $query = Quiz::with(['categories', 'questions']);
 
             // キーワード検索
             if (filled($keyword)) {
