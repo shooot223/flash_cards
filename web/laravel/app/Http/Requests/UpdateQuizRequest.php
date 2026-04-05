@@ -34,11 +34,12 @@ class UpdateQuizRequest extends FormRequest
             'tags.*' => ['nullable', 'string', 'max:50', new InappropriateWord()],
 
             // 1問目は必須
-            'questions'               => ['required', 'array', 'min:1'],
-            'questions.0.question'    => ['required', 'string', new InappropriateWord()],
-            'questions.0.choices'     => ['required', 'array', 'size:4'],
-            'questions.0.choices.*'   => ['required', 'string', new InappropriateWord()],
-            'questions.0.correct'     => ['required', 'integer', 'between:0,3'],
+            'questions'                  => ['required', 'array', 'min:1'],
+            'questions.0.question'       => ['required', 'string', new InappropriateWord()],
+            'questions.0.explanation'    => ['nullable', 'string', new InappropriateWord()],
+            'questions.0.choices'        => ['required', 'array', 'size:4'],
+            'questions.0.choices.*'      => ['required', 'string', new InappropriateWord()],
+            'questions.0.correct'        => ['required', 'integer', 'between:0,3'],
 
             // 2問目以降はいずれかが入力されていれば全項目必須
             'questions.*.question'    => ['nullable', 'required_with:questions.*.choices,correct', 'string', new InappropriateWord()],
