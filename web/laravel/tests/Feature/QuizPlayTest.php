@@ -19,22 +19,8 @@ class QuizPlayTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        // confidence マスタを用意
-        Confidence::factory()->create([
-            'id' => 1,
-            'confidence_level' => 'high',
-        ]);
-
-        Confidence::factory()->create([
-            'id' => 2,
-            'confidence_level' => 'medium',
-        ]);
-
-        Confidence::factory()->create([
-            'id' => 3,
-            'confidence_level' => 'low',
-        ]);
+        // 新しいマイグレーション(2026_04_05...)がconfidencesの初期データを生成するため
+        // ここでの手動作成(factory)は不要となりました。
     }
 
     /**
