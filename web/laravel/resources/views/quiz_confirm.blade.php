@@ -52,7 +52,9 @@
                                  class="confirmImage" onerror="this.onerror=null; this.src='{{ asset('img/default_quiz.png') }}';">
                         </div>
                     @else
-                        <div class="emptyText">画像はありません</div>
+                        <div class="confirmImageWrap">
+                            <img src="{{ asset('img/default_quiz.png') }}" alt="デフォルト画像" class="confirmImage">
+                        </div>
                     @endif
                 </div>
             </section>
