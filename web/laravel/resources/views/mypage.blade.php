@@ -13,7 +13,7 @@
             <div class="mypageHero__badge">My Page</div>
             <h1 class="mypageHero__title">マイページ</h1>
             <p class="mypageHero__text">
-                作成した問題や過去の回答履歴を確認できます。
+                作成した問題の管理や、自分の問題への挑戦、過去の回答履歴を確認できます。
             </p>
         </div>
 
@@ -57,6 +57,9 @@
         <div class="tabArea">
             <button type="button" class="tabButton is-active" data-tab="created">
                 作成した問題
+            </button>
+            <button type="button" class="tabButton" data-tab="play-mine">
+                自作問題に挑戦
             </button>
             <button type="button" class="tabButton" data-tab="answered">
                 過去に回答した問題
@@ -164,6 +167,63 @@
         <form action="{{ route('quiz.export.csv') }}" method="POST" id="exportCsvForm" style="display: none;">
             @csrf
         </form>
+
+        {{-- 自分の問題を解く --}}
+        <div class="tabContent" id="tab-play-mine">
+            @forelse ($createdQuizzes as $quiz)
+                <article class="quizCard">
+                    <div class="quizCard__thumb">
+                        <img src="{{ $quiz->image_path ? Storage::url($quiz->image_path) : asset('img/default_quiz.png') }}"
+                             alt="quiz thumbnail"
+                             class="quizCard__thumbImage">
+                    </div>
+
+                    <div class="quizCard__body">
+                        <div class="quizCard__top">
+                            <h2 class="quizCard__title">{{ $quiz->title }}</h2>
+                            <div class="quizCard__chips">
+                                @if ($quiz->is_public)
+                                    <span class="chip chip--public">公開中</span>
+                                @else
+                                    <span class="chip chip--private">非公開</span>
+                                @endif
+                                <span class="chip chip--questions">{{ $quiz->questions_count ?? $quiz->questions->count() }}問</span>
+                            </div>
+                        </div>
+
+                        <p class="quizCard__description">
+                            {{ $quiz->description ?? '説明はありません。' }}
+                        </p>
+
+                        <div class="quizCard__meta">
+                            <span>作成日：{{ optional($quiz->created_at)->format('Y/m/d') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="quizCard__actions">
+                        @if ($quiz->questions->count() > 0)
+                            <a href="{{ route('quiz.start', $quiz->id) }}"
+                               class="actionButton actionButton--play">
+                                🎯 挑戦する
+                            </a>
+                        @else
+                            <span class="actionButton actionButton--disabled">
+                                問題未登録
+                            </span>
+                        @endif
+                    </div>
+                </article>
+            @empty
+                <div class="emptyState">
+                    <div class="emptyState__icon">🎯</div>
+                    <div class="emptyState__title">まだ問題を作成していません</div>
+                    <div class="emptyState__text">
+                        問題を作成して、自分でも挑戦してみましょう。
+                    </div>
+                    <a href="{{ route('quiz.create') }}" class="emptyState__button">問題を作成する</a>
+                </div>
+            @endforelse
+        </div>
 
         {{-- 過去に回答した問題 --}}
         <div class="tabContent" id="tab-answered">

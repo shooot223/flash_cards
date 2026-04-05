@@ -901,6 +901,39 @@ button{
     }
 }
 
+/* ========================================
+   「自分の問題を解く」タブ用ボタン
+======================================== */
+
+/* 挑戦するボタン — 目を引くグラデーション */
+.actionButton--play {
+    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #4f46e5 100%);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+    font-size: 15px;
+    min-width: 120px;
+}
+
+.actionButton--play:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #4338ca 100%);
+    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px);
+}
+
+/* 問題数チップ */
+.chip--questions {
+    background: #f0f9ff;
+    color: #0369a1;
+}
+
+/* 問題未登録（無効化）ボタン */
+.actionButton--disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 /* 選択可能カードのスマホ対応 */
 @media (max-width: 640px) {
     .bulkActionBar {

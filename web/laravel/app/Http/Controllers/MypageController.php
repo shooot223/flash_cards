@@ -13,8 +13,9 @@ class MypageController extends Controller
     {
         $userId = Auth::id();
 
-        // 作成した問題
+        // 作成した問題（問題数を表示するためにquestionsもロード）
         $createdQuizzes = Quiz::where('user_id', $userId)
+            ->with('questions')
             ->latest()
             ->get();
 
