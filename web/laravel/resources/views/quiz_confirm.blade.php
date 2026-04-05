@@ -44,12 +44,11 @@
                     <label class="formLabel">問題画像</label>
                     @if (!empty($tempQuizImage))
                         <div class="confirmImageWrap">
-                            <img src="{{ Storage::url($tempQuizImage) }}" alt="問題画像" class="confirmImage" onerror="this.onerror=null; this.src='{{ asset('img/default_quiz.png') }}';">
+                            <img src="{{ Storage::url($tempQuizImage) }}" alt="問題画像" class="confirmImage">
                         </div>
                     @elseif (!empty($currentImagePath))
                         <div class="confirmImageWrap">
-                            <img src="{{ Storage::url($currentImagePath) }}" alt="現在の問題画像"
-                                 class="confirmImage" onerror="this.onerror=null; this.src='{{ asset('img/default_quiz.png') }}';">
+                            <img src="{{ Storage::url($currentImagePath) }}" alt="現在の問題画像" class="confirmImage">
                         </div>
                     @else
                         <div class="confirmImageWrap">

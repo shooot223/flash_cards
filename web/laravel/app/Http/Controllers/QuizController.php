@@ -52,7 +52,7 @@ class QuizController extends Controller
                 Storage::delete($tempQuizImage);
             }
 
-            $tempQuizImage = $request->file('quiz_image')->storePublicly('tmp/quizzes');
+            $tempQuizImage = $request->file('quiz_image')->store('tmp/quizzes');
         }
 
         return view('quiz_confirm', [

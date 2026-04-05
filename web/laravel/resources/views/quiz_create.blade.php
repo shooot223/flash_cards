@@ -141,7 +141,7 @@
                     <div id="quizImagePreviewArea">
                         @if (!empty($previewImage))
                             <div class="previewImageWrap">
-                                <img src="{{ $previewImage }}" alt="問題画像プレビュー" class="previewImage" onerror="this.onerror=null; this.src='{{ asset('img/default_quiz.png') }}';">
+                                <img src="{{ $previewImage }}" alt="問題画像プレビュー" class="previewImage">
                             </div>
                         @endif
                     </div>

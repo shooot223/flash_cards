@@ -101,8 +101,7 @@
                     <div class="quizCard__thumb">
                         <img src="{{ $quiz->image_path ? Storage::url($quiz->image_path) : asset('img/default_quiz.png') }}"
                              alt="quiz thumbnail"
-                             class="quizCard__thumbImage"
-                             onerror="this.onerror=null; this.src='{{ asset('img/default_quiz.png') }}';">
+                             class="quizCard__thumbImage">
                     </div>
 
                     <div class="quizCard__body">
@@ -173,8 +172,7 @@
                     <div class="quizCard__thumb">
                         <img src="{{ $quiz->image_path ? Storage::url($quiz->image_path) : asset('img/default_quiz.png') }}"
                              alt="quiz thumbnail"
-                             class="quizCard__thumbImage"
-                             onerror="this.onerror=null; this.src='{{ asset('img/default_quiz.png') }}';">
+                             class="quizCard__thumbImage">
                     </div>
 
                     <div class="quizCard__body">
