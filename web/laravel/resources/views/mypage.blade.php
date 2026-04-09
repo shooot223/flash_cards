@@ -20,7 +20,15 @@
         <div class="mypageHero__right">
             <div class="profileCard">
                 <div class="profileCard__icon">
-                    {{ mb_substr(Auth::user()->name, 0, 1) }}
+                    @if (Auth::user()->avatar)
+                        <img
+                            src="{{ Storage::url(Auth::user()->avatar) }}"
+                            alt="プロフィール画像"
+                            class="headerUserAvatar"
+                        >
+                    @else
+                        {{ mb_substr(Auth::user()->name, 0, 1) }}
+                    @endif
                 </div>
                 <div class="profileCard__body">
                     <div class="profileCard__name">{{ Auth::user()->name }}</div>
