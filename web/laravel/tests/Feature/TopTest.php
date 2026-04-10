@@ -23,6 +23,15 @@ class TopTest extends TestCase
         $response->assertStatus(200);
     }
 
+    //ヘルプ画面にアクセスできるかのテスト
+    public function test_help_page_access(): void
+    {
+        $response = $this->get('/help');
+
+        $response->assertStatus(200);
+        $response->assertSeeText('使い方ガイド');
+    }
+
     //公開問題のみ表示されるかのテスト
     public function test_only_public_questions_displayed(): void
     {

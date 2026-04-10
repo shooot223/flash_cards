@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 //トップページ
 Route::get('/', [TopController::class, 'index'])->name('top');
 
+//ヘルプページ
+Route::view('/help', 'help')->name('help');
+
 //問題回答
 Route::controller(QuizPlayController::class)->prefix('quiz')->name('quiz.')->group(function () {
     Route::get('/{id}/start', 'start')->name('start');

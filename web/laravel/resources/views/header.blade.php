@@ -3,6 +3,7 @@
 
         <div class="headerLeft">
             <a class="headerNavLink" href="/">問題一覧</a>
+            <a class="headerNavLink" href="{{ route('help') }}">ヘルプ</a>
         </div>
 
         <div class="headerCenter">
